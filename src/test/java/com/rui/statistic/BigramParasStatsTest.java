@@ -1,7 +1,6 @@
 package com.rui.statistic;
 
 import com.rui.dictionary.AbstractDictionary;
-import com.rui.ngram.AbstractWordTag;
 import com.rui.ngram.WordTag;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,18 +10,18 @@ import java.util.Arrays;
 import static org.junit.Assert.*;
 
 /**
- * Created by mjx on 17-7-12.
+ *
  */
 public class BigramParasStatsTest {
 
-    AbstractParasStats stats = new BigramParasStats();
+    AbstractParasCount stats = new BigramParasCount();
 
     @Before
     public void pre() {
-        AbstractWordTag[] wordTags = new AbstractWordTag[]{
-                new WordTag("我/n"),
-                new WordTag("爱/v"),
-                new WordTag("nlp/n")
+        WordTag[] wordTags = new WordTag[]{
+                new WordTag("我","n"),
+                new WordTag("爱","v"),
+                new WordTag("nlp","n")
         };
         stats.countParas(wordTags);
     }

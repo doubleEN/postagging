@@ -24,10 +24,10 @@ public class DictFactoryTest {
     public void addIndex() throws Exception {
         factory= new DictFactory();
         WordTag[] wordTags = new WordTag[]{
-                new WordTag("中国人/n"),
-                new WordTag("爱/v"),
-                new WordTag("吃/v"),
-                new WordTag("火锅/n"),
+                new WordTag("中国人","n"),
+                new WordTag("爱","v"),
+                new WordTag("吃","v"),
+                new WordTag("火锅","n"),
         };
         factory.addIndex(wordTags);
     }

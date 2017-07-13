@@ -7,25 +7,19 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by mjx on 17-7-10.
+ *
  */
 public class WordTagTest {
-    WordTag wordTag;
-
-    @Before
-    public void setUp() throws Exception {
-       wordTag  = new WordTag("中国/n");
-    }
+    IWordTagGenerator generator=new PeopleDailyNewsWordTagGenerator();
+    //抽象方法 separateWordTag() 在构造器中分割word与tag
 
     @Test
-    public void getWord() throws Exception {
-        assertEquals("中国", wordTag.getWord());
+    public void testWord_Tag() throws Exception {
+
+        assertEquals("v", generator.separateWordTag("吃/v").getTag());
+
+        assertEquals("中国", generator.separateWordTag("中国/n").getWord());
     }
 
-    @Test
-    public void getTag() throws Exception {
-        assertEquals("n", wordTag.getTag());
-
-    }
 
 }

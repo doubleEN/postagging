@@ -1,10 +1,12 @@
 package com.rui.stream;
 
-import com.rui.ngram.AbstractWordTag;
 import com.rui.ngram.WordTag;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
@@ -14,42 +16,58 @@ import static org.junit.Assert.*;
  *
  */
 public class PeopleDailyWordTagStreamTest {
-    WordTagStream tagStream;
-    String []sentences;
+    WordTagStream PeopleDailyTagStream;
 
-    @Before//Before在每个Test前执行
+    @Before
     public void setUp() throws Exception {
-        this.tagStream = new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/test/testCount.txt");
-        this.sentences=new String[]{"标注/v     汉语/n","我/ 爱/v NLP/ne"};
+        String s="s";
+        s.hashCode();
+        this.PeopleDailyTagStream = new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/test/testCount.txt");
     }
 
-    @Test
-    public void segSentence() throws Exception {
-        AbstractWordTag[] wt = this.tagStream.segSentence(this.sentences[0]);
-        assertEquals("标注/v", wt[0].getWordTag());
-    }
-
-    @Test
-    public void openReadStream() throws Exception {
-        assertNotNull(tagStream.br);//判非空
-    }
-
+    // 流迭代返回每个句子
     @Test
     public void next() throws Exception {
-        AbstractWordTag[]wt;
-        while ((wt=tagStream.readLine())!=null){
-            System.out.println(Arrays.toString(wt));
+        WordTag[] wts;
+        while ((wts = PeopleDailyTagStream.readLine()) != null) {
+            System.out.println(Arrays.toString(wts));
         }
-        assertNull(wt);//判空
     }
 
+    //抽象方法：segSentence()
     @Test
-    public void close() throws Exception {
-        AbstractWordTag[]wt;
-        wt=tagStream.readLine();
+    public void segSentence() throws Exception {
+        String[] sentences = new String[]{
+                "我/n 爱/v NLP/ne"
+        };
+        WordTag[] wt = this.PeopleDailyTagStream.segSentence(sentences[0]);
+
+        assertEquals("NLP", wt[2].getWord());
+    }
+
+    // 打开流操作,在构造器中打开了流
+    @Test
+    public void openReadStream() throws Exception {
+        assertNotNull(PeopleDailyTagStream.br);//判非空
+    }
+
+
+    //测试关闭流
+    @Rule
+    public ExpectedException thrown= ExpectedException.none();
+
+    @Test
+    public void close3() throws Exception {
+        WordTag[] wt;
+        wt = PeopleDailyTagStream.readLine();
+        //[我/n, 爱/v, 自然语言处理/ln]
         System.out.println(Arrays.toString(wt));
-        tagStream.close();
-        wt=tagStream.readLine();//Stream closed
-        System.out.println(Arrays.toString(wt));
+
+        //关闭异常
+        PeopleDailyTagStream.close();
+
+        thrown.expect(NullPointerException.class);
+        wt = PeopleDailyTagStream.readLine();
+
     }
 }

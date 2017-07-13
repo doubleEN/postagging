@@ -1,6 +1,6 @@
 package com.rui.dictionary;
 
-import com.rui.ngram.AbstractWordTag;
+import com.rui.ngram.WordTag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +21,7 @@ public abstract class AbstractDictionary {
     /**
      * Create two map from corpus stored by map.
      */
-    public abstract void addIndex(AbstractWordTag[]wts);
+    public abstract void addIndex(WordTag[]wts);
 
     public Map<String, Integer> getTagId() {
         return tagId;

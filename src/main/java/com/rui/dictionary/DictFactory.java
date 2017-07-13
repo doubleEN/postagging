@@ -1,6 +1,7 @@
 package com.rui.dictionary;
 
-import com.rui.ngram.AbstractWordTag;
+
+import com.rui.ngram.WordTag;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -19,8 +20,8 @@ public class DictFactory extends AbstractDictionary {
     }
 
     @Override
-    public void addIndex(AbstractWordTag[] wts) {
-        for (AbstractWordTag wt : wts) {
+    public void addIndex(WordTag[] wts) {
+        for (WordTag wt : wts) {
             String word = wt.getWord();
             String tag = wt.getTag();
             if (!this.tagId.containsKey(tag)) {

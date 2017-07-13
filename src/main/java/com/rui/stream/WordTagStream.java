@@ -1,6 +1,6 @@
 package com.rui.stream;
 
-import com.rui.ngram.AbstractWordTag;
+import com.rui.ngram.WordTag;
 
 import java.io.*;
 
@@ -11,18 +11,21 @@ public abstract class WordTagStream {
 
     protected BufferedReader br;
 
-    protected FileInputStream fis;
+    /**
+     * 分割一个句子得到代表多个[Word tag]的WordTag类型的抽象方法。
+     * @param sentence 一行独立的句子。
+     * @return AbstractWordTag[]数组。
+     */
+    public abstract WordTag[] segSentence(String sentence);
 
-    protected InputStreamReader isr;
-
-    protected String corpusPath;
-
-    public abstract AbstractWordTag[] segSentence(String sentence);
-
-    public void openReadStream() {
+    /**
+     * 打开流操作
+     */
+    public void openReadStream(String corpusPath) {
         try {
-            this.fis = new FileInputStream(this.corpusPath);
-            this.isr = new InputStreamReader(fis);
+            //这里没有显示的关闭fis和isr会有什么影响
+            FileInputStream fis = new FileInputStream(corpusPath);
+            InputStreamReader isr = new InputStreamReader(fis);
             this.br = new BufferedReader(isr);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -30,12 +33,19 @@ public abstract class WordTagStream {
         }
     }
 
-    public AbstractWordTag[] readLine() {
+    /**
+     *  迭代读取每行句子并处理为 AbstractWordTag[]返回的方法
+     * @return AbstractWordTag[]数组
+     */
+    public WordTag[] readLine() {
         String line = null;
         try {
             line = this.br.readLine();
-            if (line == null || line.trim().equals("")) {
+            if (line == null) {
                 return null;
+            }
+            if (line.trim().equals("")) {
+                return this.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,12 +55,13 @@ public abstract class WordTagStream {
         return this.segSentence(line.trim());
     }
 
+    /**
+     * 关闭流的方法
+     */
     public void close() {
         try {
 
             this.br.close();
-            this.isr.close();
-            this.fis.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

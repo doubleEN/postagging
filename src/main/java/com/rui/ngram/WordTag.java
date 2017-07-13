@@ -3,24 +3,26 @@ package com.rui.ngram;
 /**
  *
  */
-public class WordTag extends AbstractWordTag{
+public class WordTag {
 
-    @Override
-    public void separateWordTag() {
+    private String word;
+    private String tag;
 
-        String[] wordAndTag = wordTag.split("/");
-        this.word = wordAndTag[0];
-        this.tag = wordAndTag[1];
-
-    }
-
-    public WordTag(String wordTag) {
-        this.wordTag = wordTag;
-        this.separateWordTag();
+    public WordTag(String word, String tag) {
+        this.word = word;
+        this.tag = tag;
     }
 
     @Override
     public String toString() {
-        return this.wordTag;
+        return this.word+"-"+this.tag;
+    }
+
+    public String getWord() {
+        return word;
+    }
+
+    public String getTag() {
+        return tag;
     }
 }

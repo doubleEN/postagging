@@ -1,7 +1,6 @@
 package com.rui.statistic;
 
 import com.rui.dictionary.AbstractDictionary;
-import com.rui.ngram.AbstractWordTag;
 import com.rui.ngram.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
@@ -11,7 +10,7 @@ import java.util.Arrays;
 /**
  *
  */
-public abstract class AbstractParasStats {
+public abstract class AbstractParasCount {
 
     protected int[][][] numMatA;
 
@@ -23,14 +22,14 @@ public abstract class AbstractParasStats {
 
     public void countParas(String corpusPath) {
         WordTagStream wordTagStream = this.openStream(corpusPath);
-        AbstractWordTag[] wts;
+        WordTag[] wts;
         while ((wts = wordTagStream.readLine()) != null) {
             this.countParas(wts);
         }
         wordTagStream.close();
     }
 
-    public void countParas(AbstractWordTag[] wts) {
+    public void countParas(WordTag[] wts) {
 //        System.out.println(Arrays.toString(wts));
         dictionary.addIndex(wts);
         String[] words = new String[wts.length];
