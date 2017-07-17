@@ -29,7 +29,7 @@ public class PeopleDailyWordTagStreamTest {
     @Test
     public void next() throws Exception {
         WordTag[] wts;
-        while ((wts = PeopleDailyTagStream.readLine()) != null) {
+        while ((wts = PeopleDailyTagStream.readSentence()) != null) {
             System.out.println(Arrays.toString(wts));
         }
     }
@@ -59,7 +59,7 @@ public class PeopleDailyWordTagStreamTest {
     @Test
     public void close3() throws Exception {
         WordTag[] wt;
-        wt = PeopleDailyTagStream.readLine();
+        wt = PeopleDailyTagStream.readSentence();
         //[我/n, 爱/v, 自然语言处理/ln]
         System.out.println(Arrays.toString(wt));
 
@@ -67,7 +67,7 @@ public class PeopleDailyWordTagStreamTest {
         PeopleDailyTagStream.close();
 
         thrown.expect(NullPointerException.class);
-        wt = PeopleDailyTagStream.readLine();
+        wt = PeopleDailyTagStream.readSentence();
 
     }
 }

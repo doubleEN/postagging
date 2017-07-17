@@ -12,7 +12,10 @@ import java.util.Map;
 public class BigramParas extends AbstractParas {
 
     public static void main(String[] args) {
-        AbstractParas paras = new BigramParas("/home/mjx/桌面/PoS/test/testCount.txt", true);
+        AbstractParas paras = new BigramParas();
+        paras.addCorpus("/home/mjx/桌面/PoS/test/testSet2.txt");
+        paras.calcProbs(true);
+
         System.out.println("probA:");
         for (double[] p : paras.getProbMatA()[0]) {
             System.out.println(Arrays.toString(p));
@@ -32,8 +35,8 @@ public class BigramParas extends AbstractParas {
 
     }
 
-    public BigramParas(String corpusPath, boolean smoothFlag) {
-        this.calcProbs(corpusPath,smoothFlag);
+    public BigramParas() {
+        this.parasCount = new BigramParasCount();
     }
 
     @Override
@@ -133,19 +136,15 @@ public class BigramParas extends AbstractParas {
         }
         for (int t_1 = 0; t_1 < len; ++t_1) {
             for (int t_2 = 0; t_2 < len; ++t_2) {
-                //*****共现频率是否包括两部分
-                int t_1_2 = numMatA[0][t_1][t_2]+numMatA[0][t_2][t_1];
-                //分母为0的处理
+                int t_1_2 = numMatA[0][t_1][t_2] + numMatA[0][t_2][t_1];
                 double expression1 = (numPi[t_2] - 1) / (sumOfTag - 1);
                 double expression2 = 0.0;
-               // 0.9953037863222777:0.004696213677722336
-                //加上另一部的联合系数：0.956853536835926:0.043146463164073966
 
                 if (numPi[t_1] - 1 != 0) {
                     expression2 = (t_1_2 - 1) / (numPi[t_1] - 1);
                 }
                 //这里等号对结果的影响
-                if (expression1 >expression2) {
+                if (expression1 > expression2) {
                     lambd_count1 += t_1_2;
                 } else {
                     lambd_count2 += t_1_2;
@@ -162,6 +161,5 @@ public class BigramParas extends AbstractParas {
                 midA[t_1][t_2] = lambd1 * this.probPi[t_2] + lambd2 * this.probMatA[0][t_1][t_2];
             }
         }
-
     }
 }

@@ -13,16 +13,17 @@ import java.util.Map;
  */
 public class BigramParasCount extends AbstractParasCount {
 
+
     public static void main(String[] args) {
         AbstractParasCount stats = new BigramParasCount();
-//
-//        WordTag[] wordTags = new WordTag[]{
-//                new WordTag("我","n"),
-//                new WordTag("爱","v"),
-//                new WordTag("nlp","fn")
-//        };
-//        System.out.println(Arrays.toString(wordTags));
-        stats.countParas("/home/mjx/桌面/PoS/corpus/199801_format.txt");
+
+        WordTag[] wordTags = new WordTag[]{
+                new WordTag("我","n"),
+                new WordTag("爱","v"),
+                new WordTag("nlp","fn")
+        };
+        System.out.println(Arrays.toString(wordTags));
+        stats.countParas("/home/mjx/桌面/PoS/test/testSet2.txt");
 
         int[][][] as = stats.getNumMatA();
         int[][] bs = stats.getNumMatB();
@@ -71,6 +72,7 @@ public class BigramParasCount extends AbstractParasCount {
         return new PeopleDailyWordTagStream(corpusPath);
     }
 
+    //para A
     @Override
     protected void countMatA(String[] tags) {
         if (this.dictionary.getTagId().size() > this.numMatA[0].length) {
@@ -84,6 +86,7 @@ public class BigramParasCount extends AbstractParasCount {
 
     }
 
+    //para B
     @Override
     protected void countMatB(String[] words, String[] tags) {
         if (words.length != tags.length) {
@@ -99,7 +102,7 @@ public class BigramParasCount extends AbstractParasCount {
             this.numMatB[tagId.get(tags[i])][wordId.get(words[i])]++;
         }
     }
-
+    //para pi
     @Override
     protected void countPi(String[] tags) {
         if (this.dictionary.getTagId().size() > this.numPi.length) {

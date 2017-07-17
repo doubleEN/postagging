@@ -21,7 +21,7 @@ public abstract class WordTagStream {
     /**
      * 打开流操作
      */
-    public void openReadStream(String corpusPath) {
+    protected void openReadStream(String corpusPath) {
         try {
             //这里没有显示的关闭fis和isr会有什么影响
             FileInputStream fis = new FileInputStream(corpusPath);
@@ -37,7 +37,7 @@ public abstract class WordTagStream {
      *  迭代读取每行句子并处理为 AbstractWordTag[]返回的方法
      * @return AbstractWordTag[]数组
      */
-    public WordTag[] readLine() {
+    public WordTag[] readSentence() {//????
         String line = null;
         try {
             line = this.br.readLine();
@@ -45,7 +45,7 @@ public abstract class WordTagStream {
                 return null;
             }
             if (line.trim().equals("")) {
-                return this.readLine();
+                return this.readSentence();
             }
         } catch (IOException e) {
             e.printStackTrace();

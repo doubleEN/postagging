@@ -1,7 +1,5 @@
 package com.rui.stream;
 
-import com.rui.ngram.IWordTagGenerator;
-import com.rui.ngram.PeopleDailyNewsWordTagGenerator;
 import com.rui.ngram.WordTag;
 
 import java.io.BufferedReader;
@@ -28,9 +26,15 @@ public class PeopleDailyWordTagStream extends WordTagStream {
     public WordTag[] segSentence(String sentence) {
         String[] wordTags = sentence.split("\\s+");
         WordTag[] wt = new WordTag[wordTags.length];
-        IWordTagGenerator generator=new PeopleDailyNewsWordTagGenerator();
+
         for (int i = 0; i < wordTags.length; i++) {
-            wt[i] = generator.separateWordTag(wordTags[i]);
+
+            String[] wordAndTag = wordTags[i].trim().split("/");
+            if (wordAndTag.length != 2) {
+                System.out.println(wordAndTag.length);
+                System.err.println("word-tag 长度不为2");
+            }
+            wt[i] = new WordTag(wordAndTag[0], wordAndTag[1]);
         }
         return wt;
     }

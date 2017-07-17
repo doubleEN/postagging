@@ -1,11 +1,8 @@
 package com.rui.statistic;
 
-import com.rui.dictionary.AbstractDictionary;
+import com.rui.dictionary.DictFactory;
 import com.rui.ngram.WordTag;
-import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
-
-import java.util.Arrays;
 
 /**
  *
@@ -18,17 +15,19 @@ public abstract class AbstractParasCount {
 
     protected int[] numPi;
 
-    protected AbstractDictionary dictionary;
+    protected DictFactory dictionary;
 
+    //从语料库中累计参数
     public void countParas(String corpusPath) {
         WordTagStream wordTagStream = this.openStream(corpusPath);
         WordTag[] wts;
-        while ((wts = wordTagStream.readLine()) != null) {
+        while ((wts = wordTagStream.readSentence()) != null) {
             this.countParas(wts);
         }
         wordTagStream.close();
     }
 
+    //从wordTag数组中累计数组
     public void countParas(WordTag[] wts) {
 //        System.out.println(Arrays.toString(wts));
         dictionary.addIndex(wts);
@@ -43,15 +42,17 @@ public abstract class AbstractParasCount {
         this.countPi(tags);
     }
 
+    //打开特定的语料库
     protected abstract WordTagStream openStream(String corpusPath);
 
+    //统计参数
     protected abstract void countMatA(String[] tags);
 
     protected abstract void countMatB(String[] words, String[] tags);
 
     protected abstract void countPi(String[] tags);
 
-    //Don't use copyOf or arrayCopy.
+    //扩展参数数组
     protected void reBuildA() {
         int[][][] newA = new int[1][this.dictionary.getTagId().size()][this.dictionary.getTagId().size()];
         int[][] midA = this.numMatA[0];
@@ -84,6 +85,8 @@ public abstract class AbstractParasCount {
         this.numPi = pi;
     }
 
+
+
     public int[][][] getNumMatA() {
         return numMatA;
     }
@@ -96,7 +99,7 @@ public abstract class AbstractParasCount {
         return numPi;
     }
 
-    public AbstractDictionary getDictionary() {
+    public DictFactory getDictionary() {
         return dictionary;
     }
 }
