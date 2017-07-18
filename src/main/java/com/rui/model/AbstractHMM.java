@@ -1,7 +1,7 @@
 package com.rui.model;
 
 import com.rui.ngram.WordTag;
-import com.rui.probability.AbstractParas;
+import com.rui.parameters.AbstractParas;
 
 /**
  *

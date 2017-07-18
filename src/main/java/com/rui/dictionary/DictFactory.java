@@ -5,8 +5,6 @@ import com.rui.ngram.WordTag;
 
 import java.util.*;
 
-import static com.rui.utils.IOUtils.readCorpusFromFile;
-
 /**
  * Handle the corpus to get two categories of dictionaries.
  * Id begins with "0".
@@ -23,6 +21,13 @@ public class DictFactory {
     /**
      * Create two map from corpus stored by map.
      */
+
+    public int getSizeOfTags(){
+        return this.tagId.size();
+    }
+    public int getSizeOfWords(){
+        return this.wordId.size();
+    }
 
     public Integer getTagId(String tag) {
         return this.tagId.get(tag);
