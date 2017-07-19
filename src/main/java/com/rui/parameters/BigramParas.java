@@ -261,7 +261,7 @@ public class BigramParas extends AbstractParas {
             sumOfTag += num;
         }
 
-        System.out.println(sumOfTag);
+//        System.out.println(sumOfTag);
         if (sumOfTag == 0) {
             System.err.println("隐藏状态数为0.");
         }
@@ -286,7 +286,7 @@ public class BigramParas extends AbstractParas {
         }
         double lambd1 = lambd_count1 / (lambd_count1 + lambd_count2);
         double lambd2 = lambd_count2 / (lambd_count1 + lambd_count2);
-        System.out.println("系数：" + lambd1 + ":" + lambd2);
+//        System.out.println("系数：" + lambd1 + ":" + lambd2);
         //系数：0.9968451753824765:0.003154824617523456
         //系数：0.956853536835926:0.043146463164073966
         for (int t_1 = 0; t_1 < len; ++t_1) {
@@ -302,9 +302,10 @@ public class BigramParas extends AbstractParas {
     }
 
     @Override
-    public double getProbB(int indexOfTag, String word) {
-        return this.probMatB[indexOfTag][this.dictionary.getWordId(word)];
+    public double getProbB(int indexOfTag, int indexOfWord) {
+        return this.probMatB[indexOfTag][indexOfWord];
     }
+
 
     @Override
     public double getProbA(int preTag, int nextTag) {
@@ -345,5 +346,15 @@ public class BigramParas extends AbstractParas {
         return this.probPi;
     }
 
+
+    @Override
+    public String getTagOnId(int tagId) {
+        return this.dictionary.getTag(tagId);
+    }
+
+    @Override
+    public int getWordId(String word) {
+        return this.dictionary.getWordId(word);
+    }
 }
 

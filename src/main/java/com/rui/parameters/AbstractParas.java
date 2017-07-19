@@ -95,10 +95,13 @@ public abstract class AbstractParas {
 
     public abstract double getPi(int indexOfTag);
 
-    public abstract double getProbB(int indexOfTag,String word);
+    public abstract double getProbB(int indexOfTag,int indexOfWord);
 
     public abstract double getProbA(int preTag,int nextTag);
 
     public abstract double getProbSmoothA(int preTag,int nextTag);
 
+    public abstract String getTagOnId(int tagId);
+
+    public abstract int getWordId(String word);
 }

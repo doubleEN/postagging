@@ -12,39 +12,36 @@ import java.util.Arrays;
 public class FirstOrder_HMM extends AbstractHMM {
 
     public static void main(String[] args) {
-        BigramParas paras=new BigramParas();
-        paras.addCorpus("/home/mjx/桌面/PoS/test/testCount.txt");
+        BigramParas paras = new BigramParas(44, 55310);
+        paras.addCorpus("/home/mjx/桌面/PoS/corpus/199801_format.txt");
         paras.calcProbs(true);
+//
+//        System.out.println("probA:");
+//        for (double[] p : paras.getPA()) {
+//            System.out.println(Arrays.toString(p));
+//        }
+//        System.out.println("probPi:");
+//        System.out.println(Arrays.toString(paras.getPpi()));
+//
+//        System.out.println("smoothA:");
+//        for (double[] p : paras.getPSA()) {
+//            System.out.println(Arrays.toString(p));
+//        }
+//
+//        System.out.println("probB:");
+//        for (double[] p : paras.getPB()) {
+//            System.out.println(Arrays.toString(p));
+//        }
 
-        System.out.println("probA:");
-        for (double[] p : paras.getPA()) {
-            System.out.println(Arrays.toString(p));
-        }
-        System.out.println("probPi:");
-        System.out.println(Arrays.toString(paras.getPpi()));
+        FirstOrder_HMM hmm = new FirstOrder_HMM(paras);
 
-        System.out.println("smoothA:");
-        for (double[] p : paras.getPSA()) {
-            System.out.println(Arrays.toString(p));
-        }
-
-        System.out.println("probB:");
-        for (double[] p : paras.getPB()) {
-            System.out.println(Arrays.toString(p));
-        }
-
-        FirstOrder_HMM hmm=new FirstOrder_HMM(paras);
-
-        WordTag[] wts=hmm.predict("爱 我");
-//        System.out.println(Arrays.toString(wts));
+        WordTag[] wts = hmm.tag("迈向 一九九八年 ！");
+            System.out.println(Arrays.toString(wts));
     }
 
-    public FirstOrder_HMM(AbstractParas hmmParas) {
-        this.hmmParas = hmmParas;
-    }
 
     @Override
-    public WordTag[] predict(String sentence) {
+    public WordTag[][] tagTopK(String sentence, int k) {
 
         String[] words = sentence.trim().split("\\s+");
         int wordLen = words.length;
@@ -55,7 +52,7 @@ public class FirstOrder_HMM extends AbstractHMM {
 
         //带入初始状态计算第一个观察态概率，不用记录最大值索引
         for (int i = 0; i < tagSize; ++i) {
-            sentencesProb[i][0] = this.hmmParas.getPi(i) * this.hmmParas.getProbB(i, words[0]);
+            sentencesProb[i][0] = this.hmmParas.getPi(i) * this.hmmParas.getProbB(i, this.hmmParas.getWordId(words[0]));
         }
 
         //外层循环：t(i)-->t(i+1)-->w(i+1)
@@ -67,30 +64,87 @@ public class FirstOrder_HMM extends AbstractHMM {
                 int maxIndex = -1;
 
                 for (int preTag = 0; preTag < tagSize; ++preTag) {
-                    System.out.println("索引："+preTag);
-                    if ((prob = sentencesProb[preTag][wordIndex-1] * this.hmmParas.getProbSmoothA(preTag,nextTag)) > maxProb) {
+                    if ((prob = sentencesProb[preTag][wordIndex - 1] * this.hmmParas.getProbSmoothA(preTag, nextTag)) > maxProb) {
                         maxProb = prob;
-                        System.out.println("最大索引："+preTag);
                         maxIndex = preTag;
                     }
                 }
 
-                sentencesProb[nextTag][wordIndex]=maxProb*this.hmmParas.getProbB(nextTag,words[wordIndex]);
-                maxIndexs[nextTag][wordIndex-1] = maxIndex;
+                sentencesProb[nextTag][wordIndex] = maxProb * this.hmmParas.getProbB(nextTag, this.hmmParas.getWordId(words[wordIndex]));
+                maxIndexs[nextTag][wordIndex - 1] = maxIndex;
             }
         }
 
-        System.out.println("句子概率：");
 
-        for (double[] p:sentencesProb){
-            System.out.println(Arrays.toString(p));
-        }
-        System.out.println("句子索引：");
+        double[] maxProbs = new double[tagSize];
 
-        for (int[] i:maxIndexs){
-            System.out.println(Arrays.toString(i));
+        for (int i = 0; i < tagSize; ++i) {
+            maxProbs[i] = sentencesProb[i][wordLen - 1];
         }
 
-        return new WordTag[0];
+        WordTag[][] wts = new WordTag[k][tagSize];
+
+        for (int i = 0; i < k; ++i) {
+            double maxP = -1.0;
+            int maxIndex = -1;
+
+            for (int j = 0; j < tagSize; ++j) {
+                if (maxProbs[j] >= maxP) {
+                    maxP = maxProbs[j];
+                    maxIndex = j;
+                }
+            }
+
+            maxProbs[maxIndex] = -1.0;
+            int[] tagIds = this.decode(maxIndex, maxIndexs);
+            wts[i] = this.matching(words, tagIds);
+        }
+
+        return wts;
     }
+
+    @Override
+    public WordTag[] tag(String sentences) {
+        return this.tagTopK(sentences,1)[0];
+
+    }
+
+    @Override
+    public int[] decode(int lastIndex, int[][] records) {
+
+        int wordLen = records[0].length;
+
+        int[] tagIds = new int[wordLen];
+
+
+        tagIds[wordLen - 1] = lastIndex;
+        int maxRow = lastIndex;
+
+        for (int col = wordLen - 2; col >= 0; --col) {
+            System.out.println(maxRow + ":" + col);
+            maxRow = records[maxRow][col];
+            tagIds[col] = maxRow;
+        }
+        return tagIds;
+
+    }
+
+    @Override
+    protected WordTag[] matching(String[] words, int[] tagIds) {
+        int wordLen = words.length;
+        WordTag[] wts = new WordTag[wordLen];
+
+        for (int index = 0; index < wordLen; ++index) {
+            wts[index] = new WordTag(words[index], this.hmmParas.getTagOnId(tagIds[index]));
+        }
+
+        return wts;
+    }
+
+    protected AbstractParas hmmParas;
+
+    public FirstOrder_HMM(AbstractParas hmmParas) {
+        this.hmmParas = hmmParas;
+    }
+
 }
