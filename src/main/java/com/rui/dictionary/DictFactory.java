@@ -6,50 +6,73 @@ import com.rui.ngram.WordTag;
 import java.util.*;
 
 /**
- * Handle the corpus to get two categories of dictionaries.
- * Id begins with "0".
+ * 给新的标注和词编号
  */
 public class DictFactory {
-    protected Map<String, Integer> tagId = new HashMap<String, Integer>();
-
-    protected Map<String, Integer> wordId = new HashMap<String, Integer>();
-
-    protected Map<Integer, String> tagDict = new HashMap<Integer, String>();
-
-    protected Map<Integer, String> wordDict = new HashMap<Integer, String>();
 
     /**
-     * Create two map from corpus stored by map.
+     * tag-->id
      */
+    private Map<String, Integer> tagId = new HashMap<String, Integer>();
+    /**
+     * word-->id
+     */
+    private Map<String, Integer> wordId = new HashMap<String, Integer>();
+    /**
+     * id-->tag
+     */
+    private Map<Integer, String> tagDict = new HashMap<Integer, String>();
+    /**
+     * id-->word
+     */
+    private Map<Integer, String> wordDict = new HashMap<Integer, String>();
 
-    public int getSizeOfTags(){
+    /**
+     * 标注集的大小
+     */
+    public int getSizeOfTags() {
         return this.tagId.size();
     }
-    public int getSizeOfWords(){
+
+    /**
+     * 词的数量
+     */
+    public int getSizeOfWords() {
         return this.wordId.size();
     }
 
+    /**
+     * 标注的编号
+     */
     public Integer getTagId(String tag) {
         return this.tagId.get(tag);
     }
 
+    /**
+     * 词的编号
+     */
     public Integer getWordId(String word) {
         return this.wordId.get(word);
 
     }
 
+    /**
+     * 获得给定编号的标注
+     */
     public String getTag(Integer tagId) {
         return this.tagDict.get(tagId);
-
     }
 
+    /**
+     * 获得给定编号的词
+     */
     public String getWord(Integer wordId) {
         return this.wordDict.get(wordId);
     }
 
-    public DictFactory() {
-    }
-
+    /**
+     * 给新的[词/标注]编号
+     */
     public void addIndex(WordTag[] wts) {
         for (WordTag wt : wts) {
             String word = wt.getWord();
@@ -65,5 +88,16 @@ public class DictFactory {
 
         }
 
+    }
+
+    /**
+     * 获得所有标注集的字符串数组
+     */
+    public String[] getTagSet() {
+        Set<String> tagSet = this.tagId.keySet();
+        return (String[]) tagSet.toArray();
+    }
+
+    public DictFactory() {
     }
 }

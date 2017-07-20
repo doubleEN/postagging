@@ -6,8 +6,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
@@ -21,7 +19,6 @@ public class PeopleDailyWordTagStreamTest {
     @Before
     public void setUp() throws Exception {
         String s="s";
-        s.hashCode();
         this.PeopleDailyTagStream = new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/test/testCount.txt");
     }
 
@@ -50,7 +47,6 @@ public class PeopleDailyWordTagStreamTest {
     public void openReadStream() throws Exception {
         assertNotNull(PeopleDailyTagStream.br);//判非空
     }
-
 
     //测试关闭流
     @Rule

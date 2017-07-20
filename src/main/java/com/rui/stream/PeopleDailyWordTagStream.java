@@ -5,22 +5,18 @@ import com.rui.ngram.WordTag;
 import java.io.BufferedReader;
 
 /**
- *
+ *  迭代读取人民日报标注语料库的输入流
  */
 public class PeopleDailyWordTagStream extends WordTagStream {
 
     protected BufferedReader br;
-
 
     public PeopleDailyWordTagStream(String corpusPath) {
         this.openReadStream(corpusPath);
     }
 
     /**
-     * 以空白符分割[wordtag]的句子做分割处理
-     *
-     * @param sentence 一行独立的句子。
-     * @return
+     * 用空白符分割得到多个[wordtag]，用[/]分割[wordtag]的到word和tag。
      */
     @Override
     public WordTag[] segSentence(String sentence) {

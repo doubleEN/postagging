@@ -5,10 +5,9 @@ import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 
 /**
- *
+ * 统计并计算[一阶HMM]的参数
  */
 public class BigramParas extends AbstractParas {
-
 
     public static void main(String[] args) {
 //        BigramParas paras = new BigramParas();
@@ -84,10 +83,11 @@ public class BigramParas extends AbstractParas {
 
     protected double[] probPi;
 
+
     public BigramParas() {
         this.dictionary = new DictFactory();
-        this.numMatA = new int[1][1];//the size of tag set is 44.
-        this.numMatB = new int[1][1];//the size of word set is 55310.
+        this.numMatA = new int[1][1];
+        this.numMatB = new int[1][1];
         this.numPi = new int[1];
     }
 
@@ -103,7 +103,9 @@ public class BigramParas extends AbstractParas {
         return new PeopleDailyWordTagStream(corpusPath);
     }
 
-    //para A
+    /*
+        对参数计数
+     */
     @Override
     protected void countMatA(String[] tags) {
         if (this.dictionary.getSizeOfTags() > this.numMatA[0].length) {
@@ -139,7 +141,7 @@ public class BigramParas extends AbstractParas {
         }
     }
 
-    //扩展参数数组
+    @Override
     protected void reBuildA() {
         int[][] newA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         for (int i = 0; i < this.numMatA[0].length; ++i) {
@@ -150,6 +152,7 @@ public class BigramParas extends AbstractParas {
         this.numMatA = newA;
     }
 
+    @Override
     protected void reBuildB() {
         int row = this.dictionary.getSizeOfTags() > this.numMatB.length ? this.dictionary.getSizeOfTags() : this.numMatB.length;
         int col = this.dictionary.getSizeOfWords() > this.numMatB[0].length ? this.dictionary.getSizeOfWords() : this.numMatB[0].length;
@@ -162,6 +165,7 @@ public class BigramParas extends AbstractParas {
         this.numMatB = newB;
     }
 
+    @Override
     protected void reBuildPi() {
         int[] pi = new int[this.dictionary.getSizeOfTags()];
         for (int i = 0; i < this.numPi.length; ++i) {
@@ -172,7 +176,7 @@ public class BigramParas extends AbstractParas {
     }
 
     /*
-        计算概率
+        计算概率参数
      */
     @Override
     protected void calcProbA() {
@@ -286,7 +290,8 @@ public class BigramParas extends AbstractParas {
         }
         double lambd1 = lambd_count1 / (lambd_count1 + lambd_count2);
         double lambd2 = lambd_count2 / (lambd_count1 + lambd_count2);
-//        System.out.println("系数：" + lambd1 + ":" + lambd2);
+        System.out.println("系数：" + lambd1 + ":" + lambd2);
+
         //系数：0.9968451753824765:0.003154824617523456
         //系数：0.956853536835926:0.043146463164073966
         for (int t_1 = 0; t_1 < len; ++t_1) {
@@ -296,8 +301,11 @@ public class BigramParas extends AbstractParas {
         }
     }
 
+    /*
+        参数访问接口的实现
+     */
     @Override
-    public double getPi(int indexOfTag) {
+    public double getProbPi(int indexOfTag) {
         return this.probPi[indexOfTag];
     }
 
@@ -305,7 +313,6 @@ public class BigramParas extends AbstractParas {
     public double getProbB(int indexOfTag, int indexOfWord) {
         return this.probMatB[indexOfTag][indexOfWord];
     }
-
 
     @Override
     public double getProbA(int preTag, int nextTag) {
@@ -317,36 +324,6 @@ public class BigramParas extends AbstractParas {
         return this.smoothingMatA[preTag][nextTag];
     }
 
-    public int[][] getA() {
-        return this.numMatA;
-    }
-
-    public int[][] getB() {
-        return this.numMatB;
-    }
-
-    public int[] getPI() {
-        return this.numPi;
-    }
-
-    public double[][] getPA() {
-        return this.probMatA;
-    }
-
-    public double[][] getPSA() {
-        return this.smoothingMatA;
-    }
-
-
-    public double[][] getPB() {
-        return this.probMatB;
-    }
-
-    public double[] getPpi() {
-        return this.probPi;
-    }
-
-
     @Override
     public String getTagOnId(int tagId) {
         return this.dictionary.getTag(tagId);
@@ -356,5 +333,44 @@ public class BigramParas extends AbstractParas {
     public int getWordId(String word) {
         return this.dictionary.getWordId(word);
     }
+
+    @Override
+    public int getTagId(String tag) {
+        return this.dictionary.getTagId(tag);
+    }
+
+    @Override
+    public String[] getTagSet() {
+        return this.dictionary.getTagSet();
+    }
+
+    //    public int[][] getA() {
+//        return this.numMatA;
+//    }
+//
+//    public int[][] getB() {
+//        return this.numMatB;
+//    }
+//
+//    public int[] getPI() {
+//        return this.numPi;
+//    }
+//
+//    public double[][] getPA() {
+//        return this.probMatA;
+//    }
+//
+//    public double[][] getPSA() {
+//        return this.smoothingMatA;
+//    }
+//
+//
+//    public double[][] getPB() {
+//        return this.probMatB;
+//    }
+//
+//    public double[] getPpi() {
+//        return this.probPi;
+//    }
 }
 

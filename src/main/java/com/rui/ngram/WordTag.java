@@ -1,7 +1,7 @@
 package com.rui.ngram;
 
 /**
- *
+ * 存储word及其tag。
  */
 public class WordTag {
 
@@ -15,7 +15,7 @@ public class WordTag {
 
     @Override
     public String toString() {
-        return this.word+"/"+this.tag;
+        return this.word + "/" + this.tag;
     }
 
     public String getWord() {

@@ -7,14 +7,14 @@ import com.rui.parameters.BigramParas;
 import java.util.Arrays;
 
 /**
- *
+ * 一阶HMM实现。
  */
-public class FirstOrder_HMM extends AbstractHMM {
+public class FirstOrderHMM implements AbstractHMM {
 
     public static void main(String[] args) {
         BigramParas paras = new BigramParas(44, 55310);
         paras.addCorpus("/home/mjx/桌面/PoS/corpus/199801_format.txt");
-        paras.calcProbs(true);
+        paras.calcProbs();
 //
 //        System.out.println("probA:");
 //        for (double[] p : paras.getPA()) {
@@ -33,16 +33,15 @@ public class FirstOrder_HMM extends AbstractHMM {
 //            System.out.println(Arrays.toString(p));
 //        }
 
-        FirstOrder_HMM hmm = new FirstOrder_HMM(paras);
+        AbstractHMM hmm = new FirstOrderHMM(paras);
 
         WordTag[] wts = hmm.tag("迈向 一九九八年 ！");
-            System.out.println(Arrays.toString(wts));
+        System.out.println(Arrays.toString(wts));
     }
 
 
     @Override
     public WordTag[][] tagTopK(String sentence, int k) {
-
         String[] words = sentence.trim().split("\\s+");
         int wordLen = words.length;
         int tagSize = this.hmmParas.getSizeOfTags();
@@ -52,7 +51,7 @@ public class FirstOrder_HMM extends AbstractHMM {
 
         //带入初始状态计算第一个观察态概率，不用记录最大值索引
         for (int i = 0; i < tagSize; ++i) {
-            sentencesProb[i][0] = this.hmmParas.getPi(i) * this.hmmParas.getProbB(i, this.hmmParas.getWordId(words[0]));
+            sentencesProb[i][0] = this.hmmParas.getProbPi(i) * this.hmmParas.getProbB(i, this.hmmParas.getWordId(words[0]));
         }
 
         //外层循环：t(i)-->t(i+1)-->w(i+1)
@@ -75,15 +74,15 @@ public class FirstOrder_HMM extends AbstractHMM {
             }
         }
 
-
+        //取出最后一列的最大概率
         double[] maxProbs = new double[tagSize];
-
         for (int i = 0; i < tagSize; ++i) {
             maxProbs[i] = sentencesProb[i][wordLen - 1];
         }
 
         WordTag[][] wts = new WordTag[k][tagSize];
 
+        //通过最大的k个概率的索引，回溯得到标注
         for (int i = 0; i < k; ++i) {
             double maxP = -1.0;
             int maxIndex = -1;
@@ -94,7 +93,6 @@ public class FirstOrder_HMM extends AbstractHMM {
                     maxIndex = j;
                 }
             }
-
             maxProbs[maxIndex] = -1.0;
             int[] tagIds = this.decode(maxIndex, maxIndexs);
             wts[i] = this.matching(words, tagIds);
@@ -105,45 +103,37 @@ public class FirstOrder_HMM extends AbstractHMM {
 
     @Override
     public WordTag[] tag(String sentences) {
-        return this.tagTopK(sentences,1)[0];
+        return this.tagTopK(sentences, 1)[0];
 
     }
 
     @Override
     public int[] decode(int lastIndex, int[][] records) {
-
         int wordLen = records[0].length;
-
         int[] tagIds = new int[wordLen];
-
-
         tagIds[wordLen - 1] = lastIndex;
         int maxRow = lastIndex;
 
         for (int col = wordLen - 2; col >= 0; --col) {
-            System.out.println(maxRow + ":" + col);
             maxRow = records[maxRow][col];
             tagIds[col] = maxRow;
         }
         return tagIds;
-
     }
 
     @Override
-    protected WordTag[] matching(String[] words, int[] tagIds) {
+    public WordTag[] matching(String[] words, int[] tagIds) {
         int wordLen = words.length;
         WordTag[] wts = new WordTag[wordLen];
-
         for (int index = 0; index < wordLen; ++index) {
             wts[index] = new WordTag(words[index], this.hmmParas.getTagOnId(tagIds[index]));
         }
-
         return wts;
     }
 
     protected AbstractParas hmmParas;
 
-    public FirstOrder_HMM(AbstractParas hmmParas) {
+    public FirstOrderHMM(AbstractParas hmmParas) {
         this.hmmParas = hmmParas;
     }
 
