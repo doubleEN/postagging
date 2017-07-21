@@ -95,7 +95,7 @@ public class DictFactory {
      */
     public String[] getTagSet() {
         Set<String> tagSet = this.tagId.keySet();
-        return (String[]) tagSet.toArray();
+        return (String[]) tagSet.toArray(new String[0]);
     }
 
     public DictFactory() {

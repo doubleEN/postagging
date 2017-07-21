@@ -12,8 +12,7 @@ import java.util.Arrays;
 public class FirstOrderHMM implements AbstractHMM {
 
     public static void main(String[] args) {
-        BigramParas paras = new BigramParas(44, 55310);
-        paras.addCorpus("/home/mjx/桌面/PoS/corpus/199801_format.txt");
+        BigramParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44, 55310);
         paras.calcProbs();
 //
 //        System.out.println("probA:");

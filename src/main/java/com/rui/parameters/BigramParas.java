@@ -1,28 +1,26 @@
 package com.rui.parameters;
 
 import com.rui.dictionary.DictFactory;
+import com.rui.ngram.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
+
+import java.util.Arrays;
 
 /**
  * 统计并计算[一阶HMM]的参数
  */
 public class BigramParas extends AbstractParas {
 
-    public static void main(String[] args) {
-//        BigramParas paras = new BigramParas();
-//
-//        WordTag[] wordTags = new WordTag[]{
-//                new WordTag("我", "n"),
-//                new WordTag("爱", "v"),
-//                new WordTag("nlp", "fn")
-//        };
-//        System.out.println(Arrays.toString(wordTags));
-//        paras.addCorpus("/home/mjx/桌面/PoS/corpus/199801_format.txt");
+//    public static void main(String[] args) {
+//        BigramParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 46, 55320);
 //
 //        int[][] as = paras.getA();
 //        int[][] bs = paras.getB();
 //        int[] pi = paras.getPI();
+//
+//        double[][] pa = paras.getPA();
+//        double[][] pb = paras.getPB();
 //
 //        System.out.println("A:");
 //        for (int[] a : as) {
@@ -35,11 +33,17 @@ public class BigramParas extends AbstractParas {
 //
 //        System.out.println("PI:" + Arrays.toString(pi));
 //
-//        System.out.println(as.length + ":" + as[0].length);
+//        System.out.println(as.length + ":" + paras.getSizeOfTags());
 //        System.out.println(bs.length + ":" + bs[0].length);
 //        System.out.println(paras.getPI().length);
+//
+//        System.out.println(as.length == paras.getHoldOut().length);
+//        System.out.println(pa.length == pb.length);
+//
+//        System.out.println(as.length + ":" + pa.length);
+//
 //        //PI:[184764, 236810, 74829, 34473, 173047, 20680, 41370, 24244]
-
+//
 //        BigramParas paras = new BigramParas();
 //        paras.addCorpus("/home/mjx/桌面/PoS/test/testCount.txt");
 //        paras.calcProbs(true);
@@ -60,47 +64,62 @@ public class BigramParas extends AbstractParas {
 //        for (double[] p : paras.getPB()) {
 //            System.out.println(Arrays.toString(p));
 //        }
-
-    }
+//
+//    }
 
     /*
         计数参数
      */
-    protected int[][] numMatA;
+    private int[][] numMatA;
 
-    protected int[][] numMatB;
+    private int[][] numMatB;
 
-    protected int[] numPi;
+    private int[] numPi;
+
+    private int[][] holdOut;
 
     /*
         概率参数
      */
-    protected double[][] probMatA;
+    private double[][] probMatA;
 
-    protected double[][] smoothingMatA;
+    private double[][] smoothingMatA;
 
-    protected double[][] probMatB;
+    private double[][] probMatB;
 
-    protected double[] probPi;
+    private double[] probPi;
 
+//    public BigramParas(){
+//        this.dictionary = new DictFactory();
+//        this.numMatA = new int[1][1];
+//        this.numMatB = new int[1][1];
+//        this.numPi = new int[1];
+//    }
 
-    public BigramParas() {
+    //在构造器中初始加载这个语料库，并计算初始概率和平滑后的概率
+    public BigramParas(String corpusPath) {
+        this.corpusPath = corpusPath;
         this.dictionary = new DictFactory();
         this.numMatA = new int[1][1];
+        this.holdOut = new int[1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
+        this.initParas();
     }
 
-    public BigramParas(int tagNum, int wordNum) {
+    public BigramParas(String corpusPath, int tagNum, int wordNum) {
+        this.corpusPath = corpusPath;
         this.dictionary = new DictFactory();
         this.numMatA = new int[tagNum][tagNum];//the size of tag set is 44.
+        this.holdOut = new int[tagNum][tagNum];
         this.numMatB = new int[tagNum][wordNum];//the size of word set is 55310.
         this.numPi = new int[tagNum];
+        this.initParas();
     }
 
     @Override
-    protected WordTagStream openStream(String corpusPath) {
-        return new PeopleDailyWordTagStream(corpusPath);
+    protected WordTagStream openStream() {
+        return new PeopleDailyWordTagStream();
     }
 
     /*
@@ -108,13 +127,12 @@ public class BigramParas extends AbstractParas {
      */
     @Override
     protected void countMatA(String[] tags) {
-        if (this.dictionary.getSizeOfTags() > this.numMatA[0].length) {
+        if (this.getSizeOfTags() > this.numMatA[0].length) {
             this.reBuildA();
         }
         for (int i = 1; i < tags.length; i++) {
-            this.numMatA[this.dictionary.getTagId(tags[i - 1])][this.dictionary.getTagId(tags[i])]++;
+            this.numMatA[this.getTagId(tags[i - 1])][this.getTagId(tags[i])]++;
         }
-
     }
 
     @Override
@@ -122,28 +140,28 @@ public class BigramParas extends AbstractParas {
         if (words.length != tags.length) {
             System.err.println("词组，标注长度不匹配。");
         }
-        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
+        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfTags() > this.numMatB[0].length) {
             this.reBuildB();
         }
 
         for (int i = 0; i < words.length; i++) {
-            this.numMatB[this.dictionary.getTagId(tags[i])][this.dictionary.getWordId(words[i])]++;
+            this.numMatB[this.getTagId(tags[i])][this.getWordId(words[i])]++;
         }
     }
 
     @Override
     protected void countPi(String[] tags) {
-        if (this.dictionary.getSizeOfTags() > this.numPi.length) {
+        if (this.getSizeOfTags() > this.numPi.length) {
             this.reBuildPi();
         }
         for (String tag : tags) {
-            this.numPi[this.dictionary.getTagId(tag)]++;
+            this.numPi[this.getTagId(tag)]++;
         }
     }
 
     @Override
     protected void reBuildA() {
-        int[][] newA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        int[][] newA = new int[this.getSizeOfTags()][this.getSizeOfTags()];
         for (int i = 0; i < this.numMatA[0].length; ++i) {
             for (int j = 0; j < this.numMatA[0].length; ++j) {
                 newA[i][j] = this.numMatA[i][j];
@@ -154,8 +172,8 @@ public class BigramParas extends AbstractParas {
 
     @Override
     protected void reBuildB() {
-        int row = this.dictionary.getSizeOfTags() > this.numMatB.length ? this.dictionary.getSizeOfTags() : this.numMatB.length;
-        int col = this.dictionary.getSizeOfWords() > this.numMatB[0].length ? this.dictionary.getSizeOfWords() : this.numMatB[0].length;
+        int row = this.getSizeOfTags() > this.numMatB.length ? this.getSizeOfTags() : this.numMatB.length;
+        int col = this.getSizeOfWords() > this.numMatB[0].length ? this.getSizeOfWords() : this.numMatB[0].length;
         int[][] newB = new int[row][col];
         for (int i = 0; i < this.numMatB.length; ++i) {
             for (int j = 0; j < this.numMatB[0].length; ++j) {
@@ -167,7 +185,7 @@ public class BigramParas extends AbstractParas {
 
     @Override
     protected void reBuildPi() {
-        int[] pi = new int[this.dictionary.getSizeOfTags()];
+        int[] pi = new int[this.getSizeOfTags()];
         for (int i = 0; i < this.numPi.length; ++i) {
             pi[i] = this.numPi[i];
 
@@ -176,12 +194,49 @@ public class BigramParas extends AbstractParas {
     }
 
     /*
-        计算概率参数
+        留存数据处理
      */
+    @Override
+    protected void addHoldOut(WordTag[] wts) {
+        if (this.getSizeOfTags() > this.holdOut.length) {
+            this.expandHoldOut();
+        }
+        for (int i = 1; i < wts.length; i++) {
+            this.holdOut[this.getTagId(wts[i - 1].getTag())][this.getTagId(wts[i].getTag())]++;
+        }
+    }
+
+    @Override
+    protected void expandHoldOut() {
+        int[][] holeOut = new int[this.getSizeOfTags()][this.getSizeOfTags()];
+
+        for (int i = 0; i < this.holdOut.length; ++i) {
+            for (int j = 0; j < this.holdOut[0].length; ++j) {
+                holeOut[i][j] = this.holdOut[i][j];
+            }
+        }
+        this.holdOut = holeOut;
+    }
+
+    @Override
+    protected void ensureLenOfTag() {
+        int tagSize = this.getSizeOfTags();
+        if (tagSize > this.numMatA.length) {
+            this.reBuildA();
+        }
+        if (tagSize > this.holdOut.length) {
+            this.expandHoldOut();
+        }
+    }
+
+    /*
+        计算概率参数
+        注：概率矩阵的大小与映射词典的对应长度是一致的，小雨或等于计数矩阵的大小。
+    */
     @Override
     protected void calcProbA() {
 
-        int len = this.numMatA.length;
+        int len = this.getSizeOfTags();
 
         this.probMatA = new double[len][len];
 
@@ -206,8 +261,8 @@ public class BigramParas extends AbstractParas {
     @Override
     protected void calcProbB() {
 
-        int rowSize = this.numMatB.length;
-        int colSize = this.numMatB[0].length;
+        int rowSize = this.getSizeOfTags();
+        int colSize = this.getSizeOfWords();
 
         this.probMatB = new double[rowSize][colSize];
 
@@ -233,7 +288,7 @@ public class BigramParas extends AbstractParas {
     @Override
     protected void calcProbPi() {
 
-        int vectorSize = this.numPi.length;
+        int vectorSize = this.getSizeOfTags();
 
         this.probPi = new double[vectorSize];
 
@@ -251,9 +306,15 @@ public class BigramParas extends AbstractParas {
         }
     }
 
+
     @Override
     protected void smoothMatA() {
-        int len = this.probMatA.length;
+
+        if (this.corpusPath == null) {
+            System.err.println("留存数据不存在。");
+            return;
+        }
+        int len = this.getSizeOfTags();
 
         this.smoothingMatA = new double[len][len];
 
@@ -261,24 +322,35 @@ public class BigramParas extends AbstractParas {
         double lambd_count2 = 0.0;
 
         double sumOfTag = 0.0;
-        for (int num : numPi) {
-            sumOfTag += num;
+        double[] vector = new double[len];
+        double sumOfRow = 0.0;
+
+        System.out.println("异常：" + len + ":" + holdOut.length);
+        for (int row = 0; row < len; ++row) {
+
+            for (int num : this.holdOut[row]) {
+                sumOfRow += num;
+                sumOfTag += num;
+            }
+            vector[row] = sumOfRow;
+            sumOfRow = 0;
         }
 
 //        System.out.println(sumOfTag);
         if (sumOfTag == 0) {
-            System.err.println("隐藏状态数为0.");
+            System.err.println("留存数据不存在。");
+            return;
         }
         for (int t_1 = 0; t_1 < len; ++t_1) {
             for (int t_2 = 0; t_2 < len; ++t_2) {
                 //?????是否是联合频数？？？？？
-                int t_1_2 = this.numMatA[t_1][t_2] + numMatA[t_2][t_1];
+                int t_1_2 = this.holdOut[t_1][t_2] + holdOut[t_2][t_1];
 
-                double expression1 = (numPi[t_2] - 1) / (sumOfTag - 1);
+                double expression1 = (vector[t_2] - 1) / (sumOfTag - 1);
                 double expression2 = 0.0;
 
-                if (numPi[t_1] - 1 != 0) {
-                    expression2 = (t_1_2 - 1) / (numPi[t_1] - 1);
+                if (vector[t_1] - 1 > 0) {
+                    expression2 = (t_1_2 - 1) / (vector[t_1] - 1);
                 }
                 //这里等号对结果的影响
                 if (expression1 >= expression2) {
@@ -288,6 +360,7 @@ public class BigramParas extends AbstractParas {
                 }
             }
         }
+
         double lambd1 = lambd_count1 / (lambd_count1 + lambd_count2);
         double lambd2 = lambd_count2 / (lambd_count1 + lambd_count2);
         System.out.println("系数：" + lambd1 + ":" + lambd2);
@@ -324,27 +397,9 @@ public class BigramParas extends AbstractParas {
         return this.smoothingMatA[preTag][nextTag];
     }
 
-    @Override
-    public String getTagOnId(int tagId) {
-        return this.dictionary.getTag(tagId);
-    }
 
-    @Override
-    public int getWordId(String word) {
-        return this.dictionary.getWordId(word);
-    }
-
-    @Override
-    public int getTagId(String tag) {
-        return this.dictionary.getTagId(tag);
-    }
-
-    @Override
-    public String[] getTagSet() {
-        return this.dictionary.getTagSet();
-    }
-
-    //    public int[][] getA() {
+//直接访问数据结构的方法
+//    public int[][] getA() {
 //        return this.numMatA;
 //    }
 //
@@ -364,13 +419,16 @@ public class BigramParas extends AbstractParas {
 //        return this.smoothingMatA;
 //    }
 //
-//
 //    public double[][] getPB() {
 //        return this.probMatB;
 //    }
 //
 //    public double[] getPpi() {
 //        return this.probPi;
+//    }
+//
+//    public int[][] getHoldOut() {
+//        return holdOut;
 //    }
 }
 

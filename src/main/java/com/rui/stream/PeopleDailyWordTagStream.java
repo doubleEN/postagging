@@ -14,6 +14,8 @@ public class PeopleDailyWordTagStream extends WordTagStream {
     public PeopleDailyWordTagStream(String corpusPath) {
         this.openReadStream(corpusPath);
     }
+    public PeopleDailyWordTagStream( ) {
+    }
 
     /**
      * 用空白符分割得到多个[wordtag]，用[/]分割[wordtag]的到word和tag。

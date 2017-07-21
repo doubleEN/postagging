@@ -4,34 +4,61 @@ import com.rui.dictionary.DictFactory;
 import com.rui.ngram.WordTag;
 import com.rui.stream.WordTagStream;
 
+import java.util.Random;
+
 /**
  * 统计并计算HMM参数的接口
  */
 public abstract class AbstractParas {
 
-    //word与word的编号词典
+    //初始语料库的路径
+    protected String corpusPath;
+
+    //word与tag的映射词典
     protected DictFactory dictionary;
 
     //判断当前计数参数是否变化，无变化则不允许重复计算概率参数
     protected boolean calcFlag = false;
 
-    //添加语料库并累计参数
-    public void addCorpus(String corpusPath) {
-        WordTagStream wordTagStream = this.openStream(corpusPath);
+    //初始化[语料库]，并计算概率参数的[模板方法]
+    public void initParas() {
+        WordTagStream wtStream = this.openStream();
+        wtStream.openReadStream(this.corpusPath);
+
         WordTag[] wts;
-        while ((wts = wordTagStream.readSentence()) != null) {
-            this.addCorpus(wts);
+        Random generator = new Random();
+        while ((wts = wtStream.readSentence()) != null) {
+            //给新语料增加映射
+            dictionary.addIndex(wts);
+
+            //按[1:4]换分[留存:训练集]
+            int randNum = (int) (Math.random() * 10 / 2);
+            if (randNum == 1) {
+                this.addHoldOut(wts);
+            } else {
+                this.addCorpus(wts);
+            }
         }
-        wordTagStream.close();
-        //有新的语料，可重新计算概率参数
+        wtStream.close();
+
+        //初始添加了语料库，可计算概率参数
+        this.calcFlag = true;
+        //在计算概率以前，保证训练集，留存和映射词典的编号长度一致
+        this.ensureLenOfTag();
+        //计算概率
+        this.calcProbs();
+    }
+
+    //添加新语料
+    public void addCorpus(String sentence) {
+        WordTag[] wts = this.openStream().segSentence(sentence);
+        dictionary.addIndex(wts);
+        this.addCorpus(wts);
         this.calcFlag = true;
     }
 
-//   ?????句子重载
-
-    //从wordTag数组中累计参数
+    //添加新语料
     public void addCorpus(WordTag[] wts) {
-        dictionary.addIndex(wts);
         String[] words = new String[wts.length];
         String[] tags = new String[wts.length];
         for (int i = 0; i < wts.length; ++i) {
@@ -47,7 +74,7 @@ public abstract class AbstractParas {
     }
 
     //打开特定的语料库
-    protected abstract WordTagStream openStream(String corpusPath);
+    protected abstract WordTagStream openStream();
 
     //统计[转移状态频数]
     protected abstract void countMatA(String[] tags);
@@ -67,13 +94,21 @@ public abstract class AbstractParas {
     //扩展[初始状态向量]
     protected abstract void reBuildPi();
 
+    //划分[留存数据]
+    protected abstract void addHoldOut(WordTag[] wts);
+
+    //扩展[留存状态矩阵]
+    protected abstract void expandHoldOut();
+
+    protected abstract void ensureLenOfTag();
+
     /*
         以下为由计数计算概率的方法。
      */
     //计算概率参数的[模板方法]
     public void calcProbs() {
         if (!this.calcFlag) {
-            System.err.println("未添加语料库或未加入新的语料库。");
+            System.err.println("未添加语料库或未加入新的语料,不能计算概率。");
             return;
         }
         //这里最后计算A的概率，因为A的平滑需要pi的概率
@@ -81,6 +116,7 @@ public abstract class AbstractParas {
         this.calcProbPi();
         this.calcProbA();
         this.smoothMatA();
+        this.calcFlag = false;
 
     }
 
@@ -97,12 +133,8 @@ public abstract class AbstractParas {
     protected abstract void smoothMatA();
 
     /*
-        以下，提供访问参数的方法与接口
+        以下，提供访问概率参数的方法与接口
      */
-    //获得标注集大小
-    public int getSizeOfTags() {
-        return this.dictionary.getSizeOfTags();
-    }
 
     //获得指定标注的初始概率
     public abstract double getProbPi(int indexOfTag);
@@ -116,15 +148,38 @@ public abstract class AbstractParas {
     //获得指定[tag_i-->tag_i+1]的平滑后的转移概率
     public abstract double getProbSmoothA(int preTag, int nextTag);
 
+    /*
+        访问映射词典的方法与接口
+     */
+
     //根据tagId获取tag的字符串形式
-    public abstract String getTagOnId(int tagId);
+    public String getTagOnId(int tagId) {
+        return this.dictionary.getTag(tagId);
+    }
 
     //根据word的字符串形式获取对应的wordId
-    public abstract int getWordId(String word);
+    public int getWordId(String word) {
+        return this.dictionary.getWordId(word);
+    }
 
     //根据tag的字符串形式获取对应的tagId
-    public abstract int getTagId(String tag);
+    public int getTagId(String tag) {
+        return this.dictionary.getTagId(tag);
+    }
+
+    //获得标注集大小
+    public int getSizeOfTags() {
+        return this.dictionary.getSizeOfTags();
+    }
+
+    //获得不同词的总数
+    public int getSizeOfWords() {
+        return this.dictionary.getSizeOfWords();
+    }
 
     //获得整个标注集的字符串形式
-    public abstract String[] getTagSet();
+    public String[] getTagSet() {
+        return this.dictionary.getTagSet();
+    }
+
 }

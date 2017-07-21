@@ -22,7 +22,7 @@ public abstract class WordTagStream {
     /**
      * 打开流操作
      */
-    protected void openReadStream(String corpusPath) {
+    public void openReadStream(String corpusPath) {
         try {
             //这里没有显式的关闭fis和isr会有什么影响
             FileInputStream fis = new FileInputStream(corpusPath);
