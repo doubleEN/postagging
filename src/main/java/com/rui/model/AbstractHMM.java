@@ -16,7 +16,10 @@ public interface AbstractHMM {
     //viterbi回溯解码
     int[] decode(int lastIndex, int[][] records);
 
-    //匹配【词，词性】
+    //匹配[词，词性]
     WordTag[] matching(String[] words, int[] tagIds);
+
+    //获得第[ranking]大的概率
+    double[] probsTopK(String[] words, int ranking,int[][] toolArr);
 
 }

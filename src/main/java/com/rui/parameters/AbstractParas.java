@@ -11,9 +11,6 @@ import java.util.Random;
  */
 public abstract class AbstractParas {
 
-    //初始语料库的路径
-    protected String corpusPath;
-
     //word与tag的映射词典
     protected DictFactory dictionary;
 
@@ -21,18 +18,18 @@ public abstract class AbstractParas {
     protected boolean calcFlag = false;
 
     //初始化[语料库]，并计算概率参数的[模板方法]
-    public void initParas() {
+    public void initParas(String corpusPath) {
         WordTagStream wtStream = this.openStream();
-        wtStream.openReadStream(this.corpusPath);
+        wtStream.openReadStream(corpusPath);
 
         WordTag[] wts;
-        Random generator = new Random();
+        Random generator = new Random(21);
         while ((wts = wtStream.readSentence()) != null) {
             //给新语料增加映射
             dictionary.addIndex(wts);
 
             //按[1:4]换分[留存:训练集]
-            int randNum = (int) (Math.random() * 10 / 2);
+            int randNum = generator.nextInt(5);
             if (randNum == 1) {
                 this.addHoldOut(wts);
             } else {
@@ -43,8 +40,7 @@ public abstract class AbstractParas {
 
         //初始添加了语料库，可计算概率参数
         this.calcFlag = true;
-        //在计算概率以前，保证训练集，留存和映射词典的编号长度一致
-        this.ensureLenOfTag();
+
         //计算概率
         this.calcProbs();
     }
@@ -107,10 +103,14 @@ public abstract class AbstractParas {
      */
     //计算概率参数的[模板方法]
     public void calcProbs() {
+
         if (!this.calcFlag) {
             System.err.println("未添加语料库或未加入新的语料,不能计算概率。");
             return;
         }
+        //在计算概率以前，保证训练集，留存和映射词典的编号长度一致
+        this.ensureLenOfTag();
+
         //这里最后计算A的概率，因为A的平滑需要pi的概率
         this.calcProbB();
         this.calcProbPi();

@@ -19,17 +19,18 @@ public class BigramParas extends AbstractParas {
 //        int[][] bs = paras.getB();
 //        int[] pi = paras.getPI();
 //
-//        double[][] pa = paras.getPA();
+//        double[][] pa = paras.getPSA();
 //        double[][] pb = paras.getPB();
 //
-//        System.out.println("A:");
-//        for (int[] a : as) {
+//
+//        System.out.println("平滑后概率:");
+//        for (double[] a : pa) {
 //            System.out.println(Arrays.toString(a));
 //        }
-//        System.out.println("B:");
-//        for (int[] b : bs) {
-//            System.out.println(Arrays.toString(b));
-//        }
+////        System.out.println("B:");
+////        for (int[] b : bs) {
+////            System.out.println(Arrays.toString(b));
+////        }
 //
 //        System.out.println("PI:" + Arrays.toString(pi));
 //
@@ -44,26 +45,24 @@ public class BigramParas extends AbstractParas {
 //
 //        //PI:[184764, 236810, 74829, 34473, 173047, 20680, 41370, 24244]
 //
-//        BigramParas paras = new BigramParas();
-//        paras.addCorpus("/home/mjx/桌面/PoS/test/testCount.txt");
-//        paras.calcProbs(true);
-//
-//        System.out.println("probA:");
-//        for (double[] p : paras.getPA()) {
-//            System.out.println(Arrays.toString(p));
-//        }
-//        System.out.println("probPi:");
-//        System.out.println(Arrays.toString(paras.getPpi()));
-//
-//        System.out.println("smoothA:");
-//        for (double[] p : paras.getPSA()) {
-//            System.out.println(Arrays.toString(p));
-//        }
-//
-//        System.out.println("probB:");
-//        for (double[] p : paras.getPB()) {
-//            System.out.println(Arrays.toString(p));
-//        }
+////        BigramParas paras = new BigramParas("/home/mjx/桌面/PoS/test/testCount.txt");
+////
+////        System.out.println("probA:");
+////        for (double[] p : paras.getPA()) {
+////            System.out.println(Arrays.toString(p));
+////        }
+////        System.out.println("probPi:");
+////        System.out.println(Arrays.toString(paras.getPpi()));
+////
+////        System.out.println("smoothA:");
+////        for (double[] p : paras.getPSA()) {
+////            System.out.println(Arrays.toString(p));
+////        }
+////
+////        System.out.println("probB:");
+////        for (double[] p : paras.getPB()) {
+////            System.out.println(Arrays.toString(p));
+////        }
 //
 //    }
 
@@ -89,32 +88,31 @@ public class BigramParas extends AbstractParas {
 
     private double[] probPi;
 
-//    public BigramParas(){
-//        this.dictionary = new DictFactory();
-//        this.numMatA = new int[1][1];
-//        this.numMatB = new int[1][1];
-//        this.numPi = new int[1];
-//    }
+    public BigramParas(){
+        this.dictionary = new DictFactory();
+        this.holdOut=new int[1][1];
+        this.numMatA = new int[1][1];
+        this.numMatB = new int[1][1];
+        this.numPi = new int[1];
+    }
 
     //在构造器中初始加载这个语料库，并计算初始概率和平滑后的概率
     public BigramParas(String corpusPath) {
-        this.corpusPath = corpusPath;
         this.dictionary = new DictFactory();
         this.numMatA = new int[1][1];
         this.holdOut = new int[1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
-        this.initParas();
+        this.initParas(corpusPath);
     }
 
     public BigramParas(String corpusPath, int tagNum, int wordNum) {
-        this.corpusPath = corpusPath;
         this.dictionary = new DictFactory();
         this.numMatA = new int[tagNum][tagNum];//the size of tag set is 44.
         this.holdOut = new int[tagNum][tagNum];
         this.numMatB = new int[tagNum][wordNum];//the size of word set is 55310.
         this.numPi = new int[tagNum];
-        this.initParas();
+        this.initParas(corpusPath);
     }
 
     @Override
@@ -140,7 +138,7 @@ public class BigramParas extends AbstractParas {
         if (words.length != tags.length) {
             System.err.println("词组，标注长度不匹配。");
         }
-        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfTags() > this.numMatB[0].length) {
+        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
             this.reBuildB();
         }
 
@@ -310,10 +308,6 @@ public class BigramParas extends AbstractParas {
     @Override
     protected void smoothMatA() {
 
-        if (this.corpusPath == null) {
-            System.err.println("留存数据不存在。");
-            return;
-        }
         int len = this.getSizeOfTags();
 
         this.smoothingMatA = new double[len][len];
@@ -325,7 +319,6 @@ public class BigramParas extends AbstractParas {
         double[] vector = new double[len];
         double sumOfRow = 0.0;
 
-        System.out.println("异常：" + len + ":" + holdOut.length);
         for (int row = 0; row < len; ++row) {
 
             for (int num : this.holdOut[row]) {
@@ -338,24 +331,32 @@ public class BigramParas extends AbstractParas {
 
 //        System.out.println(sumOfTag);
         if (sumOfTag == 0) {
-            System.err.println("留存数据不存在。");
+            System.err.println("留存数据不存在,不能平滑概率。");
             return;
         }
+
+        int i1=0,i2=0;
         for (int t_1 = 0; t_1 < len; ++t_1) {
             for (int t_2 = 0; t_2 < len; ++t_2) {
-                //?????是否是联合频数？？？？？
-                int t_1_2 = this.holdOut[t_1][t_2] + holdOut[t_2][t_1];
+                // 系数：0.1514629948364888:0.8485370051635112
+                //系数：0.3683304647160069:0.6316695352839932
+                int t_1_2 = this.holdOut[t_1][t_2];
 
                 double expression1 = (vector[t_2] - 1) / (sumOfTag - 1);
                 double expression2 = 0.0;
 
-                if (vector[t_1] - 1 > 0) {
+                if (vector[t_1] - 1 != 0) {
                     expression2 = (t_1_2 - 1) / (vector[t_1] - 1);
                 }
-                //这里等号对结果的影响
+
+                //稀疏语料中，t_2的出现概率大多数情况下要比t_2的条件概率大，对应的t_2的联合频数t_1_2要小；
+                // 少数情况下，t_2的条件概率比t_2的出现概率大，这时对应的t_2的联合频数t_1_2要大；
+                //所以，虽然expression1大的情况多一些，但因为累加的联合频数偏小，所以最后对应系数并不会格外大
                 if (expression1 >= expression2) {
                     lambd_count1 += t_1_2;
+                    i1++;
                 } else {
+                    i2++;
                     lambd_count2 += t_1_2;
                 }
             }
@@ -363,7 +364,9 @@ public class BigramParas extends AbstractParas {
 
         double lambd1 = lambd_count1 / (lambd_count1 + lambd_count2);
         double lambd2 = lambd_count2 / (lambd_count1 + lambd_count2);
+//        System.out.println("系数频次：" + lambd_count1 + ":" + lambd_count2);
         System.out.println("系数：" + lambd1 + ":" + lambd2);
+//        System.out.println("系数的计数频次："+i1 + ":" + i2);
 
         //系数：0.9968451753824765:0.003154824617523456
         //系数：0.956853536835926:0.043146463164073966
