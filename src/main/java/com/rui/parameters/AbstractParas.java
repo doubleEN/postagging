@@ -143,10 +143,10 @@ public abstract class AbstractParas {
     public abstract double getProbB(int indexOfTag, int indexOfWord);
 
     //获得指定[tag_i-->tag_i+1]的转移概率
-    public abstract double getProbA(int preTag, int nextTag);
+    public abstract double getProbA(int... tagIndex);
 
     //获得指定[tag_i-->tag_i+1]的平滑后的转移概率
-    public abstract double getProbSmoothA(int preTag, int nextTag);
+    public abstract double getProbSmoothA(int... tagIndex);
 
     /*
         访问映射词典的方法与接口

@@ -206,14 +206,14 @@ public class BigramParas extends AbstractParas {
 
     @Override
     protected void expandHoldOut() {
-        int[][] holeOut = new int[this.getSizeOfTags()][this.getSizeOfTags()];
+        int[][] holdOut = new int[this.getSizeOfTags()][this.getSizeOfTags()];
 
         for (int i = 0; i < this.holdOut.length; ++i) {
             for (int j = 0; j < this.holdOut[0].length; ++j) {
-                holeOut[i][j] = this.holdOut[i][j];
+                holdOut[i][j] = this.holdOut[i][j];
             }
         }
-        this.holdOut = holeOut;
+        this.holdOut = holdOut;
     }
 
     @Override
@@ -391,13 +391,19 @@ public class BigramParas extends AbstractParas {
     }
 
     @Override
-    public double getProbA(int preTag, int nextTag) {
-        return this.probMatA[preTag][nextTag];
+    public double getProbA(int... tagIndex) {
+        if (tagIndex.length!=2){
+            System.err.println("获取转移概率参数不合法。");
+        }
+        return this.probMatA[tagIndex[0]][tagIndex[1]];
     }
 
     @Override
-    public double getProbSmoothA(int preTag, int nextTag) {
-        return this.smoothingMatA[preTag][nextTag];
+    public double getProbSmoothA(int... tagIndex) {
+        if (tagIndex.length!=2){
+            System.err.println("获取转移概率参数不合法。");
+        }
+        return this.smoothingMatA[tagIndex[0]][tagIndex[1]];
     }
 
 
