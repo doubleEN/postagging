@@ -1,6 +1,6 @@
 package com.rui.stream;
 
-import com.rui.ngram.WordTag;
+import com.rui.wordtag.WordTag;
 
 import java.io.BufferedReader;
 

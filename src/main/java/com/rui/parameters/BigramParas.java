@@ -1,11 +1,9 @@
 package com.rui.parameters;
 
 import com.rui.dictionary.DictFactory;
-import com.rui.ngram.WordTag;
+import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
-
-import java.util.Arrays;
 
 /**
  * 统计并计算[一阶HMM]的参数
@@ -116,7 +114,7 @@ public class BigramParas extends AbstractParas {
     }
 
     @Override
-    protected WordTagStream openStream() {
+    protected WordTagStream chooseStream() {
         return new PeopleDailyWordTagStream();
     }
 
@@ -229,7 +227,7 @@ public class BigramParas extends AbstractParas {
 
     /*
         计算概率参数
-        注：概率矩阵的大小与映射词典的对应长度是一致的，小雨或等于计数矩阵的大小。
+        注：概率矩阵的大小与映射词典的对应长度是一致的，小于或等于计数矩阵的大小。
     */
     @Override
     protected void calcProbA() {

@@ -1,7 +1,7 @@
 package com.rui.parameters;
 
 import com.rui.dictionary.DictFactory;
-import com.rui.ngram.WordTag;
+import com.rui.wordtag.WordTag;
 import com.rui.stream.WordTagStream;
 
 import java.util.Random;
@@ -18,14 +18,14 @@ public abstract class AbstractParas {
     protected boolean calcFlag = false;
 
     //初始化[语料库]，并计算概率参数的[模板方法]
-    public void initParas(String corpusPath) {
-        WordTagStream wtStream = this.openStream();
+    protected void initParas(String corpusPath) {
+        WordTagStream wtStream = this.chooseStream();
         wtStream.openReadStream(corpusPath);
 
         WordTag[] wts;
         Random generator = new Random(21);
         while ((wts = wtStream.readSentence()) != null) {
-            //给新语料增加映射
+            //在统计参数以前，给新语料增加映射关系
             dictionary.addIndex(wts);
 
             //按[1:4]换分[留存:训练集]
@@ -47,14 +47,14 @@ public abstract class AbstractParas {
 
     //添加新语料
     public void addCorpus(String sentence) {
-        WordTag[] wts = this.openStream().segSentence(sentence);
+        WordTag[] wts = this.chooseStream().segSentence(sentence);
         dictionary.addIndex(wts);
         this.addCorpus(wts);
         this.calcFlag = true;
     }
 
     //添加新语料
-    public void addCorpus(WordTag[] wts) {
+    protected void addCorpus(WordTag[] wts) {
         String[] words = new String[wts.length];
         String[] tags = new String[wts.length];
         for (int i = 0; i < wts.length; ++i) {
@@ -65,12 +65,10 @@ public abstract class AbstractParas {
         this.countMatB(words, tags);
         this.countPi(tags);
         //有新的语料，可重新计算概率参数
-
-        this.calcFlag = true;
     }
 
     //打开特定的语料库
-    protected abstract WordTagStream openStream();
+    protected abstract WordTagStream chooseStream();
 
     //统计[转移状态频数]
     protected abstract void countMatA(String[] tags);
@@ -105,7 +103,7 @@ public abstract class AbstractParas {
     public void calcProbs() {
 
         if (!this.calcFlag) {
-            System.err.println("未添加语料库或未加入新的语料,不能计算概率。");
+            System.err.println("未添加初始语料库或未加入新的语料,不能计算概率。");
             return;
         }
         //在计算概率以前，保证训练集，留存和映射词典的编号长度一致
@@ -135,7 +133,6 @@ public abstract class AbstractParas {
     /*
         以下，提供访问概率参数的方法与接口
      */
-
     //获得指定标注的初始概率
     public abstract double getProbPi(int indexOfTag);
 

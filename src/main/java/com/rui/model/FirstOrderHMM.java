@@ -1,44 +1,60 @@
 package com.rui.model;
 
-import com.rui.ngram.WordTag;
+import com.rui.wordtag.WordTag;
 import com.rui.parameters.AbstractParas;
 import com.rui.parameters.BigramParas;
+import jdk.nashorn.internal.runtime.WithObject;
 
 import java.util.Arrays;
 
 /**
  * 一阶HMM实现。
  */
-public class FirstOrderHMM implements AbstractHMM {
+public class FirstOrderHMM extends HMM {
+    //记录k次viterbi解码中计算得到的句子概率
+    private double[][]rankProbs;
+
+    //解码时的辅助数组
+    private int[][][]indexs;
+
+
+    public FirstOrderHMM(AbstractParas hmmParas) {
+        this.hmmParas = hmmParas;
+    }
+
 
     public static void main(String[] args) {
         BigramParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 44, 55310);
 
         FirstOrderHMM hmm = new FirstOrderHMM(paras);
 
-        WordTag[] wts = hmm.tag("迈向 一九九八年 ！");
+        int[][] wts = hmm.viterbi("迈向 一九九八年 ！",4);
 
-        System.out.println(Arrays.toString(wts));
+        for (int[]w:wts){
+
+            System.out.println(Arrays.toString(w));
+        }
     }
 
     @Override
-    public WordTag[][] tagTopK(String sentence, int k) {
+    public int[][] viterbi(String sentence, int k) {
 
         String[] words = sentence.trim().split("\\s+");
         int wordLen = words.length;
         int tagSize = this.hmmParas.getSizeOfTags();
-        WordTag[][] wts = new WordTag[k][wordLen];
 
-        //记录k次viterbi解码中计算得到的句子概率
-        double[][] rankProbs = new double[k][tagSize];
+        int[][] tagIds=new int[k][wordLen];
+
+        this.rankProbs = new double[k][tagSize];
         //解码用到中间数组
-        int[][][] indexs = new int[k][tagSize][wordLen];
+        this.indexs = new int[k][tagSize][wordLen];
 
-        //计算句子概率
-        for (int i = 1; i <= k; ++i) {
-            rankProbs[i - 1] = this.probsTopK(words, i, indexs[i - 1]);
+        //计算需要的句子概率
+        for (int rank= 1; rank <= k; ++rank) {
+            this.forward(sentence,rank);
         }
 
+        WordTag[][] wts = new WordTag[k][wordLen];
         //找到k个概率最大的句子并解码
         for (int rank = 1; rank <= k; ++rank) {
             int index_i = -1;
@@ -48,24 +64,26 @@ public class FirstOrderHMM implements AbstractHMM {
             //找到当前概率最大的索引
             for (int i = 0; i < k; ++i) {
                 for (int j = 0; j < tagSize; ++j) {
-                    if (rankProbs[i][j] > currProb) {
-                        currProb = rankProbs[i][j];
+                    if (this.rankProbs[i][j] > currProb) {
+                        currProb = this.rankProbs[i][j];
                         index_i = i;
                         index_j = j;
                     }
                 }
             }
 
-            rankProbs[index_i][index_j] = -1;
+            this.rankProbs[index_i][index_j] = -1;
 
-            int[] tagIds = this.decode(index_j, indexs[index_i]);
-            wts[rank - 1] = this.matching(words, tagIds);
+            //index_i为第index_i次前向算法，index_j为index_i次前向算法中的某个概率索引
+            tagIds[rank-1] = this.decode(index_j, index_i);
+
         }
-
-        return wts;
+        return tagIds;
     }
 
-    public double[] probsTopK(String[] words, int ranking, int[][] toolArr) {
+    @Override
+    public void forward(String sentence,int ranking) {
+        String[] words=sentence.split("\\s+");
         int wordLen = words.length;
         int tagSize = this.hmmParas.getSizeOfTags();
         //索引数组差概率数组一位
@@ -110,43 +128,23 @@ public class FirstOrderHMM implements AbstractHMM {
         for (int i = 0; i < tagSize; ++i) {
             maxProbs[i] = sentencesProb[i][wordLen - 1];
         }
-
-        return maxProbs;
+        this.indexs[ranking-1]=indexs;
+        this.rankProbs[ranking - 1]=maxProbs;
     }
 
     @Override
-    public WordTag[] tag(String sentences) {
-        return this.tagTopK(sentences, 1)[0];
-    }
-
-    @Override
-    public int[] decode(int lastIndex, int[][] records) {
-        int wordLen = records[0].length;
+    public int[] decode(int lastIndex, int ranking) {
+        int wordLen = this.indexs[ranking][0].length;
         int[] tagIds = new int[wordLen];
         tagIds[wordLen - 1] = lastIndex;
         int maxRow = lastIndex;
 
         for (int col = wordLen - 2; col >= 0; --col) {
-            maxRow = records[maxRow][col];
+            maxRow = this.indexs[ranking][maxRow][col];
             tagIds[col] = maxRow;
         }
         return tagIds;
     }
 
-    @Override
-    public WordTag[] matching(String[] words, int[] tagIds) {
-        int wordLen = words.length;
-        WordTag[] wts = new WordTag[wordLen];
-        for (int index = 0; index < wordLen; ++index) {
-            wts[index] = new WordTag(words[index], this.hmmParas.getTagOnId(tagIds[index]));
-        }
-        return wts;
-    }
-
-    protected AbstractParas hmmParas;
-
-    public FirstOrderHMM(AbstractParas hmmParas) {
-        this.hmmParas = hmmParas;
-    }
 
 }

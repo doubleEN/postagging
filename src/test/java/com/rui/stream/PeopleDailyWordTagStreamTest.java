@@ -1,6 +1,6 @@
 package com.rui.stream;
 
-import com.rui.ngram.WordTag;
+import com.rui.wordtag.WordTag;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

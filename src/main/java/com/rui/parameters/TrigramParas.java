@@ -1,53 +1,51 @@
 package com.rui.parameters;
 
 import com.rui.dictionary.DictFactory;
-import com.rui.ngram.WordTag;
+import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
-
-import java.util.Arrays;
 
 /**
  * 三元语法参数训练。
  */
 public class TrigramParas extends AbstractParas {
 
-    public static void main(String[] args) {
-        TrigramParas paras = new TrigramParas("/home/mjx/桌面/PoS/test/testCount.txt");
-        int[][][] numA = paras.getNumMatA();
-        int[][] numB = paras.getNumMatB();
-        int[] numPi = paras.getNumPi();
-        double[][][] probA = paras.getProbMatA();
-        double[][] probB = paras.getProbMatB();
-        double[] probPi = paras.getProbPi();
-
-        System.out.println("numA:");
-        for (int[][] as : numA) {
-            for (int[] a : as) {
-                System.out.println(Arrays.toString(a));
-            }
-            System.out.println();
-        }
-        System.out.println("numB:");
-        for (int[] b : numB) {
-            System.out.println(Arrays.toString(b));
-        }
-        System.out.println("pi:" + Arrays.toString(numPi));
-
-        System.out.println("probA:");
-        for (double[][] as : probA) {
-            System.out.println();
-            for (double[] a : as) {
-                System.out.println(Arrays.toString(a));
-            }
-        }
-        System.out.println("probB:");
-        for (double[] b : probB) {
-            System.out.println(Arrays.toString(b));
-        }
-        System.out.println("probPi:" + Arrays.toString(probPi));
-
-    }
+//    public static void main(String[] args) {
+//        TrigramParas paras = new TrigramParas("/home/mjx/桌面/PoS/test/testCount.txt");
+//        int[][][] numA = paras.getNumMatA();
+//        int[][] numB = paras.getNumMatB();
+//        int[] numPi = paras.getNumPi();
+//        double[][][] probA = paras.getProbMatA();
+//        double[][] probB = paras.getProbMatB();
+//        double[] probPi = paras.getProbPi();
+//
+//        System.out.println("numA:");
+//        for (int[][] as : numA) {
+//            for (int[] a : as) {
+//                System.out.println(Arrays.toString(a));
+//            }
+//            System.out.println();
+//        }
+//        System.out.println("numB:");
+//        for (int[] b : numB) {
+//            System.out.println(Arrays.toString(b));
+//        }
+//        System.out.println("pi:" + Arrays.toString(numPi));
+//
+//        System.out.println("probA:");
+//        for (double[][] as : probA) {
+//            System.out.println();
+//            for (double[] a : as) {
+//                System.out.println(Arrays.toString(a));
+//            }
+//        }
+//        System.out.println("probB:");
+//        for (double[] b : probB) {
+//            System.out.println(Arrays.toString(b));
+//        }
+//        System.out.println("probPi:" + Arrays.toString(probPi));
+//
+//    }
 
     /*
         计数参数
@@ -95,7 +93,7 @@ public class TrigramParas extends AbstractParas {
 
 
     @Override
-    protected WordTagStream openStream() {
+    protected WordTagStream chooseStream() {
         return new PeopleDailyWordTagStream();
     }
 
@@ -332,28 +330,27 @@ public class TrigramParas extends AbstractParas {
     }
 
 
-
-    public int[][][] getNumMatA() {
-        return numMatA;
-    }
-
-    public int[][] getNumMatB() {
-        return numMatB;
-    }
-
-    public int[] getNumPi() {
-        return numPi;
-    }
-
-    public double[][][] getProbMatA() {
-        return probMatA;
-    }
-
-    public double[][] getProbMatB() {
-        return probMatB;
-    }
-
-    public double[] getProbPi() {
-        return probPi;
-    }
+//    public int[][][] getNumMatA() {
+//        return numMatA;
+//    }
+//
+//    public int[][] getNumMatB() {
+//        return numMatB;
+//    }
+//
+//    public int[] getNumPi() {
+//        return numPi;
+//    }
+//
+//    public double[][][] getProbMatA() {
+//        return probMatA;
+//    }
+//
+//    public double[][] getProbMatB() {
+//        return probMatB;
+//    }
+//
+//    public double[] getProbPi() {
+//        return probPi;
+//    }
 }

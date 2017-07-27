@@ -1,4 +1,4 @@
-package com.rui.ngram;
+package com.rui.wordtag;
 
 /**
  * 存储word及其tag。

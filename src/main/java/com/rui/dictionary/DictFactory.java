@@ -1,7 +1,7 @@
 package com.rui.dictionary;
 
 
-import com.rui.ngram.WordTag;
+import com.rui.wordtag.WordTag;
 
 import java.util.*;
 
