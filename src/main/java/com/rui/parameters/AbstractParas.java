@@ -101,7 +101,6 @@ public abstract class AbstractParas {
      */
     //计算概率参数的[模板方法]
     public void calcProbs() {
-
         if (!this.calcFlag) {
             System.err.println("未添加初始语料库或未加入新的语料,不能计算概率。");
             return;

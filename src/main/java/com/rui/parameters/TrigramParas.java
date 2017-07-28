@@ -5,20 +5,22 @@ import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 
+import java.util.Arrays;
+
 /**
  * 三元语法参数训练。
  */
 public class TrigramParas extends AbstractParas {
 
-//    public static void main(String[] args) {
-//        TrigramParas paras = new TrigramParas("/home/mjx/桌面/PoS/test/testCount.txt");
-//        int[][][] numA = paras.getNumMatA();
-//        int[][] numB = paras.getNumMatB();
-//        int[] numPi = paras.getNumPi();
-//        double[][][] probA = paras.getProbMatA();
-//        double[][] probB = paras.getProbMatB();
-//        double[] probPi = paras.getProbPi();
-//
+    public static void main(String[] args) {
+        TrigramParas paras = new TrigramParas("/home/mjx/桌面/PoS/test/testSet2.txt");
+        int[][][] numA = paras.getNumMatA();
+        int[][] numB = paras.getNumMatB();
+        int[] numPi = paras.getNumPi();
+        double[][][] probA = paras.getProbMatA();
+        double[][] probB = paras.getProbMatB();
+        double[] probPi = paras.getProbPi();
+
 //        System.out.println("numA:");
 //        for (int[][] as : numA) {
 //            for (int[] a : as) {
@@ -44,15 +46,15 @@ public class TrigramParas extends AbstractParas {
 //            System.out.println(Arrays.toString(b));
 //        }
 //        System.out.println("probPi:" + Arrays.toString(probPi));
-//
-//    }
+
+    }
 
     /*
         计数参数
      */
-    private int[][][] numMatA;
+    private int[][][] triNumMatA;
 
-//    private int[][] numHeadA;
+    private int[][] biNumMatA;
 
     private int[][] numMatB;
 
@@ -63,9 +65,9 @@ public class TrigramParas extends AbstractParas {
     /*
         概率参数
      */
-    private double[][][] probMatA;
+    private double[][][] triProbMatA;
 
-//    private double[][] probHeadA;
+    private double[][] biProbMatA;
 
     private double[][][] smoothingMatA;
 
@@ -75,7 +77,8 @@ public class TrigramParas extends AbstractParas {
 
     public TrigramParas(String corpusPath) {
         this.dictionary = new DictFactory();
-        this.numMatA = new int[1][1][1];
+        this.triNumMatA = new int[1][1][1];
+        this.biNumMatA = new int[1][1];
         this.holdOut = new int[1][1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
@@ -84,7 +87,8 @@ public class TrigramParas extends AbstractParas {
 
     public TrigramParas(String corpusPath, int tagNum, int wordNum) {
         this.dictionary = new DictFactory();
-        this.numMatA = new int[tagNum][tagNum][tagNum];
+        this.triNumMatA = new int[tagNum][tagNum][tagNum];
+        this.biNumMatA = new int[1][1];
         this.holdOut = new int[tagNum][tagNum][tagNum];
         this.numMatB = new int[tagNum][wordNum];
         this.numPi = new int[tagNum];
@@ -103,11 +107,16 @@ public class TrigramParas extends AbstractParas {
             System.err.println("标注长度小于3，不能用于统计转移频数。");
             return;
         }
-        if (this.getSizeOfTags() > this.numMatA[0].length) {
-            this.reBuildA();
-        }
+        //是否扩展数组，在reBuildA方法内判断
+        this.reBuildA();
+
+        //三元标注状态统计
         for (int i = 2; i < tags.length; i++) {
-            this.numMatA[this.getTagId(tags[i - 2])][this.getTagId(tags[i - 1])][this.getTagId(tags[i])]++;
+            this.triNumMatA[this.getTagId(tags[i - 2])][this.getTagId(tags[i - 1])][this.getTagId(tags[i])]++;
+        }
+        //二元标注状态统计
+        for (int i = 1; i < tags.length; i++) {
+            this.biNumMatA[this.getTagId(tags[i - 1])][this.getTagId(tags[i])]++;
         }
     }
 
@@ -138,17 +147,29 @@ public class TrigramParas extends AbstractParas {
 
     @Override
     protected void reBuildA() {
-        int len = this.getSizeOfTags();
-        int[][][] newA = new int[len][len][len];
-        for (int i = 0; i < this.numMatA.length; ++i) {
-            for (int j = 0; j < this.numMatA.length; ++j) {
-                for (int k = 0; k < this.numMatA.length; ++k) {
+        int len=this.getSizeOfTags();
+        if (len > this.triNumMatA.length) {
+            int[][][] newA = new int[len][len][len];
+            for (int i = 0; i < this.triNumMatA.length; ++i) {
+                for (int j = 0; j < this.triNumMatA.length; ++j) {
+                    for (int k = 0; k < this.triNumMatA.length; ++k) {
 
-                    newA[i][j][k] = this.numMatA[i][j][k];
+                        newA[i][j][k] = this.triNumMatA[i][j][k];
+                    }
                 }
             }
+            this.triNumMatA = newA;
         }
-        this.numMatA = newA;
+
+        if (len > this.biNumMatA.length) {
+            int[][] newA = new int[len][len];
+            for (int i = 0; i < this.biNumMatA.length; ++i) {
+                for (int j = 0; j < this.biNumMatA[0].length; ++j) {
+                    newA[i][j] = this.biNumMatA[i][j];
+                }
+            }
+            this.biNumMatA = newA;
+        }
 
     }
 
@@ -198,7 +219,7 @@ public class TrigramParas extends AbstractParas {
         for (int i = 0; i < this.holdOut.length; ++i) {
             for (int j = 0; j < this.holdOut[0].length; ++j) {
                 for (int k = 0; k < this.holdOut.length; ++k) {
-                    holdOut[i][j] = this.holdOut[i][j];
+                    holdOut[i][j][k] = this.holdOut[i][j][k];
                 }
             }
         }
@@ -208,9 +229,7 @@ public class TrigramParas extends AbstractParas {
     @Override
     protected void ensureLenOfTag() {
         int tagSize = this.getSizeOfTags();
-        if (tagSize > this.numMatA.length) {
-            this.reBuildA();
-        }
+        this.reBuildA();
         if (tagSize > this.holdOut.length) {
             this.expandHoldOut();
         }
@@ -220,8 +239,29 @@ public class TrigramParas extends AbstractParas {
     protected void calcProbA() {
 
         int len = this.getSizeOfTags();
+        //二元概率计算
+        this.biProbMatA = new double[len][len];
 
-        this.probMatA = new double[len][len][len];
+        for (int row = 0; row < len; ++row) {
+
+            double sumPerRow = 0;
+            for (int col = 0; col < len; ++col) {
+                sumPerRow += this.biNumMatA[row][col];
+            }
+
+            for (int col = 0; col < len; ++col) {
+                if (sumPerRow != 0) {
+                    this.biProbMatA[row][col] = (this.biNumMatA[row][col]) / (sumPerRow);
+                } else {
+                    //处理分母为0的情况
+                    this.biProbMatA[row][col] = 0.0;
+                }
+            }
+        }
+
+
+        //三元概率计算
+        this.triProbMatA = new double[len][len][len];
 
         //p(t_3|t_2,t_1)=num(t_3,t_2,t_1)/num(t_2,t_1)
         for (int t_1 = 0; t_1 < len; ++t_1) {
@@ -230,15 +270,15 @@ public class TrigramParas extends AbstractParas {
                 double sumPerRow = 0;
 
                 for (int col = 0; col < len; ++col) {
-                    sumPerRow += this.numMatA[t_1][t_2][col];
+                    sumPerRow += this.triNumMatA[t_1][t_2][col];
                 }
 
                 for (int t_3 = 0; t_3 < len; ++t_3) {
                     if (sumPerRow != 0) {
-                        this.probMatA[t_1][t_2][t_3] = (this.numMatA[t_1][t_2][t_3]) / (sumPerRow);
+                        this.triProbMatA[t_1][t_2][t_3] = (this.triNumMatA[t_1][t_2][t_3]) / (sumPerRow);
                     } else {
                         //处理分母为0的情况
-                        this.probMatA[t_1][t_2][t_3] = 0.0;
+                        this.triProbMatA[t_1][t_2][t_3] = 0.0;
                     }
                 }
             }
@@ -298,6 +338,132 @@ public class TrigramParas extends AbstractParas {
     @Override
     protected void smoothMatA() {
 
+        //        System.out.println(sumOfTag);
+        int len = this.getSizeOfTags();
+
+        this.smoothingMatA = new double[len][len][len];
+
+        double lambd_count1 = 0.0;
+        double lambd_count2 = 0.0;
+        double lambd_count3 = 0.0;
+
+        //N
+        int N = 0;
+        for (int dim1 = 0; dim1 < len; ++dim1) {
+            for (int dim2 = 0; dim2 < len; ++dim2) {
+                for (int dim3 = 0; dim3 < len; ++dim3) {
+                    N += this.holdOut[dim1][dim2][dim3];
+                }
+            }
+        }
+        if (N == 0) {
+            System.err.println("留存数据不存在,不能平滑概率。");
+            return;
+        }
+        //f(t_i)，严格来说，得到的t_i应该与隐藏状态的频次相等
+        int[] t_i = new int[len];
+        for (int dim1 = 0; dim1 < len; ++dim1) {
+            for (int dim2 = 0; dim2 < len && dim2 != dim1; ++dim2) {
+
+                for (int dim3 = 0; dim3 < len && dim3 != dim1 && dim3 != dim2; ++dim3) {
+                    t_i[dim3] += this.holdOut[dim1][dim2][dim3];
+                    t_i[dim2] += this.holdOut[dim1][dim2][dim3];
+                    t_i[dim1] += this.holdOut[dim1][dim2][dim3];
+                }
+
+            }
+            for (int temp = 0; temp < len && temp != dim1; ++temp) {
+                t_i[dim1] += this.holdOut[dim1][dim1][temp];
+                t_i[dim1] += this.holdOut[dim1][temp][dim1];
+                t_i[dim1] += this.holdOut[temp][dim1][dim1];
+            }
+            t_i[dim1] += this.holdOut[dim1][dim1][dim1];
+        }
+
+        //f(t_i,t_j)
+        int[][] t_i_j = new int[len][len];
+        for (int dim1 = 0; dim1 < len; ++dim1) {
+            for (int dim2 = 0; dim2 < len && dim2 != dim1; ++dim2) {
+
+                for (int dim3 = 0; dim3 < len && dim3 != dim1 && dim3 != dim2; ++dim3) {
+                    t_i_j[dim1][dim2] += this.holdOut[dim1][dim2][dim3];
+                    t_i_j[dim2][dim3] += this.holdOut[dim1][dim2][dim3];
+                }
+            }
+
+            for (int temp = 0; temp < len && temp != dim1; ++temp) {
+                t_i_j[dim1][dim1] += this.holdOut[dim1][dim1][temp];
+                t_i_j[dim1][temp] += this.holdOut[dim1][dim1][temp];
+
+                t_i_j[dim1][temp] += this.holdOut[dim1][temp][dim1];
+                t_i_j[temp][dim1] += this.holdOut[dim1][temp][dim1];
+
+                t_i_j[dim1][dim1] += this.holdOut[temp][dim1][dim1];
+                t_i_j[temp][dim1] += this.holdOut[temp][dim1][dim1];
+            }
+
+            t_i_j[dim1][dim1] += (this.holdOut[dim1][dim1][dim1] * 2);
+        }
+
+        for (int t_1 = 0; t_1 < len; ++t_1) {
+            for (int t_2 = 0; t_2 < len; ++t_2) {
+
+                for (int t_3 = 0; t_3 < len; ++t_3) {
+
+                    // 系数：0.1514629948364888:0.8485370051635112
+                    //系数：0.3683304647160069:0.6316695352839932
+                    int t_1_2_3 = this.holdOut[t_1][t_2][t_3];
+                    int t_2_3 = t_i_j[t_2][t_3];
+
+
+                    double expression1 = (t_i[t_3] - 1) / (N - 1);
+                    double expression2 = 0.0;
+                    double expression3 = 0.0;
+
+                    if (t_i[t_2] - 1 != 0) {
+                        expression2 = (t_2_3 - 1) / (t_i[t_2] - 1);
+                    }
+
+                    if (t_i_j[t_1][t_2] - 1 != 0) {
+                        expression2 = (t_1_2_3 - 1) / (t_i_j[t_1][t_2] - 1);
+                    }
+
+                    System.out.println(expression1+":"+expression2+":"+expression3+"-->"+t_1_2_3);
+
+                    //稀疏语料中，t_2的出现概率大多数情况下要比t_2的条件概率大，对应的t_2的联合频数t_1_2要小；
+                    // 少数情况下，t_2的条件概率比t_2的出现概率大，这时对应的t_2的联合频数t_1_2要大；
+                    //所以，虽然expression1大的情况多一些，但因为累加的联合频数偏小，所以最后对应系数并不会格外大
+                    //是否取等号，对系数的取值影响很大
+                    //因为是三元语法，留存数据不大时，数据非常稀疏
+                    if (expression1 > expression2 && expression1 > expression3) {
+                        lambd_count1 += t_1_2_3;
+                    } else if (expression2 > expression3) {
+                        lambd_count2 += t_1_2_3;
+                    } else {
+                        lambd_count3 += t_1_2_3;
+
+                    }
+                }
+            }
+        }
+
+        double lambd1 = lambd_count1 / (lambd_count1 + lambd_count2 + lambd_count3);
+        double lambd2 = lambd_count2 / (lambd_count1 + lambd_count2 + lambd_count3);
+        double lambd3 = lambd_count3 / (lambd_count1 + lambd_count2 + lambd_count3);
+        System.out.println("系数频次：" + lambd_count1 + ":" + lambd_count2+ ":" + lambd_count3);
+        System.out.println("系数：" + lambd1 + ":" + lambd2 + ":" + lambd3);
+//        System.out.println("系数的计数频次："+i1 + ":" + i2);
+
+        //系数：0.9968451753824765:0.003154824617523456
+        //系数：0.956853536835926:0.043146463164073966
+        for (int t_1 = 0; t_1 < len; ++t_1) {
+            for (int t_2 = 0; t_2 < len; ++t_2) {
+                for (int t_3 = 0; t_3 < len; ++t_3) {
+//                    问题：
+                    this.smoothingMatA[t_1][t_2][t_3] = lambd1 * this.probPi[t_3] + lambd2 * this.biProbMatA[t_2][t_3] + lambd3 * this.triProbMatA[t_1][t_2][t_3];
+                }
+            }
+        }
     }
 
     /*
@@ -315,42 +481,42 @@ public class TrigramParas extends AbstractParas {
 
     @Override
     public double getProbA(int... tagIndex) {
-        if (tagIndex.length!=3){
+        if (tagIndex.length != 3) {
             System.err.println("获取转移概率的参数不合法。");
         }
-        return this.probMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
+        return this.triProbMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
     }
 
     @Override
     public double getProbSmoothA(int... tagIndex) {
-        if (tagIndex.length!=3){
+        if (tagIndex.length != 3) {
             System.err.println("获取转移概率的参数不合法。");
         }
         return this.smoothingMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
     }
 
 
-//    public int[][][] getNumMatA() {
-//        return numMatA;
-//    }
-//
-//    public int[][] getNumMatB() {
-//        return numMatB;
-//    }
-//
-//    public int[] getNumPi() {
-//        return numPi;
-//    }
-//
-//    public double[][][] getProbMatA() {
-//        return probMatA;
-//    }
-//
-//    public double[][] getProbMatB() {
-//        return probMatB;
-//    }
-//
-//    public double[] getProbPi() {
-//        return probPi;
-//    }
+    public int[][][] getNumMatA() {
+        return triNumMatA;
+    }
+
+    public int[][] getNumMatB() {
+        return numMatB;
+    }
+
+    public int[] getNumPi() {
+        return numPi;
+    }
+
+    public double[][][] getProbMatA() {
+        return triProbMatA;
+    }
+
+    public double[][] getProbMatB() {
+        return probMatB;
+    }
+
+    public double[] getProbPi() {
+        return probPi;
+    }
 }

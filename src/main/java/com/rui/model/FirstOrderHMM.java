@@ -11,24 +11,12 @@ import java.util.Arrays;
  * 一阶HMM实现。
  */
 public class FirstOrderHMM extends HMM {
-    //记录k次viterbi解码中计算得到的句子概率
-    private double[][]rankProbs;
-
-    //解码时的辅助数组
-    private int[][][]indexs;
-
-
-    public FirstOrderHMM(AbstractParas hmmParas) {
-        this.hmmParas = hmmParas;
-    }
-
-
     public static void main(String[] args) {
         BigramParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 44, 55310);
 
         FirstOrderHMM hmm = new FirstOrderHMM(paras);
 
-        int[][] wts = hmm.viterbi("迈向 一九九八年 ！",4);
+        int[][] wts = hmm.decode("迈向 一九九八年 ！",4);
 
         for (int[]w:wts){
 
@@ -36,8 +24,18 @@ public class FirstOrderHMM extends HMM {
         }
     }
 
+    //记录k次viterbi解码中计算得到的句子概率
+    private double[][]rankProbs;
+
+    //解码时的辅助数组
+    private int[][][]indexs;
+
+    public FirstOrderHMM(AbstractParas hmmParas) {
+        this.hmmParas = hmmParas;
+    }
+
     @Override
-    public int[][] viterbi(String sentence, int k) {
+    public int[][] decode(String sentence, int k) {
 
         String[] words = sentence.trim().split("\\s+");
         int wordLen = words.length;
@@ -75,7 +73,7 @@ public class FirstOrderHMM extends HMM {
             this.rankProbs[index_i][index_j] = -1;
 
             //index_i为第index_i次前向算法，index_j为index_i次前向算法中的某个概率索引
-            tagIds[rank-1] = this.decode(index_j, index_i);
+            tagIds[rank-1] = this.backtrack(index_j, index_i);
 
         }
         return tagIds;
@@ -133,7 +131,7 @@ public class FirstOrderHMM extends HMM {
     }
 
     @Override
-    public int[] decode(int lastIndex, int ranking) {
+    public int[] backtrack(int lastIndex, int ranking) {
         int wordLen = this.indexs[ranking][0].length;
         int[] tagIds = new int[wordLen];
         tagIds[wordLen - 1] = lastIndex;
