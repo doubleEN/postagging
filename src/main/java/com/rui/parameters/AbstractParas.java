@@ -28,8 +28,8 @@ public abstract class AbstractParas {
             //在统计参数以前，给新语料增加映射关系
             dictionary.addIndex(wts);
 
-            //按[1:4]换分[留存:训练集]
-            int randNum = generator.nextInt(5);
+            //按[1:3]换分[留存:训练集]
+            int randNum = generator.nextInt(4);
             if (randNum == 1) {
                 this.addHoldOut(wts);
             } else {

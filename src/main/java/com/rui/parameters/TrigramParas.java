@@ -230,9 +230,14 @@ public class TrigramParas extends AbstractParas {
     protected void ensureLenOfTag() {
         int tagSize = this.getSizeOfTags();
         this.reBuildA();
-        if (tagSize > this.holdOut.length) {
+        if (this.getSizeOfTags() > this.holdOut.length) {
             this.expandHoldOut();
         }
+
+        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
+            this.reBuildB();
+        }
+
     }
 
     @Override
@@ -428,7 +433,7 @@ public class TrigramParas extends AbstractParas {
                         expression2 = (t_1_2_3 - 1) / (t_i_j[t_1][t_2] - 1);
                     }
 
-                    System.out.println(expression1+":"+expression2+":"+expression3+"-->"+t_1_2_3);
+//                    System.out.println(expression1+":"+expression2+":"+expression3+"-->"+t_1_2_3);
 
                     //稀疏语料中，t_2的出现概率大多数情况下要比t_2的条件概率大，对应的t_2的联合频数t_1_2要小；
                     // 少数情况下，t_2的条件概率比t_2的出现概率大，这时对应的t_2的联合频数t_1_2要大；
@@ -481,18 +486,27 @@ public class TrigramParas extends AbstractParas {
 
     @Override
     public double getProbA(int... tagIndex) {
-        if (tagIndex.length != 3) {
-            System.err.println("获取转移概率的参数不合法。");
+        if (tagIndex.length == 3) {
+            return this.triProbMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
+        }else if (tagIndex.length==2){
+            return this.biProbMatA[tagIndex[0]][tagIndex[1]];
+        }else {
+            System.err.println("参数不合法。");
+            return -1;
         }
-        return this.triProbMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
     }
 
     @Override
     public double getProbSmoothA(int... tagIndex) {
-        if (tagIndex.length != 3) {
-            System.err.println("获取转移概率的参数不合法。");
+        if (tagIndex.length == 3) {
+            return this.smoothingMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
+        }else if (tagIndex.length==2){
+            //这个二元转移概率未平滑
+            return this.biProbMatA[tagIndex[0]][tagIndex[1]];
+        }else {
+            System.err.println("参数不合法。");
+            return -1;
         }
-        return this.smoothingMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
     }
 
 

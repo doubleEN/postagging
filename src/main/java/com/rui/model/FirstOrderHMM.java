@@ -137,7 +137,7 @@ public class FirstOrderHMM extends HMM {
         tagIds[wordLen - 1] = lastIndex;
         int maxRow = lastIndex;
 
-        for (int col = wordLen - 2; col >= 0; --col) {
+        for (int col = wordLen - 2; col >=0; --col) {
             maxRow = this.indexs[ranking][maxRow][col];
             tagIds[col] = maxRow;
         }
