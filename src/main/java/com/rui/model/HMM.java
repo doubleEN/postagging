@@ -4,7 +4,7 @@ import com.rui.parameters.AbstractParas;
 import com.rui.wordtag.WordTag;
 
 /**
- * HMM接口。
+ * HMM接口
  */
 public abstract class HMM {
     protected AbstractParas hmmParas;
@@ -16,7 +16,7 @@ public abstract class HMM {
     protected abstract void forward(String sentence,int ranking);
 
     //viterbi回溯
-    protected abstract int[] backtrack(int lastIndex, int ranking);
+    protected abstract int[] backtrack( int ranking,int... lastIndexs);
 
     public String getTagOnId(int id){
         return this.hmmParas.getTagOnId(id);

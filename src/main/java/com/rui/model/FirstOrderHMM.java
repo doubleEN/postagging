@@ -131,11 +131,11 @@ public class FirstOrderHMM extends HMM {
     }
 
     @Override
-    public int[] backtrack(int lastIndex, int ranking) {
+    public int[] backtrack(int ranking,int... lastIndexs) {
         int wordLen = this.indexs[ranking][0].length;
         int[] tagIds = new int[wordLen];
-        tagIds[wordLen - 1] = lastIndex;
-        int maxRow = lastIndex;
+        tagIds[wordLen - 1] = lastIndexs[0];
+        int maxRow = lastIndexs[0];
 
         for (int col = wordLen - 2; col >=0; --col) {
             maxRow = this.indexs[ranking][maxRow][col];

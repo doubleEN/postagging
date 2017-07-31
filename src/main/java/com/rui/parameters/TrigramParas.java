@@ -75,6 +75,15 @@ public class TrigramParas extends AbstractParas {
 
     private double[] probPi;
 
+    public TrigramParas() {
+        this.dictionary = new DictFactory();
+        this.triNumMatA = new int[1][1][1];
+        this.biNumMatA = new int[1][1];
+        this.holdOut = new int[1][1][1];
+        this.numMatB = new int[1][1];
+        this.numPi = new int[1];
+    }
+
     public TrigramParas(String corpusPath) {
         this.dictionary = new DictFactory();
         this.triNumMatA = new int[1][1][1];
@@ -84,6 +93,8 @@ public class TrigramParas extends AbstractParas {
         this.numPi = new int[1];
         this.initParas(corpusPath);
     }
+
+
 
     public TrigramParas(String corpusPath, int tagNum, int wordNum) {
         this.dictionary = new DictFactory();
