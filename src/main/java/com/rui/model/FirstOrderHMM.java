@@ -1,8 +1,11 @@
 package com.rui.model;
 
+import com.rui.parameters.TrigramParas;
+import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 import com.rui.parameters.AbstractParas;
 import com.rui.parameters.BigramParas;
+import com.sun.org.apache.xpath.internal.SourceTree;
 import jdk.nashorn.internal.runtime.WithObject;
 
 import java.util.Arrays;
@@ -11,18 +14,15 @@ import java.util.Arrays;
  * 一阶HMM实现。
  */
 public class FirstOrderHMM extends HMM {
+
     public static void main(String[] args) {
-        BigramParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 44, 55310);
-
-        FirstOrderHMM hmm = new FirstOrderHMM(paras);
-
-        int[][] wts = hmm.decode("迈向 一九九八年 ！",4);
-
-        for (int[]w:wts){
-
-            System.out.println(Arrays.toString(w));
-        }
+        AbstractParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 44, 50000);
+        HMM hmm = new FirstOrderHMM(paras);
+        Tagger tagger = new Tagger(hmm);
+        WordTag[] wts = tagger.tag("中共中央  总书记  、  国家  主席  江  泽民 ");
+        System.out.println(Arrays.toString(wts));
     }
+
 
     //记录k次viterbi解码中计算得到的句子概率
     private double[][]rankProbs;
@@ -73,7 +73,7 @@ public class FirstOrderHMM extends HMM {
             this.rankProbs[index_i][index_j] = -1;
 
             //index_i为第index_i次前向算法，index_j为index_i次前向算法中的某个概率索引
-            tagIds[rank-1] = this.backtrack(index_j, index_i);
+            tagIds[rank-1] = this.backtrack(index_i,index_j);
 
         }
         return tagIds;
@@ -91,6 +91,7 @@ public class FirstOrderHMM extends HMM {
         //带入初始状态计算第一个观察态概率，不用记录最大值索引
         for (int i = 0; i < tagSize; ++i) {
             sentencesProb[i][0] = this.hmmParas.getProbPi(i) * this.hmmParas.getProbB(i, this.hmmParas.getWordId(words[0]));
+            System.out.println(sentencesProb[i][0]);
         }
 
         //外层循环：t(i)-->t(i+1)-->w(i+1)
@@ -132,7 +133,11 @@ public class FirstOrderHMM extends HMM {
 
     @Override
     public int[] backtrack(int ranking,int... lastIndexs) {
-        int wordLen = this.indexs[ranking][0].length;
+        if (lastIndexs.length != 1) {
+            System.err.println("回溯参数不合法。");
+            return null;
+        }
+        int wordLen = this.indexs[0][0].length;
         int[] tagIds = new int[wordLen];
         tagIds[wordLen - 1] = lastIndexs[0];
         int maxRow = lastIndexs[0];

@@ -451,9 +451,9 @@ public class TrigramParas extends AbstractParas {
                     //所以，虽然expression1大的情况多一些，但因为累加的联合频数偏小，所以最后对应系数并不会格外大
                     //是否取等号，对系数的取值影响很大
                     //因为是三元语法，留存数据不大时，数据非常稀疏
-                    if (expression1 > expression2 && expression1 > expression3) {
+                    if (expression1 >= expression2 && expression1 > expression3) {
                         lambd_count1 += t_1_2_3;
-                    } else if (expression2 > expression3) {
+                    } else if (expression2 >=expression3) {
                         lambd_count2 += t_1_2_3;
                     } else {
                         lambd_count3 += t_1_2_3;
