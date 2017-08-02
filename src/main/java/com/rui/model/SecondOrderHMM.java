@@ -8,15 +8,15 @@ import com.rui.wordtag.WordTag;
 import java.util.Arrays;
 
 /**
- *
+ *未支持句子词数小于３的标注。
  */
 public class SecondOrderHMM extends HMM {
 
     public static void main(String[] args) {
-        AbstractParas paras = new TrigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 44, 50000);
+        AbstractParas paras = new TrigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 44, 55310);
         HMM hmm = new SecondOrderHMM(paras);
         Tagger tagger = new Tagger(hmm);
-        WordTag[] wts = tagger.tag("中共中央  总书记  、  国家  主席  江  泽民");
+        WordTag[] wts = tagger.tag("学好 自然 语言 处理 ， 实现 台湾 统一  。");
         System.out.println(Arrays.toString(wts));
     }
 
@@ -32,7 +32,6 @@ public class SecondOrderHMM extends HMM {
 
     @Override
     public int[][] decode(String sentence, int k) {
-
         String[] words = sentence.trim().split("\\s+");
         int wordLen = words.length;
         int tagSize = this.hmmParas.getSizeOfTags();
@@ -75,7 +74,7 @@ public class SecondOrderHMM extends HMM {
             this.rankProbs[index_rank][index_i][index_j] = -1;
 
             //第rank大的概率为第index_rank次句子概率计算中的索引[index_i,index_j]
-            tagIds[rank - 1] = this.backtrack(index_rank, index_i, index_j);
+            tagIds[rank - 1] = this.backTrack(index_rank, index_i, index_j);
         }
         return tagIds;
     }
@@ -96,9 +95,6 @@ public class SecondOrderHMM extends HMM {
             //第三个状态tag_k固定的情况下，不同的tag_j组合是一样的
             for (int tag_j = 0; tag_j < tagSize; ++tag_j) {
                 sentenceProb[tag_j][tag_k][0] = this.hmmParas.getProbPi(tag_k) * this.hmmParas.getProbB(tag_k, this.hmmParas.getWordId(words[0]));
-                if (sentenceProb[tag_j][tag_k][0]!=0){
-                    System.out.println("t_1:"+sentenceProb[tag_j][tag_k][0]+"--"+tag_k+":"+this.hmmParas.getTagOnId(tag_k));
-                }
             }
         }
         //处理t_2上的状态
@@ -106,17 +102,14 @@ public class SecondOrderHMM extends HMM {
             for (int tag_j = 0; tag_j < tagSize; ++tag_j) {
                 //第三个状态tag_k固定的情况下，不同的tag_j组合是一样的
                 sentenceProb[tag_j][tag_k][1] = sentenceProb[0][tag_j][0] * this.hmmParas.getProbSmoothA(tag_j, tag_k) * this.hmmParas.getProbB(tag_k, this.hmmParas.getWordId(words[1]));
-                if (sentenceProb[tag_j][tag_k][1]!=0){
-                    System.out.println("t_2:"+sentenceProb[tag_j][tag_k][1]+"--"+tag_k+":"+this.hmmParas.getTagOnId(tag_k)+"--上一个标注："+tag_j+":"+this.hmmParas.getTagOnId(tag_j));
-                }
             }
         }
 
+        //处理t_2以后的状态
         //O(wordLen*tagSize*tagSize*tagSize)
         for (int wordIndex = 2; wordIndex < wordLen; ++wordIndex) {
             //probs记录了第三个状态固定的情况下，前两个状态不同取值下的概率
             double[] probs = new double[tagSize];
-//          //midProbs
             double[] midProbs = new double[tagSize];
 
             //排列无重复
@@ -126,31 +119,19 @@ public class SecondOrderHMM extends HMM {
                 //再固定三维
                 for (int tag_k = 0; tag_k < tagSize; ++tag_k) {
 
-                    boolean flag=false;
                     for (int tag_i = 0; tag_i < tagSize; ++tag_i) {
                         probs[tag_i] = sentenceProb[tag_i][tag_j][wordIndex - 1] * this.hmmParas.getProbSmoothA(tag_i, tag_j, tag_k);
-//                        System.out.println(this.hmmParas.getTagOnId(tag_i)+":"+probs[tag_i]);
-                        midProbs[tag_i] = probs[tag_i];
-                        if (sentenceProb[tag_i][tag_j][wordIndex - 1]!=0){
-                            flag=true;
-                        }
                     }
-
+                    midProbs=Arrays.copyOf(probs,tagSize);
                     Arrays.sort(midProbs);
                     int i = -1;
-                    if (flag){
-                        System.out.println(Arrays.toString(probs));
-                        System.out.println(Arrays.toString(midProbs));
-                    }
                     for (int row = 0; row < tagSize; ++row) {
                         if (probs[row] == midProbs[tagSize - ranking]) {
                             i = row;
                             break;
                         }
                     }
-
-                    sentenceProb[i][tag_k][wordIndex] = midProbs[tagSize - ranking] * this.hmmParas.getProbB(tag_k, this.hmmParas.getWordId(words[wordIndex]));
-
+                    sentenceProb[tag_j][tag_k][wordIndex] = midProbs[tagSize - ranking] * this.hmmParas.getProbB(tag_k, this.hmmParas.getWordId(words[wordIndex]));
                     indexs[tag_j][tag_k][wordIndex - 1] = i;
                 }
             }
@@ -168,20 +149,19 @@ public class SecondOrderHMM extends HMM {
     }
 
     @Override
-    protected int[] backtrack(int ranking, int... lastIndexs) {
+    protected int[] backTrack(int ranking, int... lastIndexs) {
         if (lastIndexs.length != 2) {
             System.err.println("回溯参数不合法。");
             return null;
         }
         int wordLen = this.indexs[ranking][0][0].length;
         int[] tagIds = new int[wordLen];
-        tagIds[wordLen - 1] = lastIndexs[0];
-        tagIds[wordLen - 2] = lastIndexs[1];
-        int max_k = lastIndexs[0];
-        int max_j = lastIndexs[1];
-
+        tagIds[wordLen - 2] = lastIndexs[0];
+        tagIds[wordLen - 1] = lastIndexs[1];
+        int max_j = lastIndexs[0];
+        int  max_k= lastIndexs[1];
         for (int col = wordLen - 3; col >= 0; --col) {
-            int max_i = this.indexs[ranking][max_j][max_k][col];
+            int max_i = this.indexs[ranking][max_j][max_k][col+1];
             max_k = max_j;
             max_j = max_i;
             tagIds[col] = max_i;

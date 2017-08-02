@@ -23,7 +23,6 @@ public class FirstOrderHMM extends HMM {
         System.out.println(Arrays.toString(wts));
     }
 
-
     //记录k次viterbi解码中计算得到的句子概率
     private double[][]rankProbs;
 
@@ -36,11 +35,9 @@ public class FirstOrderHMM extends HMM {
 
     @Override
     public int[][] decode(String sentence, int k) {
-
         String[] words = sentence.trim().split("\\s+");
         int wordLen = words.length;
         int tagSize = this.hmmParas.getSizeOfTags();
-
         int[][] tagIds=new int[k][wordLen];
 
         this.rankProbs = new double[k][tagSize];
@@ -69,12 +66,9 @@ public class FirstOrderHMM extends HMM {
                     }
                 }
             }
-
             this.rankProbs[index_i][index_j] = -1;
-
             //index_i为第index_i次前向算法，index_j为index_i次前向算法中的某个概率索引
-            tagIds[rank-1] = this.backtrack(index_i,index_j);
-
+            tagIds[rank-1] = this.backTrack(index_i,index_j);
         }
         return tagIds;
     }
@@ -96,17 +90,14 @@ public class FirstOrderHMM extends HMM {
 
         //外层循环：t(i)-->t(i+1)-->w(i+1)
         for (int wordIndex = 1; wordIndex < wordLen; ++wordIndex) {
-
             for (int nextTag = 0; nextTag < tagSize; ++nextTag) {
                 int index = -1;
-
                 //同一个转移后状态接受的概率存入数组
                 double[] probs = new double[tagSize];
 
                 for (int preTag = 0; preTag < tagSize; ++preTag) {
                     probs[preTag] = sentencesProb[preTag][wordIndex - 1] * this.hmmParas.getProbSmoothA(preTag, nextTag);
                 }
-
                 double[] midProbs = Arrays.copyOf(probs, tagSize);
                 Arrays.sort(midProbs);
 
@@ -116,7 +107,6 @@ public class FirstOrderHMM extends HMM {
                         break;
                     }
                 }
-
                 sentencesProb[nextTag][wordIndex] = midProbs[tagSize - ranking] * this.hmmParas.getProbB(nextTag, this.hmmParas.getWordId(words[wordIndex]));
                 indexs[nextTag][wordIndex - 1] = index;
             }
@@ -132,7 +122,7 @@ public class FirstOrderHMM extends HMM {
     }
 
     @Override
-    public int[] backtrack(int ranking,int... lastIndexs) {
+    public int[] backTrack(int ranking,int... lastIndexs) {
         if (lastIndexs.length != 1) {
             System.err.println("回溯参数不合法。");
             return null;
@@ -148,6 +138,4 @@ public class FirstOrderHMM extends HMM {
         }
         return tagIds;
     }
-
-
 }

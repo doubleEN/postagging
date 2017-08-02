@@ -16,7 +16,7 @@ public abstract class HMM {
     protected abstract void forward(String sentence,int ranking);
 
     //viterbi回溯
-    protected abstract int[] backtrack( int ranking,int... lastIndexs);
+    protected abstract int[] backTrack( int ranking,int... lastIndexs);
 
     public String getTagOnId(int id){
         return this.hmmParas.getTagOnId(id);

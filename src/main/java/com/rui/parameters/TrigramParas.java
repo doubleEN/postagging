@@ -120,7 +120,6 @@ public class TrigramParas extends AbstractParas {
         }
         //是否扩展数组，在reBuildA方法内判断
         this.reBuildA();
-
         //三元标注状态统计
         for (int i = 2; i < tags.length; i++) {
             this.triNumMatA[this.getTagId(tags[i - 2])][this.getTagId(tags[i - 1])][this.getTagId(tags[i])]++;
