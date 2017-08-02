@@ -4,12 +4,13 @@ import com.rui.dictionary.DictFactory;
 import com.rui.wordtag.WordTag;
 import com.rui.stream.WordTagStream;
 
+import java.io.Serializable;
 import java.util.Random;
 
 /**
  * 统计并计算HMM参数的接口
  */
-public abstract class AbstractParas {
+public abstract class AbstractParas implements Serializable{
 
     //word与tag的映射词典
     protected DictFactory dictionary;

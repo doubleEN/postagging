@@ -2,10 +2,15 @@ package com.rui.tagger;
 
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
+import com.rui.model.SecondOrderHMM;
 import com.rui.parameters.AbstractParas;
 import com.rui.parameters.BigramParas;
+import com.rui.parameters.TrigramParas;
 import com.rui.wordtag.WordTag;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Arrays;
 
 /**
@@ -13,15 +18,16 @@ import java.util.Arrays;
  */
 public class Tagger {
 
-    public static void main(String[] args) {
-        AbstractParas paras=new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44,50000);
-        HMM hmm=new FirstOrderHMM(paras);
-        Tagger tagger=new Tagger(hmm);
-        WordTag[][] wts=tagger.tagTopK("学好 自然 语言 处理 ， 实现 台湾 统一  。 ",3);
-        for (WordTag[] wt:wts){
-            System.out.println(Arrays.toString(wt));
-        }
-        WordTag[] wt=tagger.tag("学好 自然 语言 处理 ， 实现 台湾 统一  。 ");
+    public static void main(String[] args) throws IOException{
+
+        AbstractParas paras=new TrigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44,50000);
+
+        HMM hmm=new SecondOrderHMM(paras);
+
+        hmm.writeHMM("/home/mjx/桌面/2HMM.bin");
+
+        Tagger tager = new Tagger("/home/mjx/桌面/2HMM.bin");
+        System.out.println(Arrays.toString(tager.tag("学好 自然 语言 处理 ， 实现 台湾 统一  。")));
     }
 
     private HMM hmm;
@@ -30,9 +36,13 @@ public class Tagger {
         this.hmm = hmm;
     }
 
+    public Tagger(String HMMPath) {
+        this.hmm = this.readHMM(HMMPath);
+    }
+
     //返回最可能的标注序列
     public WordTag[] tag(String sentences) {
-        return tagTopK(sentences,1)[0];
+        return tagTopK(sentences, 1)[0];
     }
 
     //返回k个最可能的标注序列
@@ -56,5 +66,25 @@ public class Tagger {
             wts[index] = new WordTag(words[index], this.hmm.getTagOnId(tagIds[index]));
         }
         return wts;
+    }
+
+    public HMM readHMM(String path) {
+        HMM hmm = null;
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(new FileInputStream(path));
+            hmm = (HMM) ois.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                ois.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return hmm;
     }
 }

@@ -3,12 +3,13 @@ package com.rui.dictionary;
 
 import com.rui.wordtag.WordTag;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * 给新的标注和词编号
  */
-public class DictFactory {
+public class DictFactory implements Serializable{
 
     /**
      * tag-->id

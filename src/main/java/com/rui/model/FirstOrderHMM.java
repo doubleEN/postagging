@@ -8,6 +8,7 @@ import com.rui.parameters.BigramParas;
 import com.sun.org.apache.xpath.internal.SourceTree;
 import jdk.nashorn.internal.runtime.WithObject;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -15,12 +16,16 @@ import java.util.Arrays;
  */
 public class FirstOrderHMM extends HMM {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException,IOException{
         AbstractParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 44, 50000);
         HMM hmm = new FirstOrderHMM(paras);
+
         Tagger tagger = new Tagger(hmm);
         WordTag[] wts = tagger.tag("中共中央  总书记  、  国家  主席  江  泽民 ");
-        System.out.println(Arrays.toString(wts));
+        System.out.println("1"+Arrays.toString(wts));
+
+        hmm.writeHMM("/home/mjx/桌面/hmm.bin");
+
     }
 
     //记录k次viterbi解码中计算得到的句子概率
@@ -85,7 +90,6 @@ public class FirstOrderHMM extends HMM {
         //带入初始状态计算第一个观察态概率，不用记录最大值索引
         for (int i = 0; i < tagSize; ++i) {
             sentencesProb[i][0] = this.hmmParas.getProbPi(i) * this.hmmParas.getProbB(i, this.hmmParas.getWordId(words[0]));
-            System.out.println(sentencesProb[i][0]);
         }
 
         //外层循环：t(i)-->t(i+1)-->w(i+1)
