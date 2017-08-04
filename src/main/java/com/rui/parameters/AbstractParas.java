@@ -34,7 +34,7 @@ public abstract class AbstractParas implements Serializable{
             if (randNum == 1) {
                 this.addHoldOut(wts);
             } else {
-                this.addCorpus(wts);
+                this.addWordTags(wts);
             }
         }
         wtStream.close();
@@ -50,12 +50,18 @@ public abstract class AbstractParas implements Serializable{
     public void addCorpus(String sentence) {
         WordTag[] wts = this.chooseStream().segSentence(sentence);
         dictionary.addIndex(wts);
-        this.addCorpus(wts);
+        this.addWordTags(wts);
         this.calcFlag = true;
     }
 
     //添加新语料
-    protected void addCorpus(WordTag[] wts) {
+    public void addCorpus(WordTag[] wts) {
+        dictionary.addIndex(wts);
+        this.addWordTags(wts);
+        this.calcFlag = true;
+    }
+    //添加新语料
+    public void addWordTags(WordTag[] wts) {
         String[] words = new String[wts.length];
         String[] tags = new String[wts.length];
         for (int i = 0; i < wts.length; ++i) {

@@ -18,7 +18,7 @@ import java.util.Arrays;
  */
 public class Tagger {
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) {
 
         AbstractParas paras=new TrigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44,50000);
 
@@ -59,6 +59,7 @@ public class Tagger {
         return wts;
     }
 
+    //词与标注配对
     private WordTag[] matching(String[] words, int[] tagIds) {
         int wordLen = words.length;
         WordTag[] wts = new WordTag[wordLen];
@@ -68,7 +69,8 @@ public class Tagger {
         return wts;
     }
 
-    public HMM readHMM(String path) {
+    //模型反序列化
+    private HMM readHMM(String path) {
         HMM hmm = null;
         ObjectInputStream ois = null;
         try {
