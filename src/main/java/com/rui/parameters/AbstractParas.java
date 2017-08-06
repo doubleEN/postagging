@@ -96,7 +96,7 @@ public abstract class AbstractParas implements Serializable{
     protected abstract void reBuildPi();
 
     //划分[留存数据]
-    protected abstract void addHoldOut(WordTag[] wts);
+    public abstract void addHoldOut(WordTag[] wts);
 
     //扩展[留存状态矩阵]
     protected abstract void expandHoldOut();
@@ -161,7 +161,12 @@ public abstract class AbstractParas implements Serializable{
     }
 
     //根据word的字符串形式获取对应的wordId
-    public int getWordId(String word) {
+    //是否返回值都处理成Integer
+    public Integer getWordId(String word) {
+//        if (this.dictionary.getWordId(word) == null) {
+//
+//            System.out.println(word+":"+this.dictionary.getWordId(word));
+//        }
         return this.dictionary.getWordId(word);
     }
 

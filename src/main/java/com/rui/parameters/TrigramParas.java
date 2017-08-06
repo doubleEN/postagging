@@ -207,12 +207,12 @@ public class TrigramParas extends AbstractParas {
     }
 
     @Override
-    protected void addHoldOut(WordTag[] wts) {
+    public void addHoldOut(WordTag[] wts) {
         if (wts.length < 3) {
             System.err.println("句子长度不够，不能添加留存频数。");
             return;
         }
-
+        this.dictionary.addIndex(wts);
         if (this.getSizeOfTags() > this.holdOut.length) {
             this.expandHoldOut();
         }
@@ -247,6 +247,10 @@ public class TrigramParas extends AbstractParas {
         if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
             this.reBuildB();
         }
+        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
+            this.reBuildB();
+        }
+
 
     }
 

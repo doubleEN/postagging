@@ -193,7 +193,8 @@ public class BigramParas extends AbstractParas {
         留存数据处理
      */
     @Override
-    protected void addHoldOut(WordTag[] wts) {
+    public void addHoldOut(WordTag[] wts) {
+        this.dictionary.addIndex(wts);
         if (this.getSizeOfTags() > this.holdOut.length) {
             this.expandHoldOut();
         }
@@ -222,6 +223,12 @@ public class BigramParas extends AbstractParas {
         }
         if (tagSize > this.holdOut.length) {
             this.expandHoldOut();
+        }
+        if (tagSize>this.numPi.length){
+            this.reBuildPi();
+        }
+        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
+            this.reBuildB();
         }
     }
 

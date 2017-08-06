@@ -89,7 +89,15 @@ public class FirstOrderHMM extends HMM {
 
         //带入初始状态计算第一个观察态概率，不用记录最大值索引
         for (int i = 0; i < tagSize; ++i) {
-            sentencesProb[i][0] = this.hmmParas.getProbPi(i) * this.hmmParas.getProbB(i, this.hmmParas.getWordId(words[0]));
+            //句首的未登录词处理
+            double launchProb=0;
+            if (this.hmmParas.getWordId(words[0]) != null) {
+
+                launchProb = this.hmmParas.getProbB(i, this.hmmParas.getWordId(words[0]));
+            } else {
+                launchProb=1;
+            }
+            sentencesProb[i][0] = this.hmmParas.getProbPi(i) *launchProb ;
         }
 
         //外层循环：t(i)-->t(i+1)-->w(i+1)
@@ -111,7 +119,15 @@ public class FirstOrderHMM extends HMM {
                         break;
                     }
                 }
-                sentencesProb[nextTag][wordIndex] = midProbs[tagSize - ranking] * this.hmmParas.getProbB(nextTag, this.hmmParas.getWordId(words[wordIndex]));
+                double launchProb=0;
+                //未登录词处理
+                if (this.hmmParas.getWordId(words[wordIndex])!=null){
+                    launchProb=this.hmmParas.getProbB(nextTag, this.hmmParas.getWordId(words[wordIndex]));
+                }else {
+                    launchProb=1;
+                }
+
+                sentencesProb[nextTag][wordIndex] = midProbs[tagSize - ranking] * launchProb;
                 indexs[nextTag][wordIndex - 1] = index;
             }
         }
