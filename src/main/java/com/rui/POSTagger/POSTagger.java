@@ -1,7 +1,11 @@
 package com.rui.POSTagger;
 
+import com.rui.model.FirstOrderHMM;
+import com.rui.model.HMM;
+import com.rui.model.SecondOrderHMM;
 import com.rui.parameters.AbstractParas;
 import com.rui.parameters.BigramParas;
+import com.rui.parameters.TrigramParas;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 
@@ -19,9 +23,26 @@ public class POSTagger {
 
     public static void main(String[] args) {
 
-        System.out.println(Arrays.toString(POSTagger.tag2Gram("学好 自然 语言 处理 ， 实现 台湾 统一  。")));
-        System.out.println(Arrays.toString(POSTagger.tag3Gram("学好 自然 语言 处理 ， 实现 台湾 统一  。")));
+//        AbstractParas paras=new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44,50000);
+//        HMM hmm=new FirstOrderHMM(paras);
+//        hmm.writeHMM("/home/mjx/桌面/BiGram.bin");
+//
+//        AbstractParas paras2=new TrigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44,50000);
+//        HMM hmm2=new SecondOrderHMM(paras);
+//        hmm.writeHMM("/home/mjx/桌面/TriGram.bin");
 
+
+        String[] sentences={
+                "谢谢  ！  （  新华社  北京  １２  ３１日  电  ）",
+                "在  十五大  精神  指引  下  胜利  前进  —— 元旦  献辞",
+                "在  这  辞旧迎新  的  美好  时刻  ，  我  祝  大家 新年  快乐  ，  家庭  幸福  ！",
+                "北京  举行  新年  音乐会"
+        };
+
+        for (String sentence:sentences){
+            WordTag[]wts=POSTagger.tag2Gram(sentence);
+            System.out.println(Arrays.toString(wts));
+        }
     }
 
     //2-gram标注

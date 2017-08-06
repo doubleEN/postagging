@@ -22,7 +22,7 @@ public class CrossValidation {
 
     public static void main(String[] args) {
         Estimator estimator = new Precies();
-        CrossValidation cv = new CrossValidation("/home/mjx/桌面/PoS/corpus/2.txt", 5, NGram.TriGram, new PeopleDailyWordTagStream(), estimator);
+        CrossValidation cv = new CrossValidation("/home/mjx/桌面/PoS/corpus/2.txt", 3, NGram.BiGram, new PeopleDailyWordTagStream(), estimator);
         System.out.println(cv.score());
         //        System.out.println(Arrays.toString(cv.scoreK()));
     }
@@ -88,7 +88,7 @@ public class CrossValidation {
         for (int k = 0; k < this.trainTest.length; ++k) {
             this.trainTest[k] = new HashSet<WordTag[]>();
             for (int num = 0; num < range && sentences.size() != 0; ++num) {
-                int no=rand.nextInt(sentences.size());
+                int no = rand.nextInt(sentences.size());
                 WordTag[] wts = sentences.get(no);
                 this.trainTest[k].add(wts);
                 //list适合做随机划分多个子集
@@ -129,7 +129,7 @@ public class CrossValidation {
                 predictTags[i][j] = wts[j].getTag();
             }
         }
-        return this.estimator.eval(predictTags, this.expectedTags);
+        return this.estimator.eval(this.unknownSentences,predictTags, this.expectedTags);
     }
 
     //获得一次交叉验证生成的标注器
@@ -192,4 +192,3 @@ public class CrossValidation {
         }
     }
 }
-

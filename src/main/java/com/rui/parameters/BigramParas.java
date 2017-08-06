@@ -354,10 +354,7 @@ public class BigramParas extends AbstractParas {
                     expression2 = (t_1_2 - 1) / (vector[t_1] - 1);
                 }
 
-                //稀疏语料中，t_2的出现概率大多数情况下要比t_2的条件概率大，对应的t_2的联合频数t_1_2要小；
-                // 少数情况下，t_2的条件概率比t_2的出现概率大，这时对应的t_2的联合频数t_1_2要大；
-                //所以，虽然expression1大的情况多一些，但因为累加的联合频数偏小，所以最后对应系数并不会格外大
-                if (expression1 >= expression2) {
+                if (expression1 > expression2) {
                     lambd_count1 += t_1_2;
                     i1++;
                 } else {
@@ -410,39 +407,5 @@ public class BigramParas extends AbstractParas {
         }
         return this.smoothingMatA[tagIndex[0]][tagIndex[1]];
     }
-
-
-//直接访问数据结构的方法
-//    public int[][] getA() {
-//        return this.numMatA;
-//    }
-//
-//    public int[][] getB() {
-//        return this.numMatB;
-//    }
-//
-//    public int[] getPI() {
-//        return this.numPi;
-//    }
-//
-//    public double[][] getPA() {
-//        return this.probMatA;
-//    }
-//
-//    public double[][] getPSA() {
-//        return this.smoothingMatA;
-//    }
-//
-//    public double[][] getPB() {
-//        return this.probMatB;
-//    }
-//
-//    public double[] getPpi() {
-//        return this.probPi;
-//    }
-//
-//    public int[][] getHoldOut() {
-//        return holdOut;
-//    }
 }
 

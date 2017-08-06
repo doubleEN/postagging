@@ -5,6 +5,6 @@ package com.rui.evaluation;
  */
 public interface Estimator {
 
-    double eval(String[][] predictedTags, String[][] expectedTags);
+    double eval(String[] unknownSentences,String[][] predictedTags, String[][] expectedTags);
 
 }

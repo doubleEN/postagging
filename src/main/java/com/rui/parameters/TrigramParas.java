@@ -11,47 +11,11 @@ import java.util.Arrays;
  * 三元语法参数训练。
  */
 public class TrigramParas extends AbstractParas {
-
-    public static void main(String[] args) {
-        TrigramParas paras = new TrigramParas("/home/mjx/桌面/PoS/test/testSet2.txt");
-        int[][][] numA = paras.getNumMatA();
-        int[][] numB = paras.getNumMatB();
-        int[] numPi = paras.getNumPi();
-        double[][][] probA = paras.getProbMatA();
-        double[][] probB = paras.getProbMatB();
-        double[] probPi = paras.getProbPi();
-
-//        System.out.println("numA:");
-//        for (int[][] as : numA) {
-//            for (int[] a : as) {
-//                System.out.println(Arrays.toString(a));
-//            }
-//            System.out.println();
-//        }
-//        System.out.println("numB:");
-//        for (int[] b : numB) {
-//            System.out.println(Arrays.toString(b));
-//        }
-//        System.out.println("pi:" + Arrays.toString(numPi));
-//
-//        System.out.println("probA:");
-//        for (double[][] as : probA) {
-//            System.out.println();
-//            for (double[] a : as) {
-//                System.out.println(Arrays.toString(a));
-//            }
-//        }
-//        System.out.println("probB:");
-//        for (double[] b : probB) {
-//            System.out.println(Arrays.toString(b));
-//        }
-//        System.out.println("probPi:" + Arrays.toString(probPi));
-
-    }
-
-    /*
+        /*
         计数参数
      */
+
+    private int numOfLowGram=0;
     private int[][][] triNumMatA;
 
     private int[][] biNumMatA;
@@ -116,6 +80,7 @@ public class TrigramParas extends AbstractParas {
     protected void countMatA(String[] tags) {
         if (tags.length < 3) {
             System.err.println("标注长度小于3，不能用于统计转移频数。");
+            this.numOfLowGram++;
             return;
         }
         //是否扩展数组，在reBuildA方法内判断
@@ -209,6 +174,7 @@ public class TrigramParas extends AbstractParas {
     @Override
     public void addHoldOut(WordTag[] wts) {
         if (wts.length < 3) {
+            this.numOfLowGram++;
             System.err.println("句子长度不够，不能添加留存频数。");
             return;
         }
@@ -250,8 +216,6 @@ public class TrigramParas extends AbstractParas {
         if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
             this.reBuildB();
         }
-
-
     }
 
     @Override
@@ -301,7 +265,6 @@ public class TrigramParas extends AbstractParas {
                     }
                 }
             }
-
 
         }
     }
@@ -454,9 +417,9 @@ public class TrigramParas extends AbstractParas {
                     //所以，虽然expression1大的情况多一些，但因为累加的联合频数偏小，所以最后对应系数并不会格外大
                     //是否取等号，对系数的取值影响很大
                     //因为是三元语法，留存数据不大时，数据非常稀疏
-                    if (expression1 >= expression2 && expression1 > expression3) {
+                    if (expression1 > expression2 && expression1 > expression3) {
                         lambd_count1 += t_1_2_3;
-                    } else if (expression2 >=expression3) {
+                    } else if (expression2 >expression3) {
                         lambd_count2 += t_1_2_3;
                     } else {
                         lambd_count3 += t_1_2_3;
@@ -523,28 +486,7 @@ public class TrigramParas extends AbstractParas {
         }
     }
 
-
-    public int[][][] getNumMatA() {
-        return triNumMatA;
-    }
-
-    public int[][] getNumMatB() {
-        return numMatB;
-    }
-
-    public int[] getNumPi() {
-        return numPi;
-    }
-
-    public double[][][] getProbMatA() {
-        return triProbMatA;
-    }
-
-    public double[][] getProbMatB() {
-        return probMatB;
-    }
-
-    public double[] getProbPi() {
-        return probPi;
+    public int getNumOfLowGram() {
+        return numOfLowGram;
     }
 }
