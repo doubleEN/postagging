@@ -29,7 +29,7 @@ public class Precies implements Estimator {
             if (flag) {
                 System.out.println(unknownSentences[i]);
                 System.out.println("predict->" + Arrays.toString(predictedTags[i]));
-                System.out.println("expect->" + Arrays.toString(expectedTags[i]));
+                System.out.println("expect ->" + Arrays.toString(expectedTags[i]));
             }
         }
         return correctNum / sum;

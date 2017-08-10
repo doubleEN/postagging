@@ -21,10 +21,12 @@ import java.util.*;
 public class CrossValidation {
 
     public static void main(String[] args) {
-        Estimator estimator = new Precies();
-        CrossValidation cv = new CrossValidation("/home/mjx/桌面/PoS/corpus/2.txt", 3, NGram.BiGram, new PeopleDailyWordTagStream(), estimator);
-        System.out.println(cv.score());
-        //        System.out.println(Arrays.toString(cv.scoreK()));
+//        Estimator estimator = new Precies();
+//        CrossValidation cv = new CrossValidation("/home/mjx/桌面/PoS/corpus/199801_format.txt", 3, NGram.BiGram, new PeopleDailyWordTagStream(), estimator);
+////        System.out.println(cv.score());
+//                System.out.println(cv.score());
+
+
     }
 
     //标明使用的n-gram
@@ -134,7 +136,6 @@ public class CrossValidation {
 
     //获得一次交叉验证生成的标注器
     private Tagger getTagger(int validatonNo) {
-
         Tagger tagger = null;
         Random random = new Random(11);
         if (this.nGram == NGram.BiGram) {

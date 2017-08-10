@@ -1,5 +1,6 @@
 package com.rui.tagger;
 
+import com.rui.evaluation.Precies;
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
 import com.rui.model.SecondOrderHMM;
@@ -7,6 +8,7 @@ import com.rui.parameters.AbstractParas;
 import com.rui.parameters.BigramParas;
 import com.rui.parameters.TrigramParas;
 import com.rui.stream.PeopleDailyWordTagStream;
+import com.rui.stream.WordTagStream;
 import com.rui.wordtag.WordTag;
 
 import java.io.FileInputStream;
@@ -22,26 +24,31 @@ public class Tagger {
 
     public static void main(String[] args) {
 
-//        AbstractParas paras = new TrigramParas();
-//        PeopleDailyWordTagStream stream = new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt");
-//        WordTag[] wts = null;
-//        Random random = new Random(11);
-//        while ((wts = stream.readSentence()) != null) {
-//            int num = random.nextInt(4);
-//            if (num == 1) {
-//                paras.addHoldOut(wts);
-//            } else {
-//                paras.addCorpus(wts);
-//            }
-//        }
-//        paras.calcProbs();
-//        HMM hmm=new SecondOrderHMM(paras);
-//        Tagger tagger=new Tagger(hmm);
-//        System.out.println(Arrays.toString(tagger.tag("学好 自然 语言 处理 ， 实现 台湾 统一  。")));
-
-        AbstractParas paras=new TrigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44,50000);
-        HMM hmm=new SecondOrderHMM(paras);
-        hmm.writeHMM("/home/mjx/桌面/TriGram.bin");
+        AbstractParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt");
+        HMM hmm = new FirstOrderHMM(paras);
+        Tagger tagger = new Tagger(hmm);
+        WordTagStream wordTagStream = new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt");
+        WordTag[] wts = null;
+        int num = 0;
+        String[]sentences=new String[1000];
+        String[][]predictedTags=new String[1000][];
+        String[][]expectedTags=new String[1000][];
+        while ((wts = wordTagStream.readSentence()) != null && num < 1000) {
+            String sen="";
+            expectedTags[num]=new String[wts.length];
+            predictedTags[num]=new String[wts.length];
+            for (int i=0;i<wts.length;++i){
+                sen=sen+wts[i].getWord()+" ";
+                expectedTags[num][i]=wts[i].getTag();
+            }
+            sentences[num]=sen;
+            WordTag[]expect= tagger.tag(sen.trim());
+            for (int i=0;i<expect.length;++i){
+                predictedTags[num][i]=expect[i].getTag();
+            }
+            ++num;
+        }
+        System.out.println(new Precies().eval(sentences,predictedTags,expectedTags));
     }
 
     private HMM hmm;
