@@ -1,14 +1,9 @@
 package com.rui.model;
 
-import com.rui.wordtag.WordTag;
-import com.rui.parameters.AbstractParas;
-import com.rui.parameters.BigramParas;
+import com.rui.parameter.AbstractParas;
+import com.rui.parameter.BigramParas;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.Arrays;
-
-import static org.junit.Assert.*;
 
 /**
  * 一阶HMM标注测试

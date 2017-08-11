@@ -5,16 +5,18 @@ import com.rui.wordtag.WordTag;
 import java.io.BufferedReader;
 
 /**
- *  迭代读取人民日报标注语料库的输入流
+ * 迭代读取人民日报标注语料库的输入流
  */
 public class PeopleDailyWordTagStream extends WordTagStream {
 
-    protected BufferedReader br;
+
 
     public PeopleDailyWordTagStream(String corpusPath) {
+        this.corpusPath=corpusPath;
         this.openReadStream(corpusPath);
     }
-    public PeopleDailyWordTagStream( ) {
+
+    public PeopleDailyWordTagStream() {
     }
 
     /**

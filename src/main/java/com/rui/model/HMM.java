@@ -1,7 +1,6 @@
 package com.rui.model;
 
-import com.rui.parameters.AbstractParas;
-import com.rui.wordtag.WordTag;
+import com.rui.parameter.AbstractParas;
 
 import java.io.*;
 

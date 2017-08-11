@@ -1,7 +1,7 @@
 package com.rui.model;
 
-import com.rui.parameters.AbstractParas;
-import com.rui.parameters.TrigramParas;
+import com.rui.parameter.AbstractParas;
+import com.rui.parameter.TrigramParas;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 

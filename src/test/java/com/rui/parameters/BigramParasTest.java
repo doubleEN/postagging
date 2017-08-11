@@ -1,9 +1,8 @@
 package com.rui.parameters;
 
-import org.junit.Before;
+import com.rui.parameter.AbstractParas;
+import com.rui.parameter.BigramParas;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 import static org.junit.Assert.*;
 

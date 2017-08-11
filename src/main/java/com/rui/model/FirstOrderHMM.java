@@ -1,15 +1,11 @@
 package com.rui.model;
 
-import com.rui.parameters.TrigramParas;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
-import com.rui.parameters.AbstractParas;
-import com.rui.parameters.BigramParas;
-import com.sun.org.apache.xpath.internal.SourceTree;
-import jdk.nashorn.internal.runtime.WithObject;
+import com.rui.parameter.AbstractParas;
+import com.rui.parameter.BigramParas;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Arrays;
 
 /**

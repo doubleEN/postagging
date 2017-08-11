@@ -1,4 +1,4 @@
-package com.rui.parameters;
+package com.rui.parameter;
 
 import com.rui.dictionary.DictFactory;
 import com.rui.wordtag.WordTag;

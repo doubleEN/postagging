@@ -3,10 +3,8 @@ package com.rui.tagger;
 import com.rui.evaluation.Precies;
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
-import com.rui.model.SecondOrderHMM;
-import com.rui.parameters.AbstractParas;
-import com.rui.parameters.BigramParas;
-import com.rui.parameters.TrigramParas;
+import com.rui.parameter.AbstractParas;
+import com.rui.parameter.BigramParas;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 import com.rui.wordtag.WordTag;
@@ -14,8 +12,6 @@ import com.rui.wordtag.WordTag;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.Arrays;
-import java.util.Random;
 
 /**
  *

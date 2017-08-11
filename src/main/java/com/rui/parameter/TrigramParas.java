@@ -1,11 +1,9 @@
-package com.rui.parameters;
+package com.rui.parameter;
 
 import com.rui.dictionary.DictFactory;
 import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
-
-import java.util.Arrays;
 
 /**
  * 三元语法参数训练。

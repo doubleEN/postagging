@@ -9,6 +9,8 @@ import java.io.*;
  */
 public abstract class WordTagStream {
 
+    protected String corpusPath;
+
     /**
      * 辅助输入流
      */
@@ -65,5 +67,9 @@ public abstract class WordTagStream {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getCorpusPath() {
+        return corpusPath;
     }
 }

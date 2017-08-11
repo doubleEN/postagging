@@ -3,17 +3,15 @@ package com.rui.POSTagger;
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
 import com.rui.model.SecondOrderHMM;
-import com.rui.parameters.AbstractParas;
-import com.rui.parameters.BigramParas;
-import com.rui.parameters.TrigramParas;
+import com.rui.parameter.AbstractParas;
+import com.rui.parameter.BigramParas;
+import com.rui.parameter.TrigramParas;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -23,14 +21,14 @@ public class POSTagger {
 
     public static void main(String[] args) {
 
-//        AbstractParas paras=new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44,50000);
-//        HMM hmm=new FirstOrderHMM(paras);
-//        hmm.writeHMM("/home/mjx/桌面/BiGram.bin");
-//
-//        AbstractParas paras2=new TrigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44,50000);
-//        HMM hmm2=new SecondOrderHMM(paras);
-//        hmm.writeHMM("/home/mjx/桌面/TriGram.bin");
-//
+        AbstractParas paras=new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44,50000);
+        HMM hmm=new FirstOrderHMM(paras);
+        hmm.writeHMM("/home/mjx/桌面/BiGram.bin");
+
+        AbstractParas paras2=new TrigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt",44,50000);
+        HMM hmm2=new SecondOrderHMM(paras);
+        hmm.writeHMM("/home/mjx/桌面/TriGram.bin");
+
 //
 //        String[] sentences={
 //                "谢谢  ！  （  新华社  北京  １２  ３１日  电  ）",
