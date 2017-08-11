@@ -5,64 +5,43 @@ import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 
+import java.util.Arrays;
+
 /**
  * 统计并计算[一阶HMM]的参数
  */
 public class BigramParas extends AbstractParas {
 
-//    public static void main(String[] args) {
+    public static void main(String[] args) {
 //        BigramParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 46, 55320);
 //
-//        int[][] as = paras.getA();
-//        int[][] bs = paras.getB();
-//        int[] pi = paras.getPI();
+//        double[][] sa = paras.getSmoothingMatA();
+//        double[][] bs = paras.getProbMatB();
+//        double[] pi = paras.getProbPi();
 //
-//        double[][] pa = paras.getPSA();
-//        double[][] pb = paras.getPB();
+////        System.out.println("pi:"+ Arrays.toString(pi));
 //
-//
-//        System.out.println("平滑后概率:");
-//        for (double[] a : pa) {
+//        double min=1,max=-1;
+//        System.out.println("B:");
+//        for (double[] b : bs) {
+//            System.out.println(Arrays.toString(b));
+//            for (double n:b){
+//                if (max<n){
+//                    max=n;
+//                }
+//                if (min>n){
+//                    min=n;
+//                }
+//            }
+//        }
+//        System.out.println(min);
+//        System.out.println(max);
+//        System.out.println("smoothA:");
+//        for (double[]a:sa){
 //            System.out.println(Arrays.toString(a));
 //        }
-////        System.out.println("B:");
-////        for (int[] b : bs) {
-////            System.out.println(Arrays.toString(b));
-////        }
-//
-//        System.out.println("PI:" + Arrays.toString(pi));
-//
-//        System.out.println(as.length + ":" + paras.getSizeOfTags());
-//        System.out.println(bs.length + ":" + bs[0].length);
-//        System.out.println(paras.getPI().length);
-//
-//        System.out.println(as.length == paras.getHoldOut().length);
-//        System.out.println(pa.length == pb.length);
-//
-//        System.out.println(as.length + ":" + pa.length);
-//
-//        //PI:[184764, 236810, 74829, 34473, 173047, 20680, 41370, 24244]
-//
-////        BigramParas paras = new BigramParas("/home/mjx/桌面/PoS/test/testCount.txt");
-////
-////        System.out.println("probA:");
-////        for (double[] p : paras.getPA()) {
-////            System.out.println(Arrays.toString(p));
-////        }
-////        System.out.println("probPi:");
-////        System.out.println(Arrays.toString(paras.getPpi()));
-////
-////        System.out.println("smoothA:");
-////        for (double[] p : paras.getPSA()) {
-////            System.out.println(Arrays.toString(p));
-////        }
-////
-////        System.out.println("probB:");
-////        for (double[] p : paras.getPB()) {
-////            System.out.println(Arrays.toString(p));
-////        }
-//
-//    }
+
+    }
 
     /*
         计数参数
@@ -86,9 +65,9 @@ public class BigramParas extends AbstractParas {
 
     private double[] probPi;
 
-    public BigramParas(){
+    public BigramParas() {
         this.dictionary = new DictFactory();
-        this.holdOut=new int[1][1];
+        this.holdOut = new int[1][1];
         this.numMatA = new int[1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
@@ -142,6 +121,16 @@ public class BigramParas extends AbstractParas {
 
         for (int i = 0; i < words.length; i++) {
             this.numMatB[this.getTagId(tags[i])][this.getWordId(words[i])]++;
+        }
+    }
+
+    //+1平滑会引入偏差
+    @Override
+    protected void smoothMatB() {
+        for (int i = 0; i < this.numMatB.length; ++i) {
+            for (int j = 0; j < this.numMatB[0].length; ++j) {
+                ++this.numMatB[i][j];
+            }
         }
     }
 
@@ -224,7 +213,7 @@ public class BigramParas extends AbstractParas {
         if (tagSize > this.holdOut.length) {
             this.expandHoldOut();
         }
-        if (tagSize>this.numPi.length){
+        if (tagSize > this.numPi.length) {
             this.reBuildPi();
         }
         if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
@@ -340,7 +329,7 @@ public class BigramParas extends AbstractParas {
             return;
         }
 
-        int i1=0,i2=0;
+        int i1 = 0, i2 = 0;
         for (int t_1 = 0; t_1 < len; ++t_1) {
             for (int t_2 = 0; t_2 < len; ++t_2) {
                 // 系数：0.1514629948364888:0.8485370051635112
@@ -394,7 +383,7 @@ public class BigramParas extends AbstractParas {
 
     @Override
     public double getProbA(int... tagIndex) {
-        if (tagIndex.length!=2){
+        if (tagIndex.length != 2) {
             System.err.println("获取转移概率参数不合法。");
         }
         return this.probMatA[tagIndex[0]][tagIndex[1]];
@@ -402,10 +391,23 @@ public class BigramParas extends AbstractParas {
 
     @Override
     public double getProbSmoothA(int... tagIndex) {
-        if (tagIndex.length!=2){
+        if (tagIndex.length != 2) {
             System.err.println("获取转移概率参数不合法。");
         }
         return this.smoothingMatA[tagIndex[0]][tagIndex[1]];
+    }
+
+
+    public double[][] getSmoothingMatA() {
+        return smoothingMatA;
+    }
+
+    public double[][] getProbMatB() {
+        return probMatB;
+    }
+
+    public double[] getProbPi() {
+        return probPi;
     }
 }
 

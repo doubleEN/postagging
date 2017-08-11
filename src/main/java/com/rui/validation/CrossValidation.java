@@ -21,12 +21,11 @@ import java.util.*;
 public class CrossValidation {
 
     public static void main(String[] args) {
-//        Estimator estimator = new Precies();
-//        CrossValidation cv = new CrossValidation("/home/mjx/桌面/PoS/corpus/199801_format.txt", 3, NGram.BiGram, new PeopleDailyWordTagStream(), estimator);
-////        System.out.println(cv.score());
-//                System.out.println(cv.score());
-
-
+        Estimator estimator = new Precies();
+        //TriGram：0.9020513916341685
+        CrossValidation cv = new CrossValidation("/home/mjx/桌面/PoS/corpus/199801_format.txt", 10, NGram.TriGram, new PeopleDailyWordTagStream(), estimator);
+        System.out.println(cv.score());
+//                System.out.println(Arrays.toString(cv.scoreK()));
     }
 
     //标明使用的n-gram

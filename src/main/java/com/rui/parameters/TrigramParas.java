@@ -111,6 +111,15 @@ public class TrigramParas extends AbstractParas {
     }
 
     @Override
+    protected void smoothMatB() {
+        for (int i = 0; i < this.numMatB.length; ++i) {
+            for (int j = 0; j < this.numMatB[0].length; ++j) {
+                ++this.numMatB[i][j];
+            }
+        }
+    }
+
+    @Override
     protected void countPi(String[] tags) {
         if (this.getSizeOfTags() > this.numPi.length) {
             this.reBuildPi();

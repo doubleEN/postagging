@@ -60,6 +60,7 @@ public abstract class AbstractParas implements Serializable{
         this.addWordTags(wts);
         this.calcFlag = true;
     }
+
     //添加新语料
     public void addWordTags(WordTag[] wts) {
         String[] words = new String[wts.length];
@@ -82,6 +83,9 @@ public abstract class AbstractParas implements Serializable{
 
     //统计[混淆状态频数]
     protected abstract void countMatB(String[] words, String[] tags);
+
+    //平滑[混淆状态频数]
+    protected abstract void smoothMatB();
 
     //统计[初始状态频数]
     protected abstract void countPi(String[] tags);
@@ -112,8 +116,11 @@ public abstract class AbstractParas implements Serializable{
             System.err.println("未添加初始语料库或未加入新的语料,不能计算概率。");
             return;
         }
+
         //在计算概率以前，保证训练集，留存和映射词典的编号长度一致
         this.ensureLenOfTag();
+        //平滑混淆状态频数
+        this.smoothMatB();
 
         //这里最后计算A的概率，因为A的平滑需要pi的概率
         this.calcProbB();
