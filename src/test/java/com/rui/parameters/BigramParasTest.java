@@ -23,7 +23,7 @@ public class BigramParasTest {
         paras.addCorpus("递归/ln 神经网络/ln");
         paras.calcProbs();
 
-        assertEquals(6, paras.getSizeOfTags());
+        assertEquals(6, paras.getDictionary().getSizeOfTags());
     }
 
     //测试初始概率
@@ -36,7 +36,7 @@ public class BigramParasTest {
         paras.addCorpus("递归/ln 神经网络/ln");
         paras.calcProbs();
 
-        int idN = paras.getTagId("n");
+        int idN = paras.getDictionary().getTagId("n");
 
         assertEquals(0.333333, paras.getProbPi(idN), 0.0001);
     }
@@ -51,8 +51,8 @@ public class BigramParasTest {
         paras.addCorpus("递归/ln 神经网络/ln");
         paras.calcProbs();
 
-        int word_NLP_id = paras.getWordId("nlp");
-        int tag_yn_id = paras.getTagId("yn");
+        int word_NLP_id = paras.getDictionary().getWordId("nlp");
+        int tag_yn_id = paras.getDictionary().getTagId("yn");
 
         assertEquals(1.0, paras.getProbB(tag_yn_id, word_NLP_id),0.1);
     }
@@ -67,8 +67,8 @@ public class BigramParasTest {
         paras.addCorpus("递归/ln 神经网络/ln");
         paras.calcProbs();
 
-        int tag_n_id = paras.getTagId("n");
-        int tag_v_id = paras.getTagId("v");
+        int tag_n_id = paras.getDictionary().getTagId("n");
+        int tag_v_id = paras.getDictionary().getTagId("v");
 
         assertEquals(0.5, paras.getProbA(tag_n_id, tag_v_id),0.0001);
 
@@ -80,8 +80,8 @@ public class BigramParasTest {
 
         AbstractParas paras=new BigramParas("/home/mjx/桌面/PoS/test/testSet2.txt");
 
-        int tag_v_id = paras.getTagId("v");
-        int tag_yn_id = paras.getTagId("n");
+        int tag_v_id = paras.getDictionary().getTagId("v");
+        int tag_yn_id = paras.getDictionary().getTagId("n");
 
         assertEquals(0.19359, paras.getProbSmoothA(tag_v_id, tag_yn_id),0.000001);
     }

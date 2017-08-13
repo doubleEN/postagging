@@ -41,7 +41,7 @@ public class FirstOrderHMM extends HMM {
     public int[][] decode(String sentence, int k) {
         String[] words = sentence.trim().split("\\s+");
         int wordLen = words.length;
-        int tagSize = this.hmmParas.getSizeOfTags();
+        int tagSize = this.hmmParas.getDictionary().getSizeOfTags();
         int[][] tagIds = new int[k][wordLen];
 
         this.rankProbs = new double[k][tagSize];
@@ -82,7 +82,7 @@ public class FirstOrderHMM extends HMM {
     public void forward(String sentence, int ranking) {
         String[] words = sentence.split("\\s+");
         int wordLen = words.length;
-        int tagSize = this.hmmParas.getSizeOfTags();
+        int tagSize = this.hmmParas.getDictionary().getSizeOfTags();
         //索引数组差概率数组一位
         double[][] sentencesProb = new double[tagSize][wordLen];
         int[][] indexs = new int[tagSize][wordLen];
@@ -91,8 +91,8 @@ public class FirstOrderHMM extends HMM {
         for (int i = 0; i < tagSize; ++i) {
             //句首的未登录词处理
             double launchProb = 0;
-            if (this.hmmParas.getWordId(words[0]) != null) {
-                launchProb = Math.log(this.hmmParas.getProbB(i, this.hmmParas.getWordId(words[0])));
+            if (this.hmmParas.getDictionary().getWordId(words[0]) != null) {
+                launchProb = Math.log(this.hmmParas.getProbB(i, this.hmmParas.getDictionary().getWordId(words[0])));
             }
             sentencesProb[i][0] = Math.log(this.hmmParas.getProbPi(i)) + launchProb;
         }
@@ -117,8 +117,8 @@ public class FirstOrderHMM extends HMM {
                 }
                 double launchProb = 0;
                 //未登录词处理
-                if (this.hmmParas.getWordId(words[wordIndex]) != null) {
-                    launchProb = Math.log(this.hmmParas.getProbB(nextTag, this.hmmParas.getWordId(words[wordIndex])));
+                if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
+                    launchProb = Math.log(this.hmmParas.getProbB(nextTag, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
                 }
                 sentencesProb[nextTag][wordIndex] = midProbs[tagSize - ranking] + launchProb;
                 indexs[nextTag][wordIndex - 1] = index;
@@ -156,7 +156,7 @@ public class FirstOrderHMM extends HMM {
 //    public int[][] decode(String sentence, int k) {
 //        String[] words = sentence.trim().split("\\s+");
 //        int wordLen = words.length;
-//        int tagSize = this.hmmParas.getSizeOfTags();
+//        int tagSize = this.hmmParas.getDictionary().getSizeOfTags();
 //        int[][] tagIds = new int[k][wordLen];
 //
 //        this.rankProbs = new double[k][tagSize];

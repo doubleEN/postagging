@@ -1,10 +1,10 @@
 package com.rui.evaluation;
 
+import com.rui.dictionary.DictFactory;
+
 /**
- * 评估方式的接口
+ * 评估接口
  */
 public interface Estimator {
-
-    double eval(String[] unknownSentences,String[][] predictedTags, String[][] expectedTags);
-
+    double eval(DictFactory dict, String[] unknownSentences, String[][] predictedTags, String[][] expectedTags);
 }

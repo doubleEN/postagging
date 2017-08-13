@@ -39,7 +39,7 @@ public class SecondOrderHMM extends HMM {
     public int[][] decode(String sentence, int k) {
         String[] words = sentence.trim().split("\\s+");
         int wordLen = words.length;
-        int tagSize = this.hmmParas.getSizeOfTags();
+        int tagSize = this.hmmParas.getDictionary().getSizeOfTags();
 
         if (wordLen == 1) {
             System.err.println(" 独词成句");
@@ -92,9 +92,9 @@ public class SecondOrderHMM extends HMM {
     public int[][] decodeOneWord(String word, int k) {
         int[][] tags = new int[k][1];
 
-        int tagSize = this.hmmParas.getSizeOfTags();
+        int tagSize = this.hmmParas.getDictionary().getSizeOfTags();
         int tagId = -1;
-        if (this.hmmParas.getWordId(word) == null) {
+        if (this.hmmParas.getDictionary().getWordId(word) == null) {
             double maxProb = -1;
             int maxIndex = -1;
             for (int id = 0; id < tagSize; ++id) {
@@ -106,7 +106,7 @@ public class SecondOrderHMM extends HMM {
             }
             tagId = maxIndex;
         } else {
-            int wordId = this.hmmParas.getWordId(word);
+            int wordId = this.hmmParas.getDictionary().getWordId(word);
             double maxProb = -1;
             int maxIndex = -1;
             for (int i = 0; i < tagSize; ++i) {
@@ -131,7 +131,7 @@ public class SecondOrderHMM extends HMM {
     @Override
     protected void forward(String sentence, int ranking) {
         String[] words = sentence.split("\\s+");
-        int tagSize = this.hmmParas.getSizeOfTags();
+        int tagSize = this.hmmParas.getDictionary().getSizeOfTags();
         int wordLen = words.length;
         //用以记录中间最大概率的数组
         double[][][] sentenceProb = new double[tagSize][tagSize][wordLen];
@@ -143,8 +143,8 @@ public class SecondOrderHMM extends HMM {
             //第三个状态tag_k固定的情况下，不同的tag_j组合是一样的
             for (int tag_j = 0; tag_j < tagSize; ++tag_j) {
                 double launchProb = 0;
-                if (this.hmmParas.getWordId(words[0]) != null) {
-                    launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getWordId(words[0])));
+                if (this.hmmParas.getDictionary().getWordId(words[0]) != null) {
+                    launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[0])));
                 }
                 sentenceProb[tag_j][tag_k][0] = Math.log(this.hmmParas.getProbPi(tag_k)) + launchProb;
             }
@@ -153,8 +153,8 @@ public class SecondOrderHMM extends HMM {
         for (int tag_k = 0; tag_k < tagSize; ++tag_k) {
             for (int tag_j = 0; tag_j < tagSize; ++tag_j) {
                 double launchProb = 0;
-                if (this.hmmParas.getWordId(words[1]) != null) {
-                    launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getWordId(words[1])));
+                if (this.hmmParas.getDictionary().getWordId(words[1]) != null) {
+                    launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[1])));
                 }
                 sentenceProb[tag_j][tag_k][1] = sentenceProb[0][tag_j][0] +Math.log(this.hmmParas.getProbSmoothA(tag_j, tag_k))+ launchProb;
             }
@@ -187,8 +187,8 @@ public class SecondOrderHMM extends HMM {
                         }
                     }
                     double launchProb = 0;
-                    if (this.hmmParas.getWordId(words[wordIndex]) != null) {
-                        launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getWordId(words[wordIndex])));
+                    if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
+                        launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
                     }
                     sentenceProb[tag_j][tag_k][wordIndex] = midProbs[tagSize - ranking] + launchProb;
                     indexs[tag_j][tag_k][wordIndex - 1] = i;
@@ -233,7 +233,7 @@ public class SecondOrderHMM extends HMM {
 //    public int[][] decode(String sentence, int k) {
 //        String[] words = sentence.trim().split("\\s+");
 //        int wordLen = words.length;
-//        int tagSize = this.hmmParas.getSizeOfTags();
+//        int tagSize = this.hmmParas.getDictionary().getSizeOfTags();
 //
 //        if (wordLen == 1) {
 //            System.err.println(" 独词成句");

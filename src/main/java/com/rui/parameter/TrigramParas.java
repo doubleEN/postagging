@@ -85,11 +85,11 @@ public class TrigramParas extends AbstractParas {
         this.reBuildA();
         //三元标注状态统计
         for (int i = 2; i < tags.length; i++) {
-            this.triNumMatA[this.getTagId(tags[i - 2])][this.getTagId(tags[i - 1])][this.getTagId(tags[i])]++;
+            this.triNumMatA[this.dictionary.getTagId(tags[i - 2])][this.dictionary.getTagId(tags[i - 1])][this.dictionary.getTagId(tags[i])]++;
         }
         //二元标注状态统计
         for (int i = 1; i < tags.length; i++) {
-            this.biNumMatA[this.getTagId(tags[i - 1])][this.getTagId(tags[i])]++;
+            this.biNumMatA[this.dictionary.getTagId(tags[i - 1])][this.dictionary.getTagId(tags[i])]++;
         }
     }
 
@@ -99,12 +99,12 @@ public class TrigramParas extends AbstractParas {
             System.err.println("词组，标注长度不匹配。");
             return;
         }
-        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
+        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
             this.reBuildB();
         }
 
         for (int i = 0; i < words.length; i++) {
-            this.numMatB[this.getTagId(tags[i])][this.getWordId(words[i])]++;
+            this.numMatB[this.dictionary.getTagId(tags[i])][this.dictionary.getWordId(words[i])]++;
         }
     }
 
@@ -119,17 +119,17 @@ public class TrigramParas extends AbstractParas {
 
     @Override
     protected void countPi(String[] tags) {
-        if (this.getSizeOfTags() > this.numPi.length) {
+        if (this.dictionary.getSizeOfTags() > this.numPi.length) {
             this.reBuildPi();
         }
         for (String tag : tags) {
-            this.numPi[this.getTagId(tag)]++;
+            this.numPi[this.dictionary.getTagId(tag)]++;
         }
     }
 
     @Override
     protected void reBuildA() {
-        int len=this.getSizeOfTags();
+        int len=this.dictionary.getSizeOfTags();
         if (len > this.triNumMatA.length) {
             int[][][] newA = new int[len][len][len];
             for (int i = 0; i < this.triNumMatA.length; ++i) {
@@ -157,8 +157,8 @@ public class TrigramParas extends AbstractParas {
 
     @Override
     protected void reBuildB() {
-        int row = this.getSizeOfTags() > this.numMatB.length ? this.getSizeOfTags() : this.numMatB.length;
-        int col = this.getSizeOfWords() > this.numMatB[0].length ? this.getSizeOfWords() : this.numMatB[0].length;
+        int row = this.dictionary.getSizeOfTags() > this.numMatB.length ? this.dictionary.getSizeOfTags() : this.numMatB.length;
+        int col = this.dictionary.getSizeOfWords() > this.numMatB[0].length ? this.dictionary.getSizeOfWords() : this.numMatB[0].length;
         int[][] newB = new int[row][col];
         for (int i = 0; i < this.numMatB.length; ++i) {
             for (int j = 0; j < this.numMatB[0].length; ++j) {
@@ -170,7 +170,7 @@ public class TrigramParas extends AbstractParas {
 
     @Override
     protected void reBuildPi() {
-        int[] pi = new int[this.getSizeOfTags()];
+        int[] pi = new int[this.dictionary.getSizeOfTags()];
         for (int i = 0; i < this.numPi.length; ++i) {
             pi[i] = this.numPi[i];
 
@@ -186,17 +186,17 @@ public class TrigramParas extends AbstractParas {
             return;
         }
         this.dictionary.addIndex(wts);
-        if (this.getSizeOfTags() > this.holdOut.length) {
+        if (this.dictionary.getSizeOfTags() > this.holdOut.length) {
             this.expandHoldOut();
         }
         for (int i = 2; i < wts.length; i++) {
-            this.holdOut[this.getTagId(wts[i - 2].getTag())][this.getTagId(wts[i - 1].getTag())][this.getTagId(wts[i].getTag())]++;
+            this.holdOut[this.dictionary.getTagId(wts[i - 2].getTag())][this.dictionary.getTagId(wts[i - 1].getTag())][this.dictionary.getTagId(wts[i].getTag())]++;
         }
     }
 
     @Override
     protected void expandHoldOut() {
-        int len = this.getSizeOfTags();
+        int len = this.dictionary.getSizeOfTags();
         int[][][] holdOut = new int[len][len][len];
 
         for (int i = 0; i < this.holdOut.length; ++i) {
@@ -211,16 +211,16 @@ public class TrigramParas extends AbstractParas {
 
     @Override
     protected void ensureLenOfTag() {
-        int tagSize = this.getSizeOfTags();
+        int tagSize = this.dictionary.getSizeOfTags();
         this.reBuildA();
-        if (this.getSizeOfTags() > this.holdOut.length) {
+        if (this.dictionary.getSizeOfTags() > this.holdOut.length) {
             this.expandHoldOut();
         }
 
-        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
+        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
             this.reBuildB();
         }
-        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
+        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
             this.reBuildB();
         }
     }
@@ -228,7 +228,7 @@ public class TrigramParas extends AbstractParas {
     @Override
     protected void calcProbA() {
 
-        int len = this.getSizeOfTags();
+        int len = this.dictionary.getSizeOfTags();
         //二元概率计算
         this.biProbMatA = new double[len][len];
 
@@ -279,8 +279,8 @@ public class TrigramParas extends AbstractParas {
     @Override
     protected void calcProbB() {
 
-        int rowSize = this.getSizeOfTags();
-        int colSize = this.getSizeOfWords();
+        int rowSize = this.dictionary.getSizeOfTags();
+        int colSize = this.dictionary.getSizeOfWords();
 
         this.probMatB = new double[rowSize][colSize];
 
@@ -306,7 +306,7 @@ public class TrigramParas extends AbstractParas {
     @Override
     protected void calcProbPi() {
 
-        int vectorSize = this.getSizeOfTags();
+        int vectorSize = this.dictionary.getSizeOfTags();
 
         this.probPi = new double[vectorSize];
 
@@ -328,7 +328,7 @@ public class TrigramParas extends AbstractParas {
     protected void smoothMatA() {
 
         //        System.out.println(sumOfTag);
-        int len = this.getSizeOfTags();
+        int len = this.dictionary.getSizeOfTags();
 
         this.smoothingMatA = new double[len][len][len];
 

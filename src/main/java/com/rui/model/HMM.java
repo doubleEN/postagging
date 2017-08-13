@@ -1,5 +1,6 @@
 package com.rui.model;
 
+import com.rui.dictionary.DictFactory;
 import com.rui.parameter.AbstractParas;
 
 import java.io.*;
@@ -8,6 +9,7 @@ import java.io.*;
  * HMM接口
  */
 public abstract class HMM implements Serializable {
+
     //HMM的参数对象
     protected AbstractParas hmmParas;
 
@@ -19,11 +21,6 @@ public abstract class HMM implements Serializable {
 
     //viterbi回溯
     protected abstract int[] backTrack(int ranking, int... lastIndexs);
-
-    //通过标注的id获取标注的字符串形式
-    public String getTagOnId(int id) {
-        return this.hmmParas.getTagOnId(id);
-    }
 
     //HMM序列化
     public void writeHMM(String path) {
@@ -42,6 +39,9 @@ public abstract class HMM implements Serializable {
         }
     }
 
+    public AbstractParas getHmmParas() {
+        return hmmParas;
+    }
 }
 
 

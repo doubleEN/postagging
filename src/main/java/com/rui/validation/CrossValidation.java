@@ -1,7 +1,7 @@
 package com.rui.validation;
 
-import com.rui.evaluation.Estimator;
-import com.rui.evaluation.Precies;
+import com.rui.dictionary.DictFactory;
+import com.rui.evaluation.*;
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
 import com.rui.model.SecondOrderHMM;
@@ -12,6 +12,7 @@ import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
+import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.util.*;
 
@@ -21,8 +22,10 @@ import java.util.*;
 public class CrossValidation {
 
     public static void main(String[] args) {
-        CrossValidation crossValidation = new CrossValidation(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 10, NGram.BiGram, new Precies());
+        CrossValidation crossValidation = new CrossValidation(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 10, NGram.BiGram, new PreciseAll());
 //        BiGram:[0.9080436628471887, 0.906321309154582, 0.9070137686103675, 0.907351759320731, 0.9066084156445602, 0.904506189331196, 0.908200845974329, 0.9046056152117299, 0.9089800221298692, 0.9058008673524246]
+//        [0.44858651755203477, 0.40913921360255046, 0.4302038295243978, 0.3988995873452545, 0.42012414243711205, 0.38405545927209706, 0.43992120814182534, 0.3771602846492714, 0.4189047785141263, 0.3908716540837337]
+//        all:0.9080436628471887IV:0.9213655197261754OOV:0.44858651755203477
 //        System.out.println(Arrays.toString(crossValidation.scoreK()));
         System.out.println(crossValidation.score());
 
@@ -49,7 +52,11 @@ public class CrossValidation {
     //评估器
     private Estimator estimator;
 
+    //折数
     private int fold;
+
+    //词典
+    private DictFactory dict;
 
     //代表n-gram的常量
     public enum NGram {
@@ -69,11 +76,11 @@ public class CrossValidation {
     }
 
     public double[] scoreK() {
-        double[] scores=new double[this.fold];
+        double[] scores = new double[this.fold];
 
-        for (int i=0;i<this.fold;++i){
+        for (int i = 0; i < this.fold; ++i) {
             this.tagger = this.getTagger(i);
-            scores[i]=this.estimate();
+            scores[i] = this.estimate();
         }
         return scores;
     }
@@ -114,6 +121,7 @@ public class CrossValidation {
 
         this.stream.openReadStream(this.stream.getCorpusPath());
 
+        this.dict = paras.getDictionary();
         return tagger;
     }
 
@@ -132,7 +140,7 @@ public class CrossValidation {
                 predictTags[i][j] = wts[j].getTag();
             }
         }
-        return this.estimator.eval(this.unknownSentences, predictTags, this.expectedTags);
+        return this.estimator.eval(this.dict, this.unknownSentences, predictTags, this.expectedTags);
     }
 
     private void getTagOfValidation() {
@@ -148,4 +156,5 @@ public class CrossValidation {
             ++i;
         }
     }
+
 }

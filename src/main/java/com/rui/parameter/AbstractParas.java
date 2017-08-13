@@ -158,43 +158,9 @@ public abstract class AbstractParas implements Serializable{
     //获得指定[tag_i-->tag_i+1]的平滑后的转移概率
     public abstract double getProbSmoothA(int... tagIndex);
 
-    /*
-        访问映射词典的方法与接口
-     */
-
-    //根据tagId获取tag的字符串形式
-    public String getTagOnId(int tagId) {
-        return this.dictionary.getTag(tagId);
-    }
-
-    //根据word的字符串形式获取对应的wordId
-    //是否返回值都处理成Integer
-    public Integer getWordId(String word) {
-//        if (this.dictionary.getWordId(word) == null) {
-//
-//            System.out.println(word+":"+this.dictionary.getWordId(word));
-//        }
-        return this.dictionary.getWordId(word);
-    }
-
-    //根据tag的字符串形式获取对应的tagId
-    public int getTagId(String tag) {
-        return this.dictionary.getTagId(tag);
-    }
-
-    //获得标注集大小
-    public int getSizeOfTags() {
-        return this.dictionary.getSizeOfTags();
-    }
-
-    //获得不同词的总数
-    public int getSizeOfWords() {
-        return this.dictionary.getSizeOfWords();
-    }
-
-    //获得整个标注集的字符串形式
-    public String[] getTagSet() {
-        return this.dictionary.getTagSet();
+    //获得词典
+    public DictFactory getDictionary(){
+        return this.dictionary;
     }
 
 }

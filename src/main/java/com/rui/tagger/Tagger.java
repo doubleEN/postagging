@@ -1,6 +1,6 @@
 package com.rui.tagger;
 
-import com.rui.evaluation.Precies;
+import com.rui.evaluation.Estimator;
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
 import com.rui.parameter.AbstractParas;
@@ -44,7 +44,7 @@ public class Tagger {
             }
             ++num;
         }
-        System.out.println(new Precies().eval(sentences,predictedTags,expectedTags));
+//        System.out.println(new Estimator().eval(sentences,predictedTags,expectedTags));
     }
 
     private HMM hmm;
@@ -80,7 +80,7 @@ public class Tagger {
         int wordLen = words.length;
         WordTag[] wts = new WordTag[wordLen];
         for (int index = 0; index < wordLen; ++index) {
-            wts[index] = new WordTag(words[index], this.hmm.getTagOnId(tagIds[index]));
+            wts[index] = new WordTag(words[index], this.hmm.getHmmParas().getDictionary().getTag(tagIds[index]));
         }
         return wts;
     }

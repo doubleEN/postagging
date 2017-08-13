@@ -100,11 +100,11 @@ public class BigramParas extends AbstractParas {
      */
     @Override
     protected void countMatA(String[] tags) {
-        if (this.getSizeOfTags() > this.numMatA[0].length) {
+        if (this.dictionary.getSizeOfTags() > this.numMatA[0].length) {
             this.reBuildA();
         }
         for (int i = 1; i < tags.length; i++) {
-            this.numMatA[this.getTagId(tags[i - 1])][this.getTagId(tags[i])]++;
+            this.numMatA[this.dictionary.getTagId(tags[i - 1])][this.dictionary.getTagId(tags[i])]++;
         }
     }
 
@@ -113,12 +113,12 @@ public class BigramParas extends AbstractParas {
         if (words.length != tags.length) {
             System.err.println("词组，标注长度不匹配。");
         }
-        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
+        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
             this.reBuildB();
         }
 
         for (int i = 0; i < words.length; i++) {
-            this.numMatB[this.getTagId(tags[i])][this.getWordId(words[i])]++;
+            this.numMatB[this.dictionary.getTagId(tags[i])][this.dictionary.getWordId(words[i])]++;
         }
     }
 
@@ -134,17 +134,17 @@ public class BigramParas extends AbstractParas {
 
     @Override
     protected void countPi(String[] tags) {
-        if (this.getSizeOfTags() > this.numPi.length) {
+        if (this.dictionary.getSizeOfTags() > this.numPi.length) {
             this.reBuildPi();
         }
         for (String tag : tags) {
-            this.numPi[this.getTagId(tag)]++;
+            this.numPi[this.dictionary.getTagId(tag)]++;
         }
     }
 
     @Override
     protected void reBuildA() {
-        int[][] newA = new int[this.getSizeOfTags()][this.getSizeOfTags()];
+        int[][] newA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         for (int i = 0; i < this.numMatA[0].length; ++i) {
             for (int j = 0; j < this.numMatA[0].length; ++j) {
                 newA[i][j] = this.numMatA[i][j];
@@ -155,8 +155,8 @@ public class BigramParas extends AbstractParas {
 
     @Override
     protected void reBuildB() {
-        int row = this.getSizeOfTags() > this.numMatB.length ? this.getSizeOfTags() : this.numMatB.length;
-        int col = this.getSizeOfWords() > this.numMatB[0].length ? this.getSizeOfWords() : this.numMatB[0].length;
+        int row = this.dictionary.getSizeOfTags() > this.numMatB.length ? this.dictionary.getSizeOfTags() : this.numMatB.length;
+        int col = this.dictionary.getSizeOfWords() > this.numMatB[0].length ? this.dictionary.getSizeOfWords() : this.numMatB[0].length;
         int[][] newB = new int[row][col];
         for (int i = 0; i < this.numMatB.length; ++i) {
             for (int j = 0; j < this.numMatB[0].length; ++j) {
@@ -168,7 +168,7 @@ public class BigramParas extends AbstractParas {
 
     @Override
     protected void reBuildPi() {
-        int[] pi = new int[this.getSizeOfTags()];
+        int[] pi = new int[this.dictionary.getSizeOfTags()];
         for (int i = 0; i < this.numPi.length; ++i) {
             pi[i] = this.numPi[i];
 
@@ -182,17 +182,17 @@ public class BigramParas extends AbstractParas {
     @Override
     public void addHoldOut(WordTag[] wts) {
         this.dictionary.addIndex(wts);
-        if (this.getSizeOfTags() > this.holdOut.length) {
+        if (this.dictionary.getSizeOfTags() > this.holdOut.length) {
             this.expandHoldOut();
         }
         for (int i = 1; i < wts.length; i++) {
-            this.holdOut[this.getTagId(wts[i - 1].getTag())][this.getTagId(wts[i].getTag())]++;
+            this.holdOut[this.dictionary.getTagId(wts[i - 1].getTag())][this.dictionary.getTagId(wts[i].getTag())]++;
         }
     }
 
     @Override
     protected void expandHoldOut() {
-        int[][] holdOut = new int[this.getSizeOfTags()][this.getSizeOfTags()];
+        int[][] holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
 
         for (int i = 0; i < this.holdOut.length; ++i) {
             for (int j = 0; j < this.holdOut[0].length; ++j) {
@@ -204,7 +204,7 @@ public class BigramParas extends AbstractParas {
 
     @Override
     protected void ensureLenOfTag() {
-        int tagSize = this.getSizeOfTags();
+        int tagSize = this.dictionary.getSizeOfTags();
         if (tagSize > this.numMatA.length) {
             this.reBuildA();
         }
@@ -214,7 +214,7 @@ public class BigramParas extends AbstractParas {
         if (tagSize > this.numPi.length) {
             this.reBuildPi();
         }
-        if (this.getSizeOfTags() > this.numMatB.length || this.getSizeOfWords() > this.numMatB[0].length) {
+        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
             this.reBuildB();
         }
     }
@@ -226,7 +226,7 @@ public class BigramParas extends AbstractParas {
     @Override
     protected void calcProbA() {
 
-        int len = this.getSizeOfTags();
+        int len = this.dictionary.getSizeOfTags();
 
         this.probMatA = new double[len][len];
 
@@ -251,8 +251,8 @@ public class BigramParas extends AbstractParas {
     @Override
     protected void calcProbB() {
 
-        int rowSize = this.getSizeOfTags();
-        int colSize = this.getSizeOfWords();
+        int rowSize = this.dictionary.getSizeOfTags();
+        int colSize = this.dictionary.getSizeOfWords();
 
         this.probMatB = new double[rowSize][colSize];
 
@@ -278,7 +278,7 @@ public class BigramParas extends AbstractParas {
     @Override
     protected void calcProbPi() {
 
-        int vectorSize = this.getSizeOfTags();
+        int vectorSize = this.dictionary.getSizeOfTags();
 
         this.probPi = new double[vectorSize];
 
@@ -300,7 +300,7 @@ public class BigramParas extends AbstractParas {
     @Override
     protected void smoothMatA() {
 
-        int len = this.getSizeOfTags();
+        int len = this.dictionary.getSizeOfTags();
 
         this.smoothingMatA = new double[len][len];
 
@@ -395,17 +395,5 @@ public class BigramParas extends AbstractParas {
         return this.smoothingMatA[tagIndex[0]][tagIndex[1]];
     }
 
-
-    public double[][] getSmoothingMatA() {
-        return smoothingMatA;
-    }
-
-    public double[][] getProbMatB() {
-        return probMatB;
-    }
-
-    public double[] getProbPi() {
-        return probPi;
-    }
 }
 
