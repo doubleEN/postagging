@@ -8,21 +8,9 @@ import com.rui.wordtag.WordTag;
 import java.util.Arrays;
 
 /**
- * 未支持句子词数小于３的标注。
+ * 二阶HMM
  */
 public class SecondOrderHMM extends HMM {
-
-    public static void main(String[] args) {
-        AbstractParas paras = new TrigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 44, 55310);
-        HMM hmm = new SecondOrderHMM(paras);
-        Tagger tagger = new Tagger(hmm);
-        //[学好/v, 自然/a] [中共中央/nt, 总书记/n, 、/w, 国家/n, 主席/n, 江/nr, 泽民/nr]
-        WordTag[] wts = tagger.tag("前面 是 一 片 湖水 ， 湖边 是 一丛丛 冬眠 的 丁香 ， 有 几 只 小鸟 偶 从 这里 飞 起 ， 又 平缓 地 在 稍 远 的 地方 落 下 。 就 在 这 湖 的 旁边 ， 有 一 道 篱笆 ， 见 里面 有 灯火 又 闻 人声 ， 我 推开 柴门 走 了 进去 。 花畦 呈 东西 走向 ， 很 整齐 地 排列 着 。 走过 一 段 不 长 的 小径 ， 绕 过 一 道 围墙 ， 满园 高低 有序 的 菊花 映 入 我 的 眼帘 。");
-        System.out.println(Arrays.toString(wts));
-    }
-
-//    //记录k次viterbi解码中计算得到的句子概率
-//    private double[][][] rankProbs;
 
     //记录k次viterbi解码中计算得到的句子概率
     private double[][][] rankProbs;

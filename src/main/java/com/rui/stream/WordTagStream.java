@@ -36,6 +36,18 @@ public abstract class WordTagStream {
         }
     }
 
+    public void openReadStream() {
+        try {
+            //这里没有显式的关闭fis和isr会有什么影响
+            FileInputStream fis = new FileInputStream(this.corpusPath);
+            InputStreamReader isr = new InputStreamReader(fis);
+            this.br = new BufferedReader(isr);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+        }
+    }
+
     /**
      * 输入流迭代读取行的方法
      */

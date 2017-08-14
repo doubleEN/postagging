@@ -10,37 +10,6 @@ import com.rui.stream.WordTagStream;
  */
 public class BigramParas extends AbstractParas {
 
-    public static void main(String[] args) {
-//        BigramParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt", 46, 55320);
-//
-//        double[][] sa = paras.getSmoothingMatA();
-//        double[][] bs = paras.getProbMatB();
-//        double[] pi = paras.getProbPi();
-//
-////        System.out.println("pi:"+ Arrays.toString(pi));
-//
-//        double min=1,max=-1;
-//        System.out.println("B:");
-//        for (double[] b : bs) {
-//            System.out.println(Arrays.toString(b));
-//            for (double n:b){
-//                if (max<n){
-//                    max=n;
-//                }
-//                if (min>n){
-//                    min=n;
-//                }
-//            }
-//        }
-//        System.out.println(min);
-//        System.out.println(max);
-//        System.out.println("smoothA:");
-//        for (double[]a:sa){
-//            System.out.println(Arrays.toString(a));
-//        }
-
-    }
-
     /*
         计数参数
      */
@@ -72,27 +41,24 @@ public class BigramParas extends AbstractParas {
     }
 
     //在构造器中初始加载这个语料库，并计算初始概率和平滑后的概率
-    public BigramParas(String corpusPath) {
+    public BigramParas(WordTagStream stream) {
+        this.wordTagStream=stream;
         this.dictionary = new DictFactory();
         this.numMatA = new int[1][1];
         this.holdOut = new int[1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
-        this.initParas(corpusPath);
+        this.initParas();
     }
 
-    public BigramParas(String corpusPath, int tagNum, int wordNum) {
+    public BigramParas(WordTagStream stream, int tagNum, int wordNum) {
+        this.wordTagStream=stream;
         this.dictionary = new DictFactory();
         this.numMatA = new int[tagNum][tagNum];//the size of tag set is 44.
         this.holdOut = new int[tagNum][tagNum];
         this.numMatB = new int[tagNum][wordNum];//the size of word set is 55310.
         this.numPi = new int[tagNum];
-        this.initParas(corpusPath);
-    }
-
-    @Override
-    protected WordTagStream chooseStream() {
-        return new PeopleDailyWordTagStream();
+        this.initParas();
     }
 
     /*

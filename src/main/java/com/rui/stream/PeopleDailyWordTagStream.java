@@ -2,21 +2,14 @@ package com.rui.stream;
 
 import com.rui.wordtag.WordTag;
 
-import java.io.BufferedReader;
-
 /**
  * 迭代读取人民日报标注语料库的输入流
  */
 public class PeopleDailyWordTagStream extends WordTagStream {
 
-
-
     public PeopleDailyWordTagStream(String corpusPath) {
         this.corpusPath=corpusPath;
         this.openReadStream(corpusPath);
-    }
-
-    public PeopleDailyWordTagStream() {
     }
 
     /**

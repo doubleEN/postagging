@@ -13,7 +13,6 @@ public class TrigramParas extends AbstractParas {
         计数参数
      */
 
-    private int numOfLowGram=0;
     private int[][][] triNumMatA;
 
     private int[][] biNumMatA;
@@ -46,39 +45,32 @@ public class TrigramParas extends AbstractParas {
         this.numPi = new int[1];
     }
 
-    public TrigramParas(String corpusPath) {
+    public TrigramParas(WordTagStream stream) {
+        this.wordTagStream=stream;
         this.dictionary = new DictFactory();
         this.triNumMatA = new int[1][1][1];
         this.biNumMatA = new int[1][1];
         this.holdOut = new int[1][1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
-        this.initParas(corpusPath);
+        this.initParas();
     }
 
-
-
-    public TrigramParas(String corpusPath, int tagNum, int wordNum) {
+    public TrigramParas(WordTagStream stream,int tagNum, int wordNum) {
+        this.wordTagStream=stream;
         this.dictionary = new DictFactory();
         this.triNumMatA = new int[tagNum][tagNum][tagNum];
         this.biNumMatA = new int[1][1];
         this.holdOut = new int[tagNum][tagNum][tagNum];
         this.numMatB = new int[tagNum][wordNum];
         this.numPi = new int[tagNum];
-        this.initParas(corpusPath);
-    }
-
-
-    @Override
-    protected WordTagStream chooseStream() {
-        return new PeopleDailyWordTagStream();
+        this.initParas();
     }
 
     @Override
     protected void countMatA(String[] tags) {
         if (tags.length < 3) {
             System.err.println("标注长度小于3，不能用于统计转移频数。");
-            this.numOfLowGram++;
             return;
         }
         //是否扩展数组，在reBuildA方法内判断
@@ -181,7 +173,6 @@ public class TrigramParas extends AbstractParas {
     @Override
     public void addHoldOut(WordTag[] wts) {
         if (wts.length < 3) {
-            this.numOfLowGram++;
             System.err.println("句子长度不够，不能添加留存频数。");
             return;
         }
@@ -491,9 +482,5 @@ public class TrigramParas extends AbstractParas {
             System.err.println("参数不合法。");
             return -1;
         }
-    }
-
-    public int getNumOfLowGram() {
-        return numOfLowGram;
     }
 }

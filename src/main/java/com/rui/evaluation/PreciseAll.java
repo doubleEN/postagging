@@ -66,10 +66,10 @@ public class PreciseAll implements Estimator {
         this.preciseOfAll = correctNum / sum;
         this.preciseOfIV = correctIV / sumIV;
         this.preciseOfOOV = correctOOV / sumOOV;
-        System.out.println(this.preciseOfAll+" "+this.preciseOfIV+" "+this.preciseOfOOV);
-        System.out.println(correctOOV+"/"+sumOOV);//1444.0/3219.0=0.44858651755203477
-        System.out.println(correctIV+"/"+sumIV);
-        System.out.println(correctNum+"/"+sum);
+//        System.out.println(this.preciseOfAll+" "+this.preciseOfIV+" "+this.preciseOfOOV);
+//        System.out.println(correctOOV+"/"+sumOOV);//1444.0/3219.0=0.44858651755203477
+//        System.out.println(correctIV+"/"+sumIV);
+//        System.out.println(correctNum+"/"+sum);
         return correctNum / sum;
     }
 }

@@ -12,6 +12,9 @@ import java.util.Random;
  */
 public abstract class AbstractParas implements Serializable{
 
+    //读取特点语料库的流
+    protected WordTagStream wordTagStream;
+
     //word与tag的映射词典
     protected DictFactory dictionary;
 
@@ -19,13 +22,12 @@ public abstract class AbstractParas implements Serializable{
     protected boolean calcFlag = false;
 
     //初始化[语料库]，并计算概率参数的[模板方法]
-    protected void initParas(String corpusPath) {
-        WordTagStream wtStream = this.chooseStream();
-        wtStream.openReadStream(corpusPath);
+    protected void initParas() {
+        this.wordTagStream.openReadStream();
 
         WordTag[] wts;
         Random generator = new Random(21);
-        while ((wts = wtStream.readSentence()) != null) {
+        while ((wts = this.wordTagStream.readSentence()) != null) {
             //在统计参数以前，给新语料增加映射关系
             dictionary.addIndex(wts);
 
@@ -37,7 +39,7 @@ public abstract class AbstractParas implements Serializable{
                 this.addWordTags(wts);
             }
         }
-        wtStream.close();
+//        this.wordTagStream.close();
 
         //初始添加了语料库，可计算概率参数
         this.calcFlag = true;
@@ -46,9 +48,17 @@ public abstract class AbstractParas implements Serializable{
         this.calcProbs();
     }
 
+    //添加新语料。另外提供特点流处理这个字符串形式的句子
+    public void addCorpus(String sentence,WordTagStream stream) {
+        WordTag[] wts = stream.segSentence(sentence);
+        dictionary.addIndex(wts);
+        this.addWordTags(wts);
+        this.calcFlag = true;
+    }
+
     //添加新语料
     public void addCorpus(String sentence) {
-        WordTag[] wts = this.chooseStream().segSentence(sentence);
+        WordTag[] wts = this.wordTagStream.segSentence(sentence);
         dictionary.addIndex(wts);
         this.addWordTags(wts);
         this.calcFlag = true;
@@ -74,9 +84,6 @@ public abstract class AbstractParas implements Serializable{
         this.countPi(tags);
         //有新的语料，可重新计算概率参数
     }
-
-    //打开特定的语料库
-    protected abstract WordTagStream chooseStream();
 
     //统计[转移状态频数]
     protected abstract void countMatA(String[] tags);
