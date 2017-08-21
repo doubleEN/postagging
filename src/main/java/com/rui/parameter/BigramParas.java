@@ -5,6 +5,8 @@ import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 
+import static com.rui.util.GlobalParas.logger;
+
 /**
  * 统计并计算[一阶HMM]的参数
  */
@@ -77,7 +79,8 @@ public class BigramParas extends AbstractParas {
     @Override
     protected void countMatB(String[] words, String[] tags) {
         if (words.length != tags.length) {
-            System.err.println("词组，标注长度不匹配。");
+            logger.warning("词组，标注长度不匹配。");//Level.info
+            return;
         }
         if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
             this.reBuildB();
@@ -289,8 +292,8 @@ public class BigramParas extends AbstractParas {
 
 //        System.out.println(sumOfTag);
         if (sumOfTag == 0) {
-            System.err.println("留存数据不存在,不能平滑概率。");
-            return;
+            logger.severe("留存数据不存在,不能平滑概率。");//Level.info
+            System.exit(1);
         }
 
         int i1 = 0, i2 = 0;
@@ -348,7 +351,8 @@ public class BigramParas extends AbstractParas {
     @Override
     public double getProbA(int... tagIndex) {
         if (tagIndex.length != 2) {
-            System.err.println("获取转移概率参数不合法。");
+            logger.severe("获取转移概率参数不合法。");
+            System.exit(1);
         }
         return this.probMatA[tagIndex[0]][tagIndex[1]];
     }
@@ -356,7 +360,8 @@ public class BigramParas extends AbstractParas {
     @Override
     public double getProbSmoothA(int... tagIndex) {
         if (tagIndex.length != 2) {
-            System.err.println("获取转移概率参数不合法。");
+            logger.severe("获取转移概率参数不合法。");
+            System.exit(1);
         }
         return this.smoothingMatA[tagIndex[0]][tagIndex[1]];
     }

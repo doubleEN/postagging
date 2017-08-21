@@ -3,14 +3,12 @@ package com.rui.validation;
 import com.rui.dictionary.DictFactory;
 import com.rui.evaluation.Estimator;
 import com.rui.evaluation.Precise;
-import com.rui.evaluation.PreciseAll;
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
 import com.rui.model.SecondOrderHMM;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
-import com.rui.stream.ModelSelect;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
@@ -23,7 +21,7 @@ import java.util.Set;
 /**
  *
  */
-public class Validation implements ModelSelect{
+public class Validation implements ModelScore{
 
     public static void main(String[] args) {
         Validation validation=new Validation(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"),0.1,NGram.BiGram,new Precise());
@@ -146,6 +144,7 @@ public class Validation implements ModelSelect{
         }
     }
 
+    @Override
     public double getScore() {
         return score;
     }

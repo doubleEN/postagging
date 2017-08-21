@@ -7,4 +7,6 @@ import com.rui.dictionary.DictFactory;
  */
 public interface Estimator {
     double eval(DictFactory dict, String[] unknownSentences, String[][] predictedTags, String[][] expectedTags);
+
+    void printTagging(String unknownSentence, String[] predictedTags, String[] expectedTags);
 }

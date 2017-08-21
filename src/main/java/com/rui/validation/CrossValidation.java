@@ -8,22 +8,20 @@ import com.rui.model.SecondOrderHMM;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
-import com.rui.stream.ModelSelect;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
-import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.util.*;
 
 /**
  * 交叉验证
  */
-public class CrossValidation implements ModelSelect{
+public class CrossValidation implements ModelScore{
 
     public static void main(String[] args) {
-        CrossValidation crossValidation = new CrossValidation(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 10, NGram.BiGram, new PreciseAll());
+        CrossValidation crossValidation = new CrossValidation(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 10, NGram.BiGram, new Precise());
         crossValidation.toScore();
         //0.9067432455576976
         System.out.println(crossValidation.getScore());
@@ -153,6 +151,7 @@ public class CrossValidation implements ModelSelect{
         }
     }
 
+    @Override
     public double getScore() {
         double sum = 0;
         for (double score : scores) {

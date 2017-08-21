@@ -1,9 +1,11 @@
 package com.rui.parameter;
 
 import com.rui.dictionary.DictFactory;
+import com.rui.util.GlobalParas;
 import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
+import static com.rui.util.GlobalParas.logger;
 
 /**
  * 三元语法参数训练。
@@ -70,7 +72,7 @@ public class TrigramParas extends AbstractParas {
     @Override
     protected void countMatA(String[] tags) {
         if (tags.length < 3) {
-            System.err.println("标注长度小于3，不能用于统计转移频数。");
+            logger.info("标注长度小于3，不能用于统计转移频数。");
             return;
         }
         //是否扩展数组，在reBuildA方法内判断
@@ -88,7 +90,7 @@ public class TrigramParas extends AbstractParas {
     @Override
     protected void countMatB(String[] words, String[] tags) {
         if (words.length != tags.length) {
-            System.err.println("词组，标注长度不匹配。");
+            logger.info("词组，标注长度不匹配。");
             return;
         }
         if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
@@ -173,7 +175,8 @@ public class TrigramParas extends AbstractParas {
     @Override
     public void addHoldOut(WordTag[] wts) {
         if (wts.length < 3) {
-            System.err.println("句子长度不够，不能添加留存频数。");
+            System.err.println();
+            logger.info("句子长度不够，不能添加留存频数。");
             return;
         }
         this.dictionary.addIndex(wts);
@@ -337,8 +340,8 @@ public class TrigramParas extends AbstractParas {
             }
         }
         if (N == 0) {
-            System.err.println("留存数据不存在,不能平滑概率。");
-            return;
+            logger.severe("留存数据不存在,不能平滑概率。");
+            System.exit(1);
         }
         //f(t_i)，严格来说，得到的t_i应该与隐藏状态的频次相等
         int[] t_i = new int[len];
@@ -466,9 +469,10 @@ public class TrigramParas extends AbstractParas {
         }else if (tagIndex.length==2){
             return this.biProbMatA[tagIndex[0]][tagIndex[1]];
         }else {
-            System.err.println("参数不合法。");
-            return -1;
+            logger.warning("参数不合法。");
+            System.exit(1);
         }
+        return -1;
     }
 
     @Override
@@ -479,8 +483,9 @@ public class TrigramParas extends AbstractParas {
             //这个二元转移概率未平滑
             return this.biProbMatA[tagIndex[0]][tagIndex[1]];
         }else {
-            System.err.println("参数不合法。");
-            return -1;
+            logger.warning("参数不合法。");
+            System.exit(1);
         }
+        return -1;
     }
 }

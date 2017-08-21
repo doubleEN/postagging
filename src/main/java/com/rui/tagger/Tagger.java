@@ -3,8 +3,10 @@ package com.rui.tagger;
 import com.rui.evaluation.Estimator;
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
+import com.rui.model.SecondOrderHMM;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
+import com.rui.parameter.TrigramParas;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 import com.rui.wordtag.WordTag;
@@ -50,8 +52,8 @@ public class Tagger {
 //    }
 
     public static void main(String[] args) {
-        AbstractParas paras=new BigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"));
-        HMM hmm=new FirstOrderHMM(paras);
+        AbstractParas paras=new TrigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"),44,57000);
+        HMM hmm=new SecondOrderHMM(paras);
 
         Tagger tagger=new Tagger(hmm);
         System.out.println(Arrays.toString(tagger.tag("学习 自然 语言 处理 ， 实现 台湾 同意 。")));

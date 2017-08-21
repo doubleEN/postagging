@@ -1,6 +1,7 @@
 package com.rui.stream;
 
 import com.rui.wordtag.WordTag;
+import static com.rui.util.GlobalParas.logger;
 
 /**
  * 迭代读取人民日报标注语料库的输入流
@@ -24,8 +25,8 @@ public class PeopleDailyWordTagStream extends WordTagStream {
 
             String[] wordAndTag = wordTags[i].trim().split("/");
             if (wordAndTag.length != 2) {
-                System.out.println(wordAndTag.length);
-                System.err.println("word-tag 长度不为2");
+                logger.severe(WordTag.class.getName()+"不合法。");
+                System.exit(1);
             }
             wt[i] = new WordTag(wordAndTag[0], wordAndTag[1]);
         }

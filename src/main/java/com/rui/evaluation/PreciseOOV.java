@@ -4,6 +4,8 @@ import com.rui.dictionary.DictFactory;
 
 import java.util.Arrays;
 
+import static com.rui.util.GlobalParas.logger;
+
 /**
  *
  */
@@ -31,15 +33,24 @@ public class PreciseOOV implements Estimator {
                     }
                 }
             }
-
             if (flag) {
-                System.out.println(unknownSentences[i]);
-                System.out.println("predict->" + Arrays.toString(predictedTags[i]));
-                System.out.println("expect ->" + Arrays.toString(expectedTags[i]));
+                this.printTagging(unknownSentences[i],predictedTags[i],expectedTags[i]);
             }
         }
 
         return correctOOV / sumOOV;
     }
 
+    @Override
+    public void printTagging(String unknownSentence, String[] predictedTags, String[] expectedTags) {
+        String predictedSentence="";
+        String expectedSentence="";
+        String[] words = unknownSentence.trim().split("\\s+");
+        int len=words.length;
+        for (int i=0;i<len;++i) {
+            predictedSentence=predictedSentence+words[i]+"/"+predictedTags[i]+" ";
+            expectedSentence=expectedSentence+words[i]+"/"+expectedTags[i]+" ";
+        }
+        logger.info("\n"+"Predict: "+"["+predictedSentence+"]"+"\n"+"Expect:  "+"["+expectedSentence+"]");
+    }
 }

@@ -4,13 +4,17 @@ import com.rui.dictionary.DictFactory;
 import com.rui.wordtag.WordTag;
 import com.rui.stream.WordTagStream;
 
+import static com.rui.util.GlobalParas.logger;
+
 import java.io.Serializable;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 统计并计算HMM参数的接口
  */
-public abstract class AbstractParas implements Serializable{
+public abstract class AbstractParas implements Serializable {
 
     //读取特点语料库的流
     protected WordTagStream wordTagStream;
@@ -49,7 +53,7 @@ public abstract class AbstractParas implements Serializable{
     }
 
     //添加新语料。另外提供特点流处理这个字符串形式的句子
-    public void addCorpus(String sentence,WordTagStream stream) {
+    public void addCorpus(String sentence, WordTagStream stream) {
         WordTag[] wts = stream.segSentence(sentence);
         dictionary.addIndex(wts);
         this.addWordTags(wts);
@@ -120,8 +124,8 @@ public abstract class AbstractParas implements Serializable{
     //计算概率参数的[模板方法]
     public void calcProbs() {
         if (!this.calcFlag) {
-            System.err.println("未添加初始语料库或未加入新的语料,不能计算概率。");
-            return;
+            logger.severe("未添加初始语料库或未加入新的语料,不能计算概率。");//Level.SEVERE
+            System.exit(1);
         }
 
         //在计算概率以前，保证训练集，留存和映射词典的编号长度一致
@@ -166,7 +170,7 @@ public abstract class AbstractParas implements Serializable{
     public abstract double getProbSmoothA(int... tagIndex);
 
     //获得词典
-    public DictFactory getDictionary(){
+    public DictFactory getDictionary() {
         return this.dictionary;
     }
 

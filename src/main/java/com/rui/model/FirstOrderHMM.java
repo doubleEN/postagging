@@ -1,12 +1,9 @@
 package com.rui.model;
 
-import com.rui.stream.PeopleDailyWordTagStream;
-import com.rui.stream.WordTagStream;
-import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 import com.rui.parameter.AbstractParas;
-import com.rui.parameter.BigramParas;
 
+import static com.rui.util.GlobalParas.logger;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -127,8 +124,8 @@ public class FirstOrderHMM extends HMM {
     @Override
     public int[] backTrack(int ranking, int... lastIndexs) {
         if (lastIndexs.length != 1) {
-            System.err.println("回溯参数不合法。");
-            return null;
+            logger.severe("回溯参数不合法。");
+            System.exit(1);
         }
         int wordLen = this.indexs[0][0].length;
         int[] tagIds = new int[wordLen];

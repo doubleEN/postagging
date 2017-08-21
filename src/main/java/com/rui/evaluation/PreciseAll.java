@@ -3,6 +3,7 @@ package com.rui.evaluation;
 import com.rui.dictionary.DictFactory;
 import com.sun.org.apache.xpath.internal.SourceTree;
 
+import static com.rui.util.GlobalParas.logger;
 import java.util.Arrays;
 
 /**
@@ -55,11 +56,8 @@ public class PreciseAll implements Estimator {
                 }
             }
 
-
             if (flag) {
-                System.out.println(unknownSentences[i]);
-                System.out.println("predict->" + Arrays.toString(predictedTags[i]));
-                System.out.println("expect ->" + Arrays.toString(expectedTags[i]));
+                this.printTagging(unknownSentences[i],predictedTags[i],expectedTags[i]);
             }
         }
 
@@ -71,5 +69,18 @@ public class PreciseAll implements Estimator {
 //        System.out.println(correctIV+"/"+sumIV);
 //        System.out.println(correctNum+"/"+sum);
         return correctNum / sum;
+    }
+
+    @Override
+    public void printTagging(String unknownSentence, String[] predictedTags, String[] expectedTags) {
+        String predictedSentence="";
+        String expectedSentence="";
+        String[] words = unknownSentence.trim().split("\\s+");
+        int len=words.length;
+        for (int i=0;i<len;++i) {
+            predictedSentence=predictedSentence+words[i]+"/"+predictedTags[i]+" ";
+            expectedSentence=expectedSentence+words[i]+"/"+expectedTags[i]+" ";
+        }
+        logger.info("\n"+"Predict: "+"["+predictedSentence+"]"+"\n"+"Expect:  "+"["+expectedSentence+"]");
     }
 }
