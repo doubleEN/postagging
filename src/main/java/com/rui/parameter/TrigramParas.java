@@ -48,25 +48,23 @@ public class TrigramParas extends AbstractParas {
     }
 
     public TrigramParas(WordTagStream stream) {
-        this.wordTagStream=stream;
         this.dictionary = new DictFactory();
         this.triNumMatA = new int[1][1][1];
         this.biNumMatA = new int[1][1];
         this.holdOut = new int[1][1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
-        this.initParas();
+        this.initParas(stream);
     }
 
     public TrigramParas(WordTagStream stream,int tagNum, int wordNum) {
-        this.wordTagStream=stream;
         this.dictionary = new DictFactory();
         this.triNumMatA = new int[tagNum][tagNum][tagNum];
         this.biNumMatA = new int[1][1];
         this.holdOut = new int[tagNum][tagNum][tagNum];
         this.numMatB = new int[tagNum][wordNum];
         this.numPi = new int[tagNum];
-        this.initParas();
+        this.initParas(stream);
     }
 
     @Override
@@ -175,7 +173,6 @@ public class TrigramParas extends AbstractParas {
     @Override
     public void addHoldOut(WordTag[] wts) {
         if (wts.length < 3) {
-            System.err.println();
             logger.info("句子长度不够，不能添加留存频数。");
             return;
         }
@@ -433,8 +430,9 @@ public class TrigramParas extends AbstractParas {
         double lambd1 = lambd_count1 / (lambd_count1 + lambd_count2 + lambd_count3);
         double lambd2 = lambd_count2 / (lambd_count1 + lambd_count2 + lambd_count3);
         double lambd3 = lambd_count3 / (lambd_count1 + lambd_count2 + lambd_count3);
-        System.out.println("系数频次：" + lambd_count1 + ":" + lambd_count2+ ":" + lambd_count3);
-        System.out.println("系数：" + lambd1 + ":" + lambd2 + ":" + lambd3);
+        logger.info("系数：" + lambd1 + "-" + lambd2 + "-" + lambd3);
+
+//        System.out.println("系数频次：" + lambd_count1 + ":" + lambd_count2+ ":" + lambd_count3);
 //        System.out.println("系数的计数频次："+i1 + ":" + i2);
 
         //系数：0.9968451753824765:0.003154824617523456

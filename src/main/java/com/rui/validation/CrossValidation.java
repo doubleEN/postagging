@@ -23,7 +23,8 @@ public class CrossValidation implements ModelScore{
     public static void main(String[] args) {
         CrossValidation crossValidation = new CrossValidation(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 10, NGram.BiGram, new Precise());
         crossValidation.toScore();
-        //0.9067432455576976
+        //0.90674324555769760
+
         System.out.println(crossValidation.getScore());
     }
 

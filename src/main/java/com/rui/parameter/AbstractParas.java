@@ -8,16 +8,11 @@ import static com.rui.util.GlobalParas.logger;
 
 import java.io.Serializable;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * 统计并计算HMM参数的接口
  */
 public abstract class AbstractParas implements Serializable {
-
-    //读取特点语料库的流
-    protected WordTagStream wordTagStream;
 
     //word与tag的映射词典
     protected DictFactory dictionary;
@@ -26,12 +21,12 @@ public abstract class AbstractParas implements Serializable {
     protected boolean calcFlag = false;
 
     //初始化[语料库]，并计算概率参数的[模板方法]
-    protected void initParas() {
-        this.wordTagStream.openReadStream();
+    protected void initParas(WordTagStream stream) {
+        stream.openReadStream();
 
         WordTag[] wts;
         Random generator = new Random(21);
-        while ((wts = this.wordTagStream.readSentence()) != null) {
+        while ((wts = stream.readSentence()) != null) {
             //在统计参数以前，给新语料增加映射关系
             dictionary.addIndex(wts);
 
@@ -60,13 +55,13 @@ public abstract class AbstractParas implements Serializable {
         this.calcFlag = true;
     }
 
-    //添加新语料
-    public void addCorpus(String sentence) {
-        WordTag[] wts = this.wordTagStream.segSentence(sentence);
-        dictionary.addIndex(wts);
-        this.addWordTags(wts);
-        this.calcFlag = true;
-    }
+//    //添加新语料
+//    public void addCorpus(String sentence) {
+//        WordTag[] wts = this.wordTagStream.segSentence(sentence);
+//        dictionary.addIndex(wts);
+//        this.addWordTags(wts);
+//        this.calcFlag = true;
+//    }
 
     //添加新语料
     public void addCorpus(WordTag[] wts) {

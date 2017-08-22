@@ -3,6 +3,8 @@ package com.rui.validation;
 import com.rui.dictionary.DictFactory;
 import com.rui.evaluation.Estimator;
 import com.rui.evaluation.Precise;
+import com.rui.evaluation.PreciseIV;
+import com.rui.evaluation.PreciseOOV;
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
 import com.rui.model.SecondOrderHMM;
@@ -19,12 +21,13 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- *
+ * 一次验证评估，按比例划分语料
  */
 public class Validation implements ModelScore{
 
     public static void main(String[] args) {
-        Validation validation=new Validation(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"),0.1,NGram.BiGram,new Precise());
+        //p:0.9050506706001257 poov:0.379794520547945 piv:0.9223203249161221
+        Validation validation=new Validation(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"),0.1,NGram.BiGram,new PreciseIV());
         validation.toScore();
         System.out.println(validation.getScore());
     }

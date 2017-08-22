@@ -44,23 +44,21 @@ public class BigramParas extends AbstractParas {
 
     //在构造器中初始加载这个语料库，并计算初始概率和平滑后的概率
     public BigramParas(WordTagStream stream) {
-        this.wordTagStream=stream;
         this.dictionary = new DictFactory();
         this.numMatA = new int[1][1];
         this.holdOut = new int[1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
-        this.initParas();
+        this.initParas(stream);
     }
 
     public BigramParas(WordTagStream stream, int tagNum, int wordNum) {
-        this.wordTagStream=stream;
         this.dictionary = new DictFactory();
         this.numMatA = new int[tagNum][tagNum];//the size of tag set is 44.
         this.holdOut = new int[tagNum][tagNum];
         this.numMatB = new int[tagNum][wordNum];//the size of word set is 55310.
         this.numPi = new int[tagNum];
-        this.initParas();
+        this.initParas(stream);
     }
 
     /*
@@ -323,7 +321,7 @@ public class BigramParas extends AbstractParas {
         double lambd1 = lambd_count1 / (lambd_count1 + lambd_count2);
         double lambd2 = lambd_count2 / (lambd_count1 + lambd_count2);
 //        System.out.println("系数频次：" + lambd_count1 + ":" + lambd_count2);
-        System.out.println("系数：" + lambd1 + ":" + lambd2);
+        logger.info("系数：" + lambd1 + "-" + lambd2);
 //        System.out.println("系数的计数频次："+i1 + ":" + i2);
 
         //系数：0.9968451753824765:0.003154824617523456

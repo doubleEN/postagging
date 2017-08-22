@@ -31,7 +31,7 @@ import java.util.Random;
 public class POSTaggerFactory {
 
     public static void main(String[] args) {
-//
+
 //        AbstractParas paras = new BigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 44, 50000);
 //        HMM hmm = new FirstOrderHMM(paras);
 //        hmm.writeHMM("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/BiGram.bin");
@@ -39,20 +39,20 @@ public class POSTaggerFactory {
 //        AbstractParas paras2 = new TrigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 44, 50000);
 //        HMM hmm2 = new SecondOrderHMM(paras);
 //        hmm.writeHMM("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/TriGram.bin");
-//        WordTag[] wts2 = POSTaggerFactory.tag2Gram("学习 自然 语言 处理 ， 实现 台湾 统一 。");
-//
-//        System.out.println(Arrays.toString(wts2));
-        double score=POSTaggerFactory.scoreOnValidation(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"),0.01,NGram.TriGram,new PreciseIV());
-        System.out.println(score);
+
+        WordTag[]wts1=POSTaggerFactory.tag2Gram("学习 自然 语言 处理 ， 实现 台湾 统一 。");
+        WordTag[]wts2=POSTaggerFactory.tag3Gram("学习 自然 语言 处理 ， 实现 台湾 统一 。");
 
     }
 
+    //一次验证评估
     public static double scoreOnValidation(WordTagStream stream, double ratio, NGram nGram, Estimator estimator) {
         ModelScore crossValidation = new Validation(stream, ratio, nGram, estimator);
         crossValidation.toScore();
         return crossValidation.getScore();
     }
 
+    //交叉验证评估
     public static double crossValidation(WordTagStream stream, int fold, NGram nGram, Estimator estimator) {
         ModelScore crossValidation = new CrossValidation(stream, fold, nGram, estimator);
         crossValidation.toScore();
@@ -94,7 +94,7 @@ public class POSTaggerFactory {
         return tagger;
     }
 
-    //从指定模型中生成标注器
+    //从指定模型路径中生成标注器
     public static Tagger buildTagger(String HMMPath) {
         return new Tagger(HMMPath);
     }
