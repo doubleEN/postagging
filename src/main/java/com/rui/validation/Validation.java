@@ -62,7 +62,6 @@ public class Validation implements ModelScore{
     private double score;
 
     //代表n-gram的常量
-
     public Validation(WordTagStream wordTagStream, double ratio, NGram nGram, Estimator estimator) {
         this.stream = wordTagStream;
         this.ratio = ratio;

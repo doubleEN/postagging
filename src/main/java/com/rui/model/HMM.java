@@ -23,21 +23,13 @@ public abstract class HMM implements Serializable {
     protected abstract int[] backTrack(int ranking, int... lastIndexs);
 
     //HMM序列化
-    public void writeHMM(String path) {
+    public void writeHMM(String path) throws FileNotFoundException,IOException {
         ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(new FileOutputStream(path));
-            oos.writeObject(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                oos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        oos = new ObjectOutputStream(new FileOutputStream(path));
+        oos.writeObject(this);
+        oos.close();
     }
+
 
     public AbstractParas getHmmParas() {
         return hmmParas;

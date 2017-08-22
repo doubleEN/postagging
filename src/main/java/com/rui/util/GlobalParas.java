@@ -10,10 +10,10 @@ import java.util.logging.Logger;
  */
 public class GlobalParas {
 
-    //人名日报语料库标注集大小
+    //PeopleDailyNews语料库标注集大小
     public static int tagSizePDN=44;
 
-    //人名日报语料库词集大小
+    //PeopleDailyNews语料库词集大小
     public static int wordSizePDN=55310;
 
     //日志
