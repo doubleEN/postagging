@@ -290,8 +290,8 @@ public class BigramParas extends AbstractParas {
 
 //        System.out.println(sumOfTag);
         if (sumOfTag == 0) {
-            logger.severe("留存数据不存在,不能平滑概率。");//Level.info
-            System.exit(1);
+            logger.severe("留存数据不存在,不能平滑概率。");
+            return;
         }
 
         int i1 = 0, i2 = 0;

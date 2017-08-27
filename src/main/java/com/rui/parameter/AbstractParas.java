@@ -118,23 +118,21 @@ public abstract class AbstractParas implements Serializable {
      */
     //计算概率参数的[模板方法]
     public void calcProbs() {
+
         if (!this.calcFlag) {
-            logger.severe("未添加初始语料库或未加入新的语料,不能计算概率。");//Level.SEVERE
-            System.exit(1);
+            logger.severe("未添加初始语料库或未加入新的语料,不能计算转移概率。");
         }
 
         //在计算概率以前，保证训练集，留存和映射词典的编号长度一致
         this.ensureLenOfTag();
-        //平滑混淆状态频数
+        //+1平滑混淆状态频数
         this.smoothMatB();
-
         //这里最后计算A的概率，因为A的平滑需要pi的概率
         this.calcProbB();
         this.calcProbPi();
         this.calcProbA();
         this.smoothMatA();
         this.calcFlag = false;
-
     }
 
     //计算[转移概率矩阵]，未平滑

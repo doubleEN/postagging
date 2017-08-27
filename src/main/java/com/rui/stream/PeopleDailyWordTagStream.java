@@ -8,6 +8,9 @@ import static com.rui.util.GlobalParas.logger;
  */
 public class PeopleDailyWordTagStream extends WordTagStream {
 
+    public PeopleDailyWordTagStream() {
+    }
+
     public PeopleDailyWordTagStream(String corpusPath) {
         this.corpusPath=corpusPath;
         this.openReadStream(corpusPath);

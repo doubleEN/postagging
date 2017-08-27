@@ -338,7 +338,7 @@ public class TrigramParas extends AbstractParas {
         }
         if (N == 0) {
             logger.severe("留存数据不存在,不能平滑概率。");
-            System.exit(1);
+            return;
         }
         //f(t_i)，严格来说，得到的t_i应该与隐藏状态的频次相等
         int[] t_i = new int[len];

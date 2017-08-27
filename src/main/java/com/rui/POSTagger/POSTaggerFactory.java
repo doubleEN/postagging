@@ -30,7 +30,7 @@ import java.util.Random;
  */
 public class POSTaggerFactory {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
 //        AbstractParas paras = new BigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 44, 50000);
 //        HMM hmm = new FirstOrderHMM(paras);
 //        hmm.writeHMM("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/BiGram.bin");
@@ -40,12 +40,9 @@ public class POSTaggerFactory {
 //        hmm.writeHMM("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/TriGram.bin");
 
         WordTag[]wts1=POSTaggerFactory.tag2Gram("学习 自然 语言 处理 ， 实现 台湾 统一 。");
+        System.out.println(Arrays.toString(wts1));
         WordTag[]wts2=POSTaggerFactory.tag3Gram("学习 自然 语言 处理 ， 实现 台湾 统一 。");
-
-        /*
-            保存路径；
-
-         */
+        System.out.println(Arrays.toString(wts2));
     }
 
     //一次验证评估
