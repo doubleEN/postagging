@@ -30,36 +30,57 @@ import java.util.Random;
  */
 public class POSTaggerFactory {
 
-    public static void main(String[] args) throws IOException{
-//        AbstractParas paras = new BigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 44, 50000);
-//        HMM hmm = new FirstOrderHMM(paras);
-//        hmm.writeHMM("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/BiGram.bin");
-//
-//        AbstractParas paras2 = new TrigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 44, 50000);
-//        HMM hmm2 = new SecondOrderHMM(paras);
-//        hmm.writeHMM("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/TriGram.bin");
+ /*   public static void main(String[] args) throws IOException{
+        AbstractParas paras = new BigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 44, 50000);
+        HMM hmm = new FirstOrderHMM(paras);
+        hmm.writeHMM("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/BiGram.bin");
+
+        AbstractParas paras2 = new TrigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 44, 50000);
+        HMM hmm2 = new SecondOrderHMM(paras);
+        hmm.writeHMM("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/TriGram.bin");
 
         WordTag[]wts1=POSTaggerFactory.tag2Gram("学习 自然 语言 处理 ， 实现 台湾 统一 。");
         System.out.println(Arrays.toString(wts1));
         WordTag[]wts2=POSTaggerFactory.tag3Gram("学习 自然 语言 处理 ， 实现 台湾 统一 。");
         System.out.println(Arrays.toString(wts2));
     }
+*/
 
-    //一次验证评估
+    /**
+     * 一次验证评估
+     * @param stream 读取特点语料的特点流
+     * @param ratio 验证集比例
+     * @param nGram {@link NGram}常量类型
+     * @param estimator 指定度量方式
+     * @return 返回评分
+     */
     public static double scoreOnValidation(WordTagStream stream, double ratio, NGram nGram, Estimator estimator) {
         ModelScore crossValidation = new Validation(stream, ratio, nGram, estimator);
         crossValidation.toScore();
         return crossValidation.getScore();
     }
 
-    //交叉验证评估
+    /**
+     * 交叉验证评估
+     * @param stream 读取特点语料的特点流
+     * @param fold 交叉验证折数
+     * @param nGram {@link NGram}常量类型
+     * @param estimator 指定度量方式
+     * @return 返回评分
+     */
     public static double crossValidation(WordTagStream stream, int fold, NGram nGram, Estimator estimator) {
         ModelScore crossValidation = new CrossValidation(stream, fold, nGram, estimator);
         crossValidation.toScore();
         return crossValidation.getScore();
     }
 
-    //指定语料生成标注器
+    /**
+     * 指定语料生成标注器
+     * @param stream 读取特点语料的特点流
+     * @param nGram {@link NGram}常量类型
+     * @param writePath 模型序列化路径
+     * @throws IOException
+     */
     public static void writeHMM(WordTagStream stream, NGram nGram, String writePath) throws IOException{
 
         AbstractParas paras = null;
@@ -75,7 +96,12 @@ public class POSTaggerFactory {
         hmm.writeHMM(writePath);
     }
 
-    //指定语料生成标注器
+    /**
+     * 指定语料生成标注器
+     * @param stream 读取特点语料的特点流
+     * @param nGram {@link NGram}
+     * @return 标注器
+     */
     public static Tagger buildTagger(WordTagStream stream, NGram nGram) {
         Tagger tagger = null;
 
@@ -94,12 +120,20 @@ public class POSTaggerFactory {
         return tagger;
     }
 
-    //从指定模型路径中生成标注器
+    /**
+     * 从指定模型路径中生成标注器
+     * @param HMMPath 反序列化模型的路径
+     * @return 标注器
+     */
     public static Tagger buildTagger(String HMMPath) {
         return new Tagger(HMMPath);
     }
 
-    //2-gram标注
+    /**
+     * 2-gram标注
+     * @param sentence 未标注句子
+     * @return WordTag[]形式的标注结果
+     */
     public static WordTag[] tag2Gram(String sentence) {
 
         Properties pro = new Properties();
@@ -125,7 +159,11 @@ public class POSTaggerFactory {
         return tagger.tag(sentence);
     }
 
-    //3-gram标注
+    /**
+     * 3-gram标注
+     * @param sentence 未标注句子
+     * @return WordTag[]形式的标注结果
+     */
     public static WordTag[] tag3Gram(String sentence) {
         Properties pro = new Properties();
         Tagger tagger = null;

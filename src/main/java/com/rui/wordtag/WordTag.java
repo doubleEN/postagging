@@ -1,7 +1,7 @@
 package com.rui.wordtag;
 
 /**
- * 存储word及其tag。
+ * word/tag类。
  */
 public class WordTag {
 
@@ -13,16 +13,23 @@ public class WordTag {
         this.tag = tag;
     }
 
+    /**
+     * @return word/tag中word的字符串形式
+     */
+    public String getWord() {
+        return word;
+    }
+
+    /**
+     * @return word/tag中tag的字符串形式
+     */
+    public String getTag() {
+        return tag;
+    }
+
     @Override
     public String toString() {
         return this.word + "/" + this.tag;
     }
 
-    public String getWord() {
-        return word;
-    }
-
-    public String getTag() {
-        return tag;
-    }
 }

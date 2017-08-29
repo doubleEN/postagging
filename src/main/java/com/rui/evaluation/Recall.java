@@ -5,7 +5,7 @@ import com.rui.dictionary.DictFactory;
 import static com.rui.util.GlobalParas.logger;
 
 /**
- *
+ * 召回率度量。
  */
 public class Recall implements Estimator{
 

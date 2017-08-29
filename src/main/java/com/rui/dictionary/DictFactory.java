@@ -7,9 +7,12 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * 给新的标注和词编号
+ * 标注和词的[映射词典]，每个词或标注都对应一个id，id在各自集合内唯一。
  */
-public class DictFactory implements Serializable{
+public class DictFactory implements Serializable {
+
+    public DictFactory() {
+    }
 
     /**
      * tag-->id
@@ -99,6 +102,4 @@ public class DictFactory implements Serializable{
         return (String[]) tagSet.toArray(new String[0]);
     }
 
-    public DictFactory() {
-    }
 }

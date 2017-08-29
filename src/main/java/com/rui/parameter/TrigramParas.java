@@ -11,7 +11,7 @@ import static com.rui.util.GlobalParas.logger;
  * 三元语法参数训练。
  */
 public class TrigramParas extends AbstractParas {
-        /*
+    /**
         计数参数
      */
 
@@ -25,7 +25,7 @@ public class TrigramParas extends AbstractParas {
 
     private int[][][] holdOut;
 
-    /*
+    /**
         概率参数
      */
     private double[][][] triProbMatA;
@@ -73,7 +73,6 @@ public class TrigramParas extends AbstractParas {
             logger.info("标注长度小于3，不能用于统计转移频数。");
             return;
         }
-        //是否扩展数组，在reBuildA方法内判断
         this.reBuildA();
         //三元标注状态统计
         for (int i = 2; i < tags.length; i++) {
@@ -220,7 +219,7 @@ public class TrigramParas extends AbstractParas {
     protected void calcProbA() {
 
         int len = this.dictionary.getSizeOfTags();
-        //二元概率计算
+
         this.biProbMatA = new double[len][len];
 
         for (int row = 0; row < len; ++row) {
@@ -234,7 +233,6 @@ public class TrigramParas extends AbstractParas {
                 if (sumPerRow != 0) {
                     this.biProbMatA[row][col] = (this.biNumMatA[row][col]) / (sumPerRow);
                 } else {
-                    //处理分母为0的情况
                     this.biProbMatA[row][col] = 0.0;
                 }
             }
@@ -258,7 +256,6 @@ public class TrigramParas extends AbstractParas {
                     if (sumPerRow != 0) {
                         this.triProbMatA[t_1][t_2][t_3] = (this.triNumMatA[t_1][t_2][t_3]) / (sumPerRow);
                     } else {
-                        //处理分母为0的情况
                         this.triProbMatA[t_1][t_2][t_3] = 0.0;
                     }
                 }
@@ -286,7 +283,6 @@ public class TrigramParas extends AbstractParas {
                 if (sumPerRow != 0) {
                     probMatB[row][col] = (this.numMatB[row][col]) / (sumPerRow);
                 } else {
-                    //处理分母为0的情况
                     probMatB[row][col] = 0.0;
                 }
             }
@@ -318,7 +314,6 @@ public class TrigramParas extends AbstractParas {
     @Override
     protected void smoothMatA() {
 
-        //        System.out.println(sumOfTag);
         int len = this.dictionary.getSizeOfTags();
 
         this.smoothingMatA = new double[len][len][len];
@@ -327,7 +322,6 @@ public class TrigramParas extends AbstractParas {
         double lambd_count2 = 0.0;
         double lambd_count3 = 0.0;
 
-        //N
         int N = 0;
         for (int dim1 = 0; dim1 < len; ++dim1) {
             for (int dim2 = 0; dim2 < len; ++dim2) {
@@ -360,7 +354,6 @@ public class TrigramParas extends AbstractParas {
             t_i[dim1] += this.holdOut[dim1][dim1][dim1];
         }
 
-        //f(t_i,t_j)
         int[][] t_i_j = new int[len][len];
         for (int dim1 = 0; dim1 < len; ++dim1) {
             for (int dim2 = 0; dim2 < len && dim2 != dim1; ++dim2) {
@@ -390,8 +383,6 @@ public class TrigramParas extends AbstractParas {
 
                 for (int t_3 = 0; t_3 < len; ++t_3) {
 
-                    // 系数：0.1514629948364888:0.8485370051635112
-                    //系数：0.3683304647160069:0.6316695352839932
                     int t_1_2_3 = this.holdOut[t_1][t_2][t_3];
                     int t_2_3 = t_i_j[t_2][t_3];
 
@@ -408,13 +399,12 @@ public class TrigramParas extends AbstractParas {
                         expression2 = (t_1_2_3 - 1) / (t_i_j[t_1][t_2] - 1);
                     }
 
-//                    System.out.println(expression1+":"+expression2+":"+expression3+"-->"+t_1_2_3);
-
-                    //稀疏语料中，t_2的出现概率大多数情况下要比t_2的条件概率大，对应的t_2的联合频数t_1_2要小；
-                    // 少数情况下，t_2的条件概率比t_2的出现概率大，这时对应的t_2的联合频数t_1_2要大；
-                    //所以，虽然expression1大的情况多一些，但因为累加的联合频数偏小，所以最后对应系数并不会格外大
-                    //是否取等号，对系数的取值影响很大
-                    //因为是三元语法，留存数据不大时，数据非常稀疏
+                    /*  稀疏语料中，t_2的出现概率大多数情况下要比t_2的条件概率大，对应的t_2的联合频数t_1_2要小；
+                        少数情况下，t_2的条件概率比t_2的出现概率大，这时对应的t_2的联合频数t_1_2要大；
+                        所以，虽然expression1大的情况多一些，但因为累加的联合频数偏小，所以最后对应系数并不会格外大
+                        是否取等号，对系数的取值影响很大
+                        因为是三元语法，留存数据不大时，数据非常稀疏
+                        */
                     if (expression1 > expression2 && expression1 > expression3) {
                         lambd_count1 += t_1_2_3;
                     } else if (expression2 >expression3) {
@@ -432,22 +422,16 @@ public class TrigramParas extends AbstractParas {
         double lambd3 = lambd_count3 / (lambd_count1 + lambd_count2 + lambd_count3);
         logger.info("系数：" + lambd1 + "-" + lambd2 + "-" + lambd3);
 
-//        System.out.println("系数频次：" + lambd_count1 + ":" + lambd_count2+ ":" + lambd_count3);
-//        System.out.println("系数的计数频次："+i1 + ":" + i2);
-
-        //系数：0.9968451753824765:0.003154824617523456
-        //系数：0.956853536835926:0.043146463164073966
         for (int t_1 = 0; t_1 < len; ++t_1) {
             for (int t_2 = 0; t_2 < len; ++t_2) {
                 for (int t_3 = 0; t_3 < len; ++t_3) {
-//                    问题：
                     this.smoothingMatA[t_1][t_2][t_3] = lambd1 * this.probPi[t_3] + lambd2 * this.biProbMatA[t_2][t_3] + lambd3 * this.triProbMatA[t_1][t_2][t_3];
                 }
             }
         }
     }
 
-    /*
+    /**
         获得指定概率
      */
     @Override
@@ -478,7 +462,6 @@ public class TrigramParas extends AbstractParas {
         if (tagIndex.length == 3) {
             return this.smoothingMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
         }else if (tagIndex.length==2){
-            //这个二元转移概率未平滑
             return this.biProbMatA[tagIndex[0]][tagIndex[1]];
         }else {
             logger.warning("参数不合法。");

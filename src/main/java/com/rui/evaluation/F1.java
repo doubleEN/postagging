@@ -5,7 +5,7 @@ import com.rui.dictionary.DictFactory;
 import static com.rui.util.GlobalParas.logger;
 
 /**
- *
+ * F1度量
  */
 public class F1 implements Estimator{
 

@@ -27,10 +27,10 @@ public class HMMValidation {
     /**
      * 从指定语料库
      *
-     * @param args，输入的字符串参数 [0]:人民日报语料库路径
-     *                      [1]:n-gram参数，2或者3，分别代表二元或三元
-     *                      [2]:验证折数，为大于2数字
-     *                      [3]:评估方式，p<准确率>，piv<登录次准确率>，poov<未登录词准确率>
+     * @param args  [0]:人民日报语料库路径
+     *              [1]:n-gram参数，2或者3，分别代表二元或三元
+     *              [2]:验证折数，为大于2数字
+     *              [3]:评估方式，p<准确率>，piv<登录次准确率>，poov<未登录词准确率>
      */
     public static void main(String[] args) {
         if (args.length != 4) {

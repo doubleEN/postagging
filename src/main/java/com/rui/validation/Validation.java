@@ -25,43 +25,56 @@ import java.util.Set;
  */
 public class Validation implements ModelScore{
 
-    public static void main(String[] args) {
-        //p:0.9050506706001257 poov:0.379794520547945 piv:0.9223203249161221
-        Validation validation=new Validation(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"),0.1,NGram.BiGram,new PreciseIV());
-        validation.toScore();
-        System.out.println(validation.getScore());
-    }
-
-    //标明使用的n-gram
+    /**
+     * 标明使用的n-gram
+     */
     private NGram nGram;
 
-    //生成的标注器
+    /**
+     * 生成的标注器
+     */
     private Tagger tagger;
 
-    //读入特定形式的语料
+    /**
+     * 读入特定形式的语料
+     */
     private WordTagStream stream;
 
-    //验证语料
+    /**
+     * 验证语料
+     */
     private Set<WordTag[]> validatonSet;
 
-    //每一折交叉验证中，生成的验证语料
+    /**
+     * 每一折交叉验证中，生成的验证语料
+     */
     private String[] unknownSentences;
 
-    //验证语料的正确标注
+    /**
+     * 验证语料的正确标注
+     */
     private String[][] expectedTags;
 
-    //评估器
+    /**
+     * 评估器
+     */
     private Estimator estimator;
 
-    //折数
+    /**
+     * 折数
+     */
     private double ratio;
 
-    //词典
+    /**
+     * 词典
+     */
     private DictFactory dict;
 
+    /**
+     * 验证评分
+     */
     private double score;
 
-    //代表n-gram的常量
     public Validation(WordTagStream wordTagStream, double ratio, NGram nGram, Estimator estimator) {
         this.stream = wordTagStream;
         this.ratio = ratio;
@@ -75,6 +88,9 @@ public class Validation implements ModelScore{
         this.score=this.estimate();
     }
 
+    /**
+     * 通过验证集获得隐藏状态标注器
+     */
     private Tagger getTagger() {
         WordTag[] wts = null;
         int num = 0;
@@ -114,7 +130,10 @@ public class Validation implements ModelScore{
         return tagger;
     }
 
-    //指定验证集，进行一次交叉验证，并返回评估值
+    /**
+     * 指定验证集，进行一次交叉验证，并返回评估值
+     * @return 验证评分
+     */
     private double estimate() {
         int sizeOfSentences = this.validatonSet.size();
         this.unknownSentences = new String[sizeOfSentences];
@@ -132,6 +151,9 @@ public class Validation implements ModelScore{
         return this.estimator.eval(this.dict, this.unknownSentences, predictTags, this.expectedTags);
     }
 
+    /**
+     * 分割验证集观察状态和隐藏状态
+     */
     private void getTagOfValidation() {
         int i = 0;
         for (WordTag[] wts : this.validatonSet) {

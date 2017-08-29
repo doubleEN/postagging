@@ -5,14 +5,14 @@ import com.rui.wordtag.WordTag;
 import java.io.*;
 
 /**
- *  迭代读取语料输入流接口
+ *  读取文本语料库的接口
  */
 public abstract class WordTagStream {
 
     protected String corpusPath;
 
     /**
-     * 辅助输入流
+     * 辅助读取语料库的输入流
      */
     protected BufferedReader br;
 
@@ -22,11 +22,11 @@ public abstract class WordTagStream {
     public abstract WordTag[] segSentence(String sentence);
 
     /**
-     * 打开流操作
+     * 打开指定的语料库
+     * @param corpusPath 指定的语料库路径
      */
     public void openReadStream(String corpusPath) {
         try {
-            //这里没有显式的关闭fis和isr会有什么影响
             FileInputStream fis = new FileInputStream(corpusPath);
             InputStreamReader isr = new InputStreamReader(fis);
             this.br = new BufferedReader(isr);
@@ -36,9 +36,11 @@ public abstract class WordTagStream {
         }
     }
 
+    /**
+     *打开构造器中传入的的语料库
+     */
     public void openReadStream() {
         try {
-            //这里没有显式的关闭fis和isr会有什么影响
             FileInputStream fis = new FileInputStream(this.corpusPath);
             InputStreamReader isr = new InputStreamReader(fis);
             this.br = new BufferedReader(isr);
@@ -49,7 +51,7 @@ public abstract class WordTagStream {
     }
 
     /**
-     * 输入流迭代读取行的方法
+     * 输入流迭代读取每行语料的方法
      */
     public WordTag[] readSentence() {
         String line = null;
@@ -81,6 +83,9 @@ public abstract class WordTagStream {
         }
     }
 
+    /**
+     * @return 返回构造器传入的语料的路径
+     */
     public String getCorpusPath() {
         return corpusPath;
     }

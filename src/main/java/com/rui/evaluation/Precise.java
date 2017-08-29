@@ -7,7 +7,7 @@ import java.util.Arrays;
 import static com.rui.util.GlobalParas.logger;
 
 /**
- *
+ * 正确率度量
  */
 public class Precise implements Estimator {
     @Override

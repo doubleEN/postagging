@@ -7,7 +7,7 @@ import static com.rui.util.GlobalParas.logger;
 import java.util.Arrays;
 
 /**
- * 标注准确率
+ * 各度量标准的汇总类。
  */
 public class PreciseAll implements Estimator {
 
@@ -64,10 +64,6 @@ public class PreciseAll implements Estimator {
         this.preciseOfAll = correctNum / sum;
         this.preciseOfIV = correctIV / sumIV;
         this.preciseOfOOV = correctOOV / sumOOV;
-//        System.out.println(this.preciseOfAll+" "+this.preciseOfIV+" "+this.preciseOfOOV);
-//        System.out.println(correctOOV+"/"+sumOOV);//1444.0/3219.0=0.44858651755203477
-//        System.out.println(correctIV+"/"+sumIV);
-//        System.out.println(correctNum+"/"+sum);
         return correctNum / sum;
     }
 

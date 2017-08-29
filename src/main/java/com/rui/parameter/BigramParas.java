@@ -8,11 +8,11 @@ import com.rui.stream.WordTagStream;
 import static com.rui.util.GlobalParas.logger;
 
 /**
- * 统计并计算[一阶HMM]的参数
+ * 二元语法参数训练。
  */
 public class BigramParas extends AbstractParas {
 
-    /*
+    /**
         计数参数
      */
     private int[][] numMatA;
@@ -23,7 +23,7 @@ public class BigramParas extends AbstractParas {
 
     private int[][] holdOut;
 
-    /*
+    /**
         概率参数
      */
     private double[][] probMatA;
@@ -42,7 +42,6 @@ public class BigramParas extends AbstractParas {
         this.numPi = new int[1];
     }
 
-    //在构造器中初始加载这个语料库，并计算初始概率和平滑后的概率
     public BigramParas(WordTagStream stream) {
         this.dictionary = new DictFactory();
         this.numMatA = new int[1][1];
@@ -54,16 +53,13 @@ public class BigramParas extends AbstractParas {
 
     public BigramParas(WordTagStream stream, int tagNum, int wordNum) {
         this.dictionary = new DictFactory();
-        this.numMatA = new int[tagNum][tagNum];//the size of tag set is 44.
+        this.numMatA = new int[tagNum][tagNum];
         this.holdOut = new int[tagNum][tagNum];
-        this.numMatB = new int[tagNum][wordNum];//the size of word set is 55310.
+        this.numMatB = new int[tagNum][wordNum];
         this.numPi = new int[tagNum];
         this.initParas(stream);
     }
 
-    /*
-        对参数计数
-     */
     @Override
     protected void countMatA(String[] tags) {
         if (this.dictionary.getSizeOfTags() > this.numMatA[0].length) {
@@ -143,7 +139,7 @@ public class BigramParas extends AbstractParas {
         this.numPi = pi;
     }
 
-    /*
+    /**
         留存数据处理
      */
     @Override
@@ -208,7 +204,6 @@ public class BigramParas extends AbstractParas {
                 if (sumPerRow != 0) {
                     this.probMatA[row][col] = (this.numMatA[row][col]) / (sumPerRow);
                 } else {
-                    //处理分母为0的情况
                     this.probMatA[row][col] = 0.0;
                 }
             }
@@ -234,7 +229,6 @@ public class BigramParas extends AbstractParas {
                 if (sumPerRow != 0) {
                     probMatB[row][col] = (this.numMatB[row][col]) / (sumPerRow);
                 } else {
-                    //处理分母为0的情况
                     probMatB[row][col] = 0.0;
                 }
             }
@@ -288,17 +282,13 @@ public class BigramParas extends AbstractParas {
             sumOfRow = 0;
         }
 
-//        System.out.println(sumOfTag);
         if (sumOfTag == 0) {
             logger.severe("留存数据不存在,不能平滑概率。");
             return;
         }
 
-        int i1 = 0, i2 = 0;
         for (int t_1 = 0; t_1 < len; ++t_1) {
             for (int t_2 = 0; t_2 < len; ++t_2) {
-                // 系数：0.1514629948364888:0.8485370051635112
-                //系数：0.3683304647160069:0.6316695352839932
                 int t_1_2 = this.holdOut[t_1][t_2];
 
                 double expression1 = (vector[t_2] - 1) / (sumOfTag - 1);
@@ -310,9 +300,7 @@ public class BigramParas extends AbstractParas {
 
                 if (expression1 > expression2) {
                     lambd_count1 += t_1_2;
-                    i1++;
                 } else {
-                    i2++;
                     lambd_count2 += t_1_2;
                 }
             }
@@ -320,12 +308,7 @@ public class BigramParas extends AbstractParas {
 
         double lambd1 = lambd_count1 / (lambd_count1 + lambd_count2);
         double lambd2 = lambd_count2 / (lambd_count1 + lambd_count2);
-//        System.out.println("系数频次：" + lambd_count1 + ":" + lambd_count2);
         logger.info("系数：" + lambd1 + "-" + lambd2);
-//        System.out.println("系数的计数频次："+i1 + ":" + i2);
-
-        //系数：0.9968451753824765:0.003154824617523456
-        //系数：0.956853536835926:0.043146463164073966
         for (int t_1 = 0; t_1 < len; ++t_1) {
             for (int t_2 = 0; t_2 < len; ++t_2) {
                 this.smoothingMatA[t_1][t_2] = lambd1 * this.probPi[t_2] + lambd2 * this.probMatA[t_1][t_2];
@@ -333,7 +316,7 @@ public class BigramParas extends AbstractParas {
         }
     }
 
-    /*
+    /**
         参数访问接口的实现
      */
     @Override

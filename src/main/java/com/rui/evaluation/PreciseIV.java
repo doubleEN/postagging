@@ -7,7 +7,7 @@ import java.util.Arrays;
 import static com.rui.util.GlobalParas.logger;
 
 /**
- *
+ * 登录词准确率。
  */
 public class PreciseIV implements Estimator{
     @Override

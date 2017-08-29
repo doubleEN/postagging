@@ -14,16 +14,19 @@ import static com.rui.util.GlobalParas.logger;
  */
 public class SecondOrderHMM extends HMM {
 
-    //记录k次viterbi解码中计算得到的句子概率
+    /**
+     * 记录k次viterbi解码中计算得到的句子概率
+     */
     private double[][][] rankProbs;
 
-    //解码时的辅助数组
+    /**
+     * 解码时的辅助数组
+     */
     private int[][][][] indexs;
 
     public SecondOrderHMM(AbstractParas hmmParas) {
         this.hmmParas = hmmParas;
     }
-
 
     @Override
     public int[][] decode(String sentence, int k) {
@@ -157,9 +160,10 @@ public class SecondOrderHMM extends HMM {
             double[] probs = new double[tagSize];
             double[] midProbs = new double[tagSize];
 
-            //排列无重复
-            //三维数组先固定二维
-            //一个三元：tag_i,tag_j,tag_k
+            /*  排列无重复
+                三维数组先固定二维
+                一个三元：tag_i,tag_j,tag_k
+                */
             for (int tag_j = 0; tag_j < tagSize; ++tag_j) {
                 //再固定三维
                 for (int tag_k = 0; tag_k < tagSize; ++tag_k) {

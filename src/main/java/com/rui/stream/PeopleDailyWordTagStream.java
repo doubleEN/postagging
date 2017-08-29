@@ -4,7 +4,7 @@ import com.rui.wordtag.WordTag;
 import static com.rui.util.GlobalParas.logger;
 
 /**
- * 迭代读取人民日报标注语料库的输入流
+ * 读取人民日报词性标注语料库的输入流
  */
 public class PeopleDailyWordTagStream extends WordTagStream {
 
@@ -17,7 +17,9 @@ public class PeopleDailyWordTagStream extends WordTagStream {
     }
 
     /**
-     * 用空白符分割得到多个[wordtag]，用[/]分割[wordtag]的到word和tag。
+     * 人民日报语料库分割的主要方式
+     * @param sentence 人民日报语料库中的一行句子
+     * @return 一行句子对应的[word/tag]数组
      */
     @Override
     public WordTag[] segSentence(String sentence) {

@@ -4,7 +4,6 @@ import com.rui.wordtag.WordTag;
 import com.rui.parameter.AbstractParas;
 
 import static com.rui.util.GlobalParas.logger;
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -15,10 +14,14 @@ public class FirstOrderHMM extends HMM {
     public static void main(String[] args) {
     }
 
-    //记录k次viterbi解码中计算得到的句子概率
+    /**
+     * 记录k次viterbi解码中计算得到的句子概率
+     */
     private double[][] rankProbs;
 
-    //解码时的辅助数组
+    /**
+     * 解码时的辅助数组
+     */
     private int[][][] indexs;
 
     public FirstOrderHMM(AbstractParas hmmParas) {
@@ -32,14 +35,13 @@ public class FirstOrderHMM extends HMM {
         int[][] tagIds = new int[k][wordLen];
 
         this.rankProbs = new double[k][tagSize];
-        //解码用到中间数组
+
         this.indexs = new int[k][tagSize][wordLen];
 
         //计算需要的句子概率
         for (int rank = 1; rank <= k; ++rank) {
             this.forward(sentence, rank);
         }
-
 
         WordTag[][] wts = new WordTag[k][wordLen];
         //找到k个概率最大的句子并解码
