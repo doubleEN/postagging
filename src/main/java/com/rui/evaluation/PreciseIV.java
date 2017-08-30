@@ -10,34 +10,36 @@ import static com.rui.util.GlobalParas.logger;
  * 登录词准确率。
  */
 public class PreciseIV implements Estimator{
+
+    /**
+     * 累积输入评估对象的评估单元总数
+     */
+    private double sum;
+
+    /**
+     * 累积输入评估对象的正确评估单元总数
+     */
+    private double correctNum;
+
     @Override
-    public double eval(DictFactory dict, String[] unknownSentences, String[][] predictedTags, String[][] expectedTags) {
-        double sumIV = 0;
-        double correctIV = 0;
-
-        int sizeOfsentences = predictedTags.length;
-        for (int i = 0; i < sizeOfsentences; ++i) {
-            String[] words = unknownSentences[i].trim().split("\\s+");
-
-            int lenOfSentence = predictedTags[i].length;
-            boolean flag = false;
-
-            for (int j = 0; j < lenOfSentence && dict.getWordId(words[j]) != null; ++j) {
-                ++sumIV;
-                if (predictedTags[i][j].equals(expectedTags[i][j])) {
-                    ++correctIV;
-                } else {
-                    flag = true;
-                }
-            }
-
-            if (flag) {
-                this.printTagging(unknownSentences[i],predictedTags[i],expectedTags[i]);
+    public void eval(DictFactory dict, String unknownSentences, String[] predictedTags, String[] expectedTags){
+        String[] words = unknownSentences.trim().split("\\s+");
+        int lenOfSentence = predictedTags.length;
+        boolean flag = false;
+        for (int j = 0; j < lenOfSentence && dict.getWordId(words[j]) != null; ++j) {
+            ++sum;
+            if (predictedTags[j].equals(expectedTags[j])) {
+                ++correctNum;
+            } else {
+                flag = true;
             }
         }
-
-        return correctIV / sumIV;
+        if (flag) {
+            this.printTagging(unknownSentences,predictedTags,expectedTags);
+        }
     }
+
+
     @Override
     public void printTagging(String unknownSentence, String[] predictedTags, String[] expectedTags) {
         String predictedSentence="";
@@ -49,5 +51,16 @@ public class PreciseIV implements Estimator{
             expectedSentence=expectedSentence+words[i]+"/"+expectedTags[i]+" ";
         }
         logger.info("\n"+"Predict: "+"["+predictedSentence+"]"+"\n"+"Expect:  "+"["+expectedSentence+"]");
+    }
+
+    @Override
+    public double getResult(){
+        return this.correctNum/this.sum;
+    }
+
+    @Override
+    public void reset() {
+        this.sum=0;
+        this.correctNum=0;
     }
 }

@@ -23,8 +23,7 @@ import java.util.Set;
 /**
  * 一次验证评估，按比例划分语料
  */
-public class Validation implements ModelScore{
-
+public class Validation implements ModelScore {
     /**
      * 标明使用的n-gram
      */
@@ -41,19 +40,14 @@ public class Validation implements ModelScore{
     private WordTagStream stream;
 
     /**
-     * 验证语料
-     */
-    private Set<WordTag[]> validatonSet;
-
-    /**
      * 每一折交叉验证中，生成的验证语料
      */
-    private String[] unknownSentences;
+    private String unknownSentence;
 
     /**
      * 验证语料的正确标注
      */
-    private String[][] expectedTags;
+    private String[] expectedTags;
 
     /**
      * 评估器
@@ -85,7 +79,8 @@ public class Validation implements ModelScore{
     @Override
     public void toScore() {
         this.tagger = this.getTagger();
-        this.score=this.estimate();
+        this.stream.openReadStream(stream.getCorpusPath());
+        this.score = this.estimate();
     }
 
     /**
@@ -93,8 +88,6 @@ public class Validation implements ModelScore{
      */
     private Tagger getTagger() {
         WordTag[] wts = null;
-        int num = 0;
-        this.validatonSet = new HashSet<>();
 
         Tagger tagger = null;
         Random random = new Random(11);
@@ -111,9 +104,7 @@ public class Validation implements ModelScore{
         }
 
         while ((wts = this.stream.readSentence()) != null) {
-            if (random.nextInt(1000) < border) {
-                this.validatonSet.add(wts);
-            } else {
+            if (random.nextInt(1000) >= border) {
                 int randNum = random.nextInt(4);
                 if (randNum == 1) {
                     paras.addHoldOut(wts);
@@ -121,7 +112,6 @@ public class Validation implements ModelScore{
                     paras.addCorpus(wts);
                 }
             }
-            ++num;
         }
         paras.calcProbs();
         tagger = new Tagger(hmm);
@@ -132,40 +122,44 @@ public class Validation implements ModelScore{
 
     /**
      * 指定验证集，进行一次交叉验证，并返回评估值
+     *
      * @return 验证评分
      */
     private double estimate() {
-        int sizeOfSentences = this.validatonSet.size();
-        this.unknownSentences = new String[sizeOfSentences];
-        this.expectedTags = new String[sizeOfSentences][];
+        WordTag[] wts = null;
 
-        this.getTagOfValidation();
-        String[][] predictTags = new String[sizeOfSentences][];
-        for (int i = 0; i < sizeOfSentences; ++i) {
-            WordTag[] wts = this.tagger.tag(this.unknownSentences[i]);
-            predictTags[i] = new String[wts.length];
-            for (int j = 0; j < wts.length; ++j) {
-                predictTags[i][j] = wts[j].getTag();
+        Tagger tagger = null;
+        Random random = new Random(11);
+        double border = 1000 * this.ratio;
+        String[] predictTags = null;
+
+        while ((wts = this.stream.readSentence()) != null) {
+            if (random.nextInt(1000) < border) {
+                this.getTagOfValidation(wts);
+                WordTag[] predict = this.tagger.tag(this.unknownSentence);
+                predictTags = new String[predict.length];
+                for (int j = 0; j < predict.length; ++j) {
+                    predictTags[j] = predict[j].getTag();
+                }
+                this.estimator.eval(this.dict, this.unknownSentence, predictTags, this.expectedTags);
             }
         }
-        return this.estimator.eval(this.dict, this.unknownSentences, predictTags, this.expectedTags);
+        return this.estimator.getResult();
     }
+
 
     /**
      * 分割验证集观察状态和隐藏状态
+     * @param wts 带标注的句子
      */
-    private void getTagOfValidation() {
-        int i = 0;
-        for (WordTag[] wts : this.validatonSet) {
-            String sentence = "";//字符串拼接时，null的影响
-            this.expectedTags[i] = new String[wts.length];
-            for (int j = 0; j < wts.length; ++j) {
-                this.expectedTags[i][j] = wts[j].getTag();
-                sentence = sentence + wts[j].getWord() + " ";
-            }
-            this.unknownSentences[i] = sentence.trim();
-            ++i;
+    private void getTagOfValidation(WordTag[] wts) {
+        String sentence = "";
+        this.expectedTags = new String[wts.length];
+        for (int j = 0; j < wts.length; ++j) {
+            this.expectedTags[j] = wts[j].getTag();
+            sentence = sentence + wts[j].getWord() + " ";
         }
+        this.unknownSentence = sentence.trim();
     }
 
     @Override

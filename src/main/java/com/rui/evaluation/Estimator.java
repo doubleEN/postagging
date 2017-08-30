@@ -12,9 +12,8 @@ public interface Estimator {
      * @param unknownSentences 未知句子
      * @param predictedTags 预测序列
      * @param expectedTags 期望序列
-     * @return 度量结果
      */
-    double eval(DictFactory dict, String[] unknownSentences, String[][] predictedTags, String[][] expectedTags);
+    void eval(DictFactory dict, String unknownSentences, String[] predictedTags, String[] expectedTags);
 
     /**
      * 格式化打印输出预测序列和期望序列
@@ -23,4 +22,14 @@ public interface Estimator {
      * @param expectedTags 期望序列
      */
     void printTagging(String unknownSentence, String[] predictedTags, String[] expectedTags);
+
+    /**
+     * 返回全局度量结果
+     */
+    double getResult();
+
+    /**
+     * 重置评估参数
+     */
+    void reset();
 }

@@ -10,8 +10,17 @@ import static com.rui.util.GlobalParas.logger;
 public class F1 implements Estimator{
 
     @Override
-    public double eval(DictFactory dict, String[] unknownSentences, String[][] predictedTags, String[][] expectedTags) {
+    public void reset() {
+    }
+
+    @Override
+    public double getResult(){
         return 0;
+    }
+
+    @Override
+    public void eval(DictFactory dict, String unknownSentences, String[] predictedTags, String[] expectedTags) {
+        return ;
     }
     @Override
     public void printTagging(String unknownSentence, String[] predictedTags, String[] expectedTags) {

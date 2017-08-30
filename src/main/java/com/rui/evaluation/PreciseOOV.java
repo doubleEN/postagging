@@ -11,46 +11,60 @@ import static com.rui.util.GlobalParas.logger;
  */
 public class PreciseOOV implements Estimator {
 
+    /**
+     * 累积输入评估对象的评估单元总数
+     */
+    private double sum;
+
+    /**
+     * 累积输入评估对象的正确评估单元总数
+     */
+    private double correctNum;
+
     @Override
-    public double eval(DictFactory dict, String[] unknownSentences, String[][] predictedTags, String[][] expectedTags) {
-        double sumOOV = 0;
-        double correctOOV = 0;
+    public double getResult() {
+         return this.correctNum/this.sum;
+    }
 
-        int sizeOfsentences = predictedTags.length;
-        for (int i = 0; i < sizeOfsentences; ++i) {
-            String[] words = unknownSentences[i].trim().split("\\s+");
+    @Override
+    public void reset() {
+        this.sum=0;
+        this.correctNum=0;
+    }
 
-            int lenOfSentence = predictedTags[i].length;
-            boolean flag = false;
+    @Override
+    public void eval(DictFactory dict, String unknownSentences, String[] predictedTags, String[] expectedTags) {
+        String[] words = unknownSentences.trim().split("\\s+");
 
-            for (int j = 0; j < lenOfSentence; ++j) {
-                if (dict.getWordId(words[j]) == null) {
-                    ++sumOOV;
-                    if (predictedTags[i][j].equals(expectedTags[i][j])) {
-                        ++correctOOV;
-                    } else {
-                        flag = true;
-                    }
+        int lenOfSentence = predictedTags.length;
+        boolean flag = false;
+
+        for (int j = 0; j < lenOfSentence; ++j) {
+            if (dict.getWordId(words[j]) == null) {
+                ++sum;
+                if (predictedTags[j].equals(expectedTags[j])) {
+                    ++correctNum;
+                } else {
+                    flag = true;
                 }
             }
-            if (flag) {
-                this.printTagging(unknownSentences[i],predictedTags[i],expectedTags[i]);
-            }
+        }
+        if (flag) {
+            this.printTagging(unknownSentences, predictedTags, expectedTags);
         }
 
-        return correctOOV / sumOOV;
     }
 
     @Override
     public void printTagging(String unknownSentence, String[] predictedTags, String[] expectedTags) {
-        String predictedSentence="";
-        String expectedSentence="";
+        String predictedSentence = "";
+        String expectedSentence = "";
         String[] words = unknownSentence.trim().split("\\s+");
-        int len=words.length;
-        for (int i=0;i<len;++i) {
-            predictedSentence=predictedSentence+words[i]+"/"+predictedTags[i]+" ";
-            expectedSentence=expectedSentence+words[i]+"/"+expectedTags[i]+" ";
+        int len = words.length;
+        for (int i = 0; i < len; ++i) {
+            predictedSentence = predictedSentence + words[i] + "/" + predictedTags[i] + " ";
+            expectedSentence = expectedSentence + words[i] + "/" + expectedTags[i] + " ";
         }
-        logger.info("\n"+"Predict: "+"["+predictedSentence+"]"+"\n"+"Expect:  "+"["+expectedSentence+"]");
+        logger.info("\n" + "Predict: " + "[" + predictedSentence + "]" + "\n" + "Expect:  " + "[" + expectedSentence + "]");
     }
 }
