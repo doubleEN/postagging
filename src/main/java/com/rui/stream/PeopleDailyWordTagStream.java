@@ -11,6 +11,9 @@ public class PeopleDailyWordTagStream extends WordTagStream {
     public PeopleDailyWordTagStream() {
     }
 
+    /**
+     * @param corpusPath 语料路径
+     */
     public PeopleDailyWordTagStream(String corpusPath) {
         this.corpusPath=corpusPath;
         this.openReadStream(corpusPath);

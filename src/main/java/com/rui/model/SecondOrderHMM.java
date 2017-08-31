@@ -81,7 +81,12 @@ public class SecondOrderHMM extends HMM {
         return tagIds;
     }
 
-    //独词成句处理
+    /**
+     * 独词成句概率处理
+     * @param word 独词成句的词
+     * @param k k个最优标注
+     * @return k个最优标注对应的标注id
+     */
     public int[][] decodeOneWord(String word, int k) {
         int[][] tags = new int[k][1];
 

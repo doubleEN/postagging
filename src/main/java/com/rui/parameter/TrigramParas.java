@@ -11,31 +11,55 @@ import static com.rui.util.GlobalParas.logger;
  * 三元语法参数训练。
  */
 public class TrigramParas extends AbstractParas {
-    /**
-        计数参数
-     */
 
+    /**
+     * 3-gram状态转移计数矩阵
+     */
     private int[][][] triNumMatA;
 
+    /**
+     * 2-gram状态转移计数矩阵
+     */
     private int[][] biNumMatA;
 
+    /**
+     * 3-gram状态发射计数矩阵
+     */
     private int[][] numMatB;
 
+    /**
+     * 初始状态计数矩阵
+     */
     private int[] numPi;
 
+    /**
+     * 3-gram留存状态转移计数矩阵
+     */
     private int[][][] holdOut;
 
     /**
-        概率参数
+     * 3-gram状态转移概率矩阵
      */
     private double[][][] triProbMatA;
 
+    /**
+     * 2-gram状态转移概率矩阵
+     */
     private double[][] biProbMatA;
 
+    /**
+     * 3-gram状态转移平滑概率矩阵
+     */
     private double[][][] smoothingMatA;
 
+    /**
+     * 2-gram状态发射概率矩阵
+     */
     private double[][] probMatB;
 
+    /**
+     * 3-gram状态转移概率矩阵
+     */
     private double[] probPi;
 
     public TrigramParas() {
@@ -47,6 +71,9 @@ public class TrigramParas extends AbstractParas {
         this.numPi = new int[1];
     }
 
+    /**
+     * @param stream 指明特点语料路径的语料读取流
+     */
     public TrigramParas(WordTagStream stream) {
         this.dictionary = new DictFactory();
         this.triNumMatA = new int[1][1][1];
@@ -57,6 +84,11 @@ public class TrigramParas extends AbstractParas {
         this.initParas(stream);
     }
 
+    /**
+     * @param stream 指明特点语料路径的语料读取流
+     * @param tagNum 语料标注集大小
+     * @param wordNum 语料词数
+     */
     public TrigramParas(WordTagStream stream,int tagNum, int wordNum) {
         this.dictionary = new DictFactory();
         this.triNumMatA = new int[tagNum][tagNum][tagNum];

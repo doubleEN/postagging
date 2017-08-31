@@ -21,7 +21,6 @@ public class Precise implements Estimator {
      */
     private double correctNum;
 
-
     @Override
     public void eval(DictFactory dict, String unknownSentences, String[] predictedTags, String[] expectedTags) {
 

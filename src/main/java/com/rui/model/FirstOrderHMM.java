@@ -28,6 +28,7 @@ public class FirstOrderHMM extends HMM {
         this.hmmParas = hmmParas;
     }
 
+    @Override
     public int[][] decode(String sentence, int k) {
         String[] words = sentence.trim().split("\\s+");
         int wordLen = words.length;

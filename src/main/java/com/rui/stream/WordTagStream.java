@@ -9,6 +9,9 @@ import java.io.*;
  */
 public abstract class WordTagStream {
 
+    /**
+     * 语料库路径
+     */
     protected String corpusPath;
 
     /**

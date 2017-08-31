@@ -13,14 +13,23 @@ import static com.rui.util.GlobalParas.logger;
 public class BigramParas extends AbstractParas {
 
     /**
-        计数参数
+     * 状态转移计数矩阵
      */
     private int[][] numMatA;
 
+    /**
+     * 状态发射计数矩阵
+     */
     private int[][] numMatB;
 
+    /**
+     * 初始状态计数矩阵
+     */
     private int[] numPi;
 
+    /**
+     * 留存状态转移计数矩阵
+     */
     private int[][] holdOut;
 
     /**
@@ -28,10 +37,19 @@ public class BigramParas extends AbstractParas {
      */
     private double[][] probMatA;
 
+    /**
+        状态转移平滑概率矩阵
+     */
     private double[][] smoothingMatA;
 
+    /**
+        状态发射概率矩阵
+     */
     private double[][] probMatB;
 
+    /**
+        初始状态概率
+     */
     private double[] probPi;
 
     public BigramParas() {
@@ -42,6 +60,9 @@ public class BigramParas extends AbstractParas {
         this.numPi = new int[1];
     }
 
+    /**
+     * @param stream 指明特点语料路径的语料读取流
+     */
     public BigramParas(WordTagStream stream) {
         this.dictionary = new DictFactory();
         this.numMatA = new int[1][1];
@@ -51,6 +72,11 @@ public class BigramParas extends AbstractParas {
         this.initParas(stream);
     }
 
+    /**
+     * @param stream 指明特点语料路径的语料读取流
+     * @param tagNum 语料标注集大小
+     * @param wordNum 语料词数
+     */
     public BigramParas(WordTagStream stream, int tagNum, int wordNum) {
         this.dictionary = new DictFactory();
         this.numMatA = new int[tagNum][tagNum];

@@ -10,14 +10,24 @@ import java.util.logging.Logger;
  */
 public class GlobalParas {
 
-    //PeopleDailyNews语料库标注集大小
+    /**
+     * PeopleDailyNews语料库标注集大小
+     */
     public static int tagSizePDN=44;
 
-    //PeopleDailyNews语料库词集大小
+    /**
+     * PeopleDailyNews语料库词集大小
+     */
     public static int wordSizePDN=55310;
 
-    //日志
+    /**
+     * 全局日志
+     */
     public static Logger logger = Logger.getLogger("POSTagger");
+
+    /**
+     * 声明日志level
+     */
     static
     {
         logger.setLevel(Level.INFO);

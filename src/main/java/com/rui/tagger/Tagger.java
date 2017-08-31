@@ -18,64 +18,45 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
- *
+ * 标注类。
  */
 public class Tagger {
 
-//    public static void main(String[] args) {
-//
-//        AbstractParas paras = new BigramParas("/home/mjx/桌面/PoS/corpus/199801_format.txt");
-//        HMM hmm = new FirstOrderHMM(paras);
-//        Tagger tagger = new Tagger(hmm);
-//        WordTagStream wordTagStream = new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt");
-//        WordTag[] wts = null;
-//        int num = 0;
-//        String[]sentences=new String[1000];
-//        String[][]predictedTags=new String[1000][];
-//        String[][]expectedTags=new String[1000][];
-//        while ((wts = wordTagStream.readSentence()) != null && num < 1000) {
-//            String sen="";
-//            expectedTags[num]=new String[wts.length];
-//            predictedTags[num]=new String[wts.length];
-//            for (int i=0;i<wts.length;++i){
-//                sen=sen+wts[i].getWord()+" ";
-//                expectedTags[num][i]=wts[i].getTag();
-//            }
-//            sentences[num]=sen;
-//            WordTag[]expect= tagger.tag(sen.trim());
-//            for (int i=0;i<expect.length;++i){
-//                predictedTags[num][i]=expect[i].getTag();
-//            }
-//            ++num;
-//        }
-////        System.out.println(new Estimator().eval(sentences,predictedTags,expectedTags));
-//    }
-
-    public static void main(String[] args) {
-        AbstractParas paras=new TrigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"),44,57000);
-        HMM hmm=new SecondOrderHMM(paras);
-
-        Tagger tagger=new Tagger(hmm);
-        System.out.println(Arrays.toString(tagger.tag("学习 自然 语言 处理 ， 实现 台湾 同意 。")));
-    }
-
+    /**
+     * 隐马尔科夫模型
+     */
     private HMM hmm;
 
+    /**
+     * @param hmm 隐马尔科夫模型
+     */
     public Tagger(HMM hmm) {
         this.hmm = hmm;
     }
 
+    /**
+     * @param HMMPath 序列化隐马尔科夫模型路径
+     */
     public Tagger(String HMMPath) {
         this.hmm = this.readHMM(HMMPath);
     }
 
-    //返回最可能的标注序列
+    /**
+     * 返回最可能的标注序列
+     * @param sentences 未标注句子
+     * @return 标注结果
+     */
     public WordTag[] tag(String sentences) {
 
         return tagTopK(sentences, 1)[0];
     }
 
-    //返回k个最可能的标注序列
+    /**
+     * 返回k个最可能的标注序列
+     * @param sentences 未标注句子
+     * @param k 得到k个局部最优标注，其中排名第一的标注是全局最优
+     * @return k个局部最优标注
+     */
     public WordTag[][] tagTopK(String sentences, int k) {
         String[] words = sentences.split("\\s+");
         int wordLen = words.length;
@@ -87,7 +68,12 @@ public class Tagger {
         return wts;
     }
 
-    //词与标注配对
+    /**
+     * 词与标注配对
+     * @param words 单词序列
+     * @param tagIds 标注序列
+     * @return [Word/Tag]数组
+     */
     private WordTag[] matching(String[] words, int[] tagIds) {
         int wordLen = words.length;
         WordTag[] wts = new WordTag[wordLen];
@@ -97,7 +83,11 @@ public class Tagger {
         return wts;
     }
 
-    //模型反序列化
+    /**
+     * 模型反序列化
+     * @param path 列化模型序的路径
+     * @return HMM对象
+     */
     private HMM readHMM(String path) {
         HMM hmm = null;
         ObjectInputStream ois = null;

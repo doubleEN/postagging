@@ -5,9 +5,20 @@ package com.rui.wordtag;
  */
 public class WordTag {
 
+    /**
+     * 单词字符串
+     */
     private String word;
+
+    /**
+     * 标注字符串
+     */
     private String tag;
 
+    /**
+     * @param word 合法单词字符串
+     * @param tag 合法标注字符串
+     */
     public WordTag(String word, String tag) {
         this.word = word;
         this.tag = tag;
@@ -27,6 +38,9 @@ public class WordTag {
         return tag;
     }
 
+    /**
+     * @return WordTag的格式化字符串
+     */
     @Override
     public String toString() {
         return this.word + "/" + this.tag;
