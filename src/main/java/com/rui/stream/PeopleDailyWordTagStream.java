@@ -4,6 +4,7 @@ import com.rui.wordtag.WordTag;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import static com.rui.util.GlobalParas.logger;
 
@@ -17,10 +18,12 @@ public class PeopleDailyWordTagStream extends WordTagStream {
 
     /**
      * @param corpusPath 语料路径
+     * @param encoding 字符编码方式
      */
-    public PeopleDailyWordTagStream(String corpusPath) throws ClassNotFoundException,FileNotFoundException{
+    public PeopleDailyWordTagStream(String corpusPath,String encoding) throws UnsupportedEncodingException,ClassNotFoundException,FileNotFoundException{
         this.corpusPath=corpusPath;
-        this.openReadStream(corpusPath);
+        this.encoding=encoding;
+        this.openReadStream();
     }
 
     /**

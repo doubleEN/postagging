@@ -11,6 +11,7 @@ import com.rui.model.SecondOrderHMM;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
+import com.rui.stream.OpenNLPWordTagStream;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
@@ -26,6 +27,12 @@ import java.util.Set;
  * 一次验证评估，按比例划分语料
  */
 public class Validation implements ModelScore {
+
+    public static void main(String[] args) throws Exception{
+        ModelScore modelScore=new Validation(new OpenNLPWordTagStream("/home/mjx/桌面/PoS/corpus/open-pos.txt","gbk"),0.02,NGram.TriGram,new PreciseIV());
+        modelScore.toScore();
+        System.out.println(modelScore.getScore());
+    }
     /**
      * 标明使用的n-gram
      */
@@ -81,7 +88,7 @@ public class Validation implements ModelScore {
     @Override
     public void toScore() throws FileNotFoundException,IOException{
         this.tagger = this.getTagger();
-        this.stream.openReadStream(stream.getCorpusPath());
+        this.stream.openReadStream();
         this.score = this.estimate();
     }
 
@@ -106,6 +113,7 @@ public class Validation implements ModelScore {
         }
 
         while ((wts = this.stream.readSentence()) != null) {
+            //在1000中取指定比例样本
             if (random.nextInt(1000) >= border) {
                 int randNum = random.nextInt(4);
                 if (randNum == 1) {

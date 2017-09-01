@@ -22,33 +22,22 @@ public abstract class WordTagStream {
     protected BufferedReader br;
 
     /**
+     * 语料编码方式
+     */
+    protected String encoding;
+
+    /**
      * 分割一个句子得到一个WordTag数组
      */
     public abstract WordTag[] segSentence(String sentence);
 
     /**
-     * 打开指定的语料库
-     * @param corpusPath 指定的语料库路径
-     */
-    public void openReadStream(String corpusPath) throws FileNotFoundException{
-        try {
-            FileInputStream fis = new FileInputStream(corpusPath);
-            InputStreamReader isr = new InputStreamReader(fis);
-            this.br = new BufferedReader(isr);
-        } catch (FileNotFoundException e) {
-            logger.severe("语料路径不存在，"+e.getMessage());
-            throw e;
-        } finally {
-        }
-    }
-
-    /**
      *打开构造器中传入的的语料库
      */
-    public void openReadStream() throws FileNotFoundException{
+    public void openReadStream() throws FileNotFoundException,UnsupportedEncodingException{
         try {
             FileInputStream fis = new FileInputStream(this.corpusPath);
-            InputStreamReader isr = new InputStreamReader(fis);
+            InputStreamReader isr = new InputStreamReader(fis,this.encoding);
             this.br = new BufferedReader(isr);
         } catch (FileNotFoundException e) {
             logger.severe("语料路径不存在，"+e.getMessage());

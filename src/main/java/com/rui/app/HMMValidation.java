@@ -31,10 +31,11 @@ public class HMMValidation {
      *              [1]:n-gram参数，2或者3，分别代表二元或三元
      *              [2]:验证折数，为大于2数字
      *              [3]:评估方式，p<准确率>，piv<登录次准确率>，poov<未登录词准确率>
+     *              [4]:字符编码方式
      */
     public static void main(String[] args) throws IOException,ClassNotFoundException{
-        if (args.length != 4) {
-            logger.severe("参数数目不合法，数目为" + args.length + ",应为4。");
+        if (args.length != 5) {
+            logger.severe("参数数目不合法，数目为" + args.length + ",应为5。");
             System.exit(1);
         }
         int cv = -1;
@@ -65,7 +66,7 @@ public class HMMValidation {
             logger.severe("评估类型参数形式不合法：参数值应为p,piv,poov。");
             System.exit(1);
         }
-        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream(args[0]), cv, nGram,estimator);
+        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream(args[0],args[4]), cv, nGram,estimator);
         modelScore.toScore();
         logger.info("交加验证评分为： "+modelScore.getScore());
     }

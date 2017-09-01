@@ -22,12 +22,12 @@ public class POSTaggerFactoryTest {
         //序列化的模型中得到2-gram模型
         Tagger tagger2GramSerializable=POSTaggerFactory.buildTagger("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/BiGram.bin");
         //预料中获得2-gram模型
-        Tagger tagger2GramCorpus=POSTaggerFactory.buildTagger(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), NGram.BiGram);
+        Tagger tagger2GramCorpus=POSTaggerFactory.buildTagger(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt","utf-8"), NGram.BiGram);
 
         //序列化的模型中得到3-gram模型
         Tagger tagger3GramSerializable=POSTaggerFactory.buildTagger("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/TriGram.bin");
         //预料中获得3-gram模型
-        Tagger tagger3GramCorpus=POSTaggerFactory.buildTagger(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), NGram.TriGram);
+        Tagger tagger3GramCorpus=POSTaggerFactory.buildTagger(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt","utf-8"), NGram.TriGram);
 
         String unknownSentence="学习 NLP ， 实现 台湾 同意 。 ";
         //2-gram

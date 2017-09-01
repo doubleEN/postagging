@@ -85,9 +85,9 @@ public class CrossValidation implements ModelScore {
         this.scores = new double[this.fold];
         for (int i = 0; i < this.fold; ++i) {
             this.tagger = this.getTagger(i);
-            this.stream.openReadStream(this.stream.getCorpusPath());
+            this.stream.openReadStream();
             this.scores[i] = this.estimate(i);
-            this.stream.openReadStream(this.stream.getCorpusPath());
+            this.stream.openReadStream();
             this.estimator.reset();
         }
     }

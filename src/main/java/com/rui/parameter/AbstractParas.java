@@ -9,6 +9,7 @@ import static com.rui.util.GlobalParas.logger;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
