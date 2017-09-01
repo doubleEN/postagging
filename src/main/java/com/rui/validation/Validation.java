@@ -16,6 +16,8 @@ import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -77,7 +79,7 @@ public class Validation implements ModelScore {
     }
 
     @Override
-    public void toScore() {
+    public void toScore() throws FileNotFoundException,IOException{
         this.tagger = this.getTagger();
         this.stream.openReadStream(stream.getCorpusPath());
         this.score = this.estimate();
@@ -86,7 +88,7 @@ public class Validation implements ModelScore {
     /**
      * 通过验证集获得隐藏状态标注器
      */
-    private Tagger getTagger() {
+    private Tagger getTagger() throws IOException{
         WordTag[] wts = null;
 
         Tagger tagger = null;
@@ -125,7 +127,7 @@ public class Validation implements ModelScore {
      *
      * @return 验证评分
      */
-    private double estimate() {
+    private double estimate() throws IOException{
         WordTag[] wts = null;
 
         Tagger tagger = null;

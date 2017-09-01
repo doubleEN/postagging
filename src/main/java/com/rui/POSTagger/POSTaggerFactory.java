@@ -1,14 +1,12 @@
 package com.rui.POSTagger;
 
 import com.rui.evaluation.Estimator;
-import com.rui.evaluation.PreciseIV;
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
 import com.rui.model.SecondOrderHMM;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
-import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
 import com.rui.validation.CrossValidation;
@@ -20,10 +18,9 @@ import com.rui.wordtag.WordTag;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.Random;
+
+import static com.rui.util.GlobalParas.logger;
 
 /**
  * 汉语词性标注工具类
@@ -48,13 +45,14 @@ public class POSTaggerFactory {
 
     /**
      * 一次验证评估
-     * @param stream 读取特点语料的特点流
-     * @param ratio 验证集比例
-     * @param nGram {@link NGram}常量类型
+     *
+     * @param stream    读取特点语料的特点流
+     * @param ratio     验证集比例
+     * @param nGram     {@link NGram}常量类型
      * @param estimator 指定度量方式
      * @return 返回评分
      */
-    public static double scoreOnValidation(WordTagStream stream, double ratio, NGram nGram, Estimator estimator) {
+    public static double scoreOnValidation(WordTagStream stream, double ratio, NGram nGram, Estimator estimator) throws IOException{
         ModelScore crossValidation = new Validation(stream, ratio, nGram, estimator);
         crossValidation.toScore();
         return crossValidation.getScore();
@@ -62,13 +60,14 @@ public class POSTaggerFactory {
 
     /**
      * 交叉验证评估
-     * @param stream 读取特点语料的特点流
-     * @param fold 交叉验证折数
-     * @param nGram {@link NGram}常量类型
+     *
+     * @param stream    读取特点语料的特点流
+     * @param fold      交叉验证折数
+     * @param nGram     {@link NGram}常量类型
      * @param estimator 指定度量方式
      * @return 返回评分
      */
-    public static double crossValidation(WordTagStream stream, int fold, NGram nGram, Estimator estimator) {
+    public static double crossValidation(WordTagStream stream, int fold, NGram nGram, Estimator estimator) throws IOException{
         ModelScore crossValidation = new CrossValidation(stream, fold, nGram, estimator);
         crossValidation.toScore();
         return crossValidation.getScore();
@@ -76,12 +75,13 @@ public class POSTaggerFactory {
 
     /**
      * 指定语料生成标注器
-     * @param stream 读取特点语料的特点流
-     * @param nGram {@link NGram}常量类型
+     *
+     * @param stream    读取特点语料的特点流
+     * @param nGram     {@link NGram}常量类型
      * @param writePath 模型序列化路径
      * @throws IOException
      */
-    public static void writeHMM(WordTagStream stream, NGram nGram, String writePath) throws IOException{
+    public static void writeHMM(WordTagStream stream, NGram nGram, String writePath) throws IOException {
 
         AbstractParas paras = null;
         HMM hmm = null;
@@ -98,11 +98,12 @@ public class POSTaggerFactory {
 
     /**
      * 指定语料生成标注器
+     *
      * @param stream 读取特点语料的特点流
-     * @param nGram {@link NGram}
+     * @param nGram  {@link NGram}
      * @return 标注器
      */
-    public static Tagger buildTagger(WordTagStream stream, NGram nGram) {
+    public static Tagger buildTagger(WordTagStream stream, NGram nGram) throws IOException{
         Tagger tagger = null;
 
         AbstractParas paras = null;
@@ -122,19 +123,21 @@ public class POSTaggerFactory {
 
     /**
      * 从指定模型路径中生成标注器
+     *
      * @param HMMPath 反序列化模型的路径
      * @return 标注器
      */
-    public static Tagger buildTagger(String HMMPath) {
+    public static Tagger buildTagger(String HMMPath) throws IOException, ClassNotFoundException {
         return new Tagger(HMMPath);
     }
 
     /**
      * 2-gram标注
+     *
      * @param sentence 未标注句子
      * @return WordTag[]形式的标注结果
      */
-    public static WordTag[] tag2Gram(String sentence) {
+    public static WordTag[] tag2Gram(String sentence) throws IOException, ClassNotFoundException {
 
         Properties pro = new Properties();
         Tagger tagger = null;
@@ -148,12 +151,17 @@ public class POSTaggerFactory {
             propertiesPath.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("序列化模型的路径不合法，" + e.getMessage());
+            throw e;
+        } catch (ClassNotFoundException e) {
+            logger.severe("模型对象不存在，" + e.getMessage());
+            throw e;
         } finally {
             try {
                 propertiesPath.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.severe("序列化模型读取流关闭错误，" + e.getMessage());
+                throw e;
             }
         }
         return tagger.tag(sentence);
@@ -161,10 +169,11 @@ public class POSTaggerFactory {
 
     /**
      * 3-gram标注
+     *
      * @param sentence 未标注句子
      * @return WordTag[]形式的标注结果
      */
-    public static WordTag[] tag3Gram(String sentence) {
+    public static WordTag[] tag3Gram(String sentence) throws ClassNotFoundException, IOException {
         Properties pro = new Properties();
         Tagger tagger = null;
         InputStreamReader propertiesPath = null;
@@ -177,12 +186,17 @@ public class POSTaggerFactory {
             propertiesPath.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("序列化模型的路径不合法，" + e.getMessage());
+            throw e;
+        } catch (ClassNotFoundException e) {
+            logger.severe("模型对象不存在，" + e.getMessage());
+            throw e;
         } finally {
             try {
                 propertiesPath.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.severe("序列化模型的路径不合法，" + e.getMessage());
+                throw e;
             }
         }
         return tagger.tag(sentence);

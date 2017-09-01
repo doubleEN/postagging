@@ -21,7 +21,7 @@ public class HMMTraining {
      * 从指定语料库
      * @param args [0]:人民日报语料库路径 [1]:n-gram参数，2或者3 [2]:模型输出路径
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException,IOException{
         if (args.length != 3) {
             logger.severe("参数数目不合法，数目为"+args.length+",应为3。");
             System.exit(1);

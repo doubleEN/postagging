@@ -5,6 +5,8 @@ import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 
+import java.io.IOException;
+
 import static com.rui.util.GlobalParas.logger;
 
 /**
@@ -63,7 +65,7 @@ public class BigramParas extends AbstractParas {
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
-    public BigramParas(WordTagStream stream) {
+    public BigramParas(WordTagStream stream) throws IOException{
         this.dictionary = new DictFactory();
         this.numMatA = new int[1][1];
         this.holdOut = new int[1][1];
@@ -77,7 +79,7 @@ public class BigramParas extends AbstractParas {
      * @param tagNum 语料标注集大小
      * @param wordNum 语料词数
      */
-    public BigramParas(WordTagStream stream, int tagNum, int wordNum) {
+    public BigramParas(WordTagStream stream, int tagNum, int wordNum) throws IOException{
         this.dictionary = new DictFactory();
         this.numMatA = new int[tagNum][tagNum];
         this.holdOut = new int[tagNum][tagNum];
@@ -374,4 +376,3 @@ public class BigramParas extends AbstractParas {
     }
 
 }
-

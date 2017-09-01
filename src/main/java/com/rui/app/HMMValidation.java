@@ -32,7 +32,7 @@ public class HMMValidation {
      *              [2]:验证折数，为大于2数字
      *              [3]:评估方式，p<准确率>，piv<登录次准确率>，poov<未登录词准确率>
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException,ClassNotFoundException{
         if (args.length != 4) {
             logger.severe("参数数目不合法，数目为" + args.length + ",应为4。");
             System.exit(1);

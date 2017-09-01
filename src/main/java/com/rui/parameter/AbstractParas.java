@@ -6,6 +6,8 @@ import com.rui.stream.WordTagStream;
 
 import static com.rui.util.GlobalParas.logger;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Random;
 
@@ -28,7 +30,7 @@ public abstract class AbstractParas implements Serializable {
      * 初始化[语料库]，并计算概率参数的[模板方法]
      * @param stream 读取特点语料的输入流
      */
-    protected void initParas(WordTagStream stream) {
+    protected void initParas(WordTagStream stream) throws IOException{
         stream.openReadStream();
 
         WordTag[] wts;

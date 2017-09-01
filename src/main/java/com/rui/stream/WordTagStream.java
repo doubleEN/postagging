@@ -4,6 +4,8 @@ import com.rui.wordtag.WordTag;
 
 import java.io.*;
 
+import static com.rui.util.GlobalParas.logger;
+
 /**
  *  读取文本语料库的接口
  */
@@ -28,13 +30,14 @@ public abstract class WordTagStream {
      * 打开指定的语料库
      * @param corpusPath 指定的语料库路径
      */
-    public void openReadStream(String corpusPath) {
+    public void openReadStream(String corpusPath) throws FileNotFoundException{
         try {
             FileInputStream fis = new FileInputStream(corpusPath);
             InputStreamReader isr = new InputStreamReader(fis);
             this.br = new BufferedReader(isr);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.severe("语料路径不存在，"+e.getMessage());
+            throw e;
         } finally {
         }
     }
@@ -42,13 +45,14 @@ public abstract class WordTagStream {
     /**
      *打开构造器中传入的的语料库
      */
-    public void openReadStream() {
+    public void openReadStream() throws FileNotFoundException{
         try {
             FileInputStream fis = new FileInputStream(this.corpusPath);
             InputStreamReader isr = new InputStreamReader(fis);
             this.br = new BufferedReader(isr);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.severe("语料路径不存在，"+e.getMessage());
+            throw e;
         } finally {
         }
     }
@@ -56,7 +60,7 @@ public abstract class WordTagStream {
     /**
      * 输入流迭代读取每行语料的方法
      */
-    public WordTag[] readSentence() {
+    public WordTag[] readSentence() throws IOException{
         String line = null;
         try {
             line = this.br.readLine();
@@ -67,7 +71,8 @@ public abstract class WordTagStream {
                 return this.readSentence();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("迭代读取文本语料出现错误，"+e.getMessage());
+            throw e;
         } finally {
 
         }
@@ -77,12 +82,12 @@ public abstract class WordTagStream {
     /**
      * 关闭流的方法
      */
-    public void close() {
+    public void close() throws IOException {
         try {
-
             this.br.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("语料读取流无法有效关闭，"+e.getMessage());
+            throw e;
         }
     }
 

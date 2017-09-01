@@ -1,6 +1,10 @@
 package com.rui.stream;
 
 import com.rui.wordtag.WordTag;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import static com.rui.util.GlobalParas.logger;
 
 /**
@@ -14,7 +18,7 @@ public class PeopleDailyWordTagStream extends WordTagStream {
     /**
      * @param corpusPath 语料路径
      */
-    public PeopleDailyWordTagStream(String corpusPath) {
+    public PeopleDailyWordTagStream(String corpusPath) throws ClassNotFoundException,FileNotFoundException{
         this.corpusPath=corpusPath;
         this.openReadStream(corpusPath);
     }

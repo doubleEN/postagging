@@ -13,6 +13,8 @@ import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -79,7 +81,7 @@ public class CrossValidation implements ModelScore {
     }
 
     @Override
-    public void toScore() {
+    public void toScore() throws IOException,FileNotFoundException{
         this.scores = new double[this.fold];
         for (int i = 0; i < this.fold; ++i) {
             this.tagger = this.getTagger(i);
@@ -95,7 +97,7 @@ public class CrossValidation implements ModelScore {
      * @param taggerNO 代表训练集的编号
      * @return 隐藏状态标注器
      */
-    private Tagger getTagger(int taggerNO) {
+    private Tagger getTagger(int taggerNO) throws IOException{
         WordTag[] wts = null;
         int num = 0;
         Tagger tagger = null;
@@ -135,7 +137,7 @@ public class CrossValidation implements ModelScore {
      *
      * @return 一折验证的评分
      */
-    private double estimate(int taggerNo) {
+    private double estimate(int taggerNo) throws IOException{
         WordTag[] wts = null;
         int num = 0;
         String[] predictTags=null;

@@ -5,6 +5,9 @@ import com.rui.util.GlobalParas;
 import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
+
+import java.io.IOException;
+
 import static com.rui.util.GlobalParas.logger;
 
 /**
@@ -74,7 +77,7 @@ public class TrigramParas extends AbstractParas {
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
-    public TrigramParas(WordTagStream stream) {
+    public TrigramParas(WordTagStream stream) throws IOException{
         this.dictionary = new DictFactory();
         this.triNumMatA = new int[1][1][1];
         this.biNumMatA = new int[1][1];
@@ -89,7 +92,7 @@ public class TrigramParas extends AbstractParas {
      * @param tagNum 语料标注集大小
      * @param wordNum 语料词数
      */
-    public TrigramParas(WordTagStream stream,int tagNum, int wordNum) {
+    public TrigramParas(WordTagStream stream,int tagNum, int wordNum)  throws IOException{
         this.dictionary = new DictFactory();
         this.triNumMatA = new int[tagNum][tagNum][tagNum];
         this.biNumMatA = new int[1][1];

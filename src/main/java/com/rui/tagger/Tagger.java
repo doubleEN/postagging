@@ -1,21 +1,13 @@
 package com.rui.tagger;
 
-import com.rui.evaluation.Estimator;
-import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
-import com.rui.model.SecondOrderHMM;
-import com.rui.parameter.AbstractParas;
-import com.rui.parameter.BigramParas;
-import com.rui.parameter.TrigramParas;
-import com.rui.stream.PeopleDailyWordTagStream;
-import com.rui.stream.WordTagStream;
 import com.rui.wordtag.WordTag;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.lang.reflect.Array;
-import java.util.Arrays;
+
+import static com.rui.util.GlobalParas.logger;
 
 /**
  * 标注类。
@@ -37,12 +29,13 @@ public class Tagger {
     /**
      * @param HMMPath 序列化隐马尔科夫模型路径
      */
-    public Tagger(String HMMPath) {
+    public Tagger(String HMMPath) throws IOException,ClassNotFoundException{
         this.hmm = this.readHMM(HMMPath);
     }
 
     /**
      * 返回最可能的标注序列
+     *
      * @param sentences 未标注句子
      * @return 标注结果
      */
@@ -53,8 +46,9 @@ public class Tagger {
 
     /**
      * 返回k个最可能的标注序列
+     *
      * @param sentences 未标注句子
-     * @param k 得到k个局部最优标注，其中排名第一的标注是全局最优
+     * @param k         得到k个局部最优标注，其中排名第一的标注是全局最优
      * @return k个局部最优标注
      */
     public WordTag[][] tagTopK(String sentences, int k) {
@@ -70,7 +64,8 @@ public class Tagger {
 
     /**
      * 词与标注配对
-     * @param words 单词序列
+     *
+     * @param words  单词序列
      * @param tagIds 标注序列
      * @return [Word/Tag]数组
      */
@@ -85,24 +80,28 @@ public class Tagger {
 
     /**
      * 模型反序列化
+     *
      * @param path 列化模型序的路径
      * @return HMM对象
      */
-    private HMM readHMM(String path) {
+    private HMM readHMM(String path) throws ClassNotFoundException, IOException {
         HMM hmm = null;
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(new FileInputStream(path));
             hmm = (HMM) ois.readObject();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("模型序列化路径异常，" + e.getMessage());
+            throw e;
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            logger.severe("模型对象不存在，" + e.getMessage());
+            throw e;
         } finally {
             try {
                 ois.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.severe("模型序列化流关闭异常，" + e.getMessage());
+                throw e;
             }
         }
         return hmm;
