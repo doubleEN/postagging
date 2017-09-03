@@ -25,8 +25,7 @@ import static com.rui.util.GlobalParas.logger;
 public class HMMValidation {
 
     /**
-     * 从指定语料库
-     *
+     * 指定语料库进行模型的验证
      * @param args  [0]:人民日报语料库路径
      *              [1]:n-gram参数，2或者3，分别代表二元或三元
      *              [2]:验证折数，为大于2数字

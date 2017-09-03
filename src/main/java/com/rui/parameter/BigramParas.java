@@ -16,36 +16,42 @@ public class BigramParas extends AbstractParas {
 
     /**
      * 状态转移计数矩阵
+     * 每一行为同一个隐藏转移状态下，转移到可能的下一个隐藏状态的计数，即[t_i]-->[t_i+1]
      */
     private int[][] numMatA;
 
     /**
      * 状态发射计数矩阵
+     * 每一行为同一个隐藏状态下，发射到的可能的同一时刻观察状态的计数[t_i]-->[w_i]
      */
     private int[][] numMatB;
 
     /**
-     * 初始状态计数矩阵
+     * 不同隐藏状态计数矩阵
      */
     private int[] numPi;
 
     /**
      * 留存状态转移计数矩阵
+     * 每一行为同一个隐藏转移状态下，转移到可能的下一个隐藏状态的计数，即[t_i]-->[t_i+1]
      */
     private int[][] holdOut;
 
     /**
-        概率参数
+     * 概率参数
+     * 每一行为同一个隐藏转移状态下，转移到可能的下一个隐藏状态的概率，即 p([t_i]-->[t_i+1])
      */
     private double[][] probMatA;
 
     /**
-        状态转移平滑概率矩阵
+     * 状态转移平滑概率矩阵
+     * 对probMatA的平滑
      */
     private double[][] smoothingMatA;
 
     /**
-        状态发射概率矩阵
+     * 状态发射概率矩阵
+     * 每一行为同一个隐藏转移状态下，发射到可能的同一时刻观察状态的概率,即 P([t_i]-->[w_i])
      */
     private double[][] probMatB;
 

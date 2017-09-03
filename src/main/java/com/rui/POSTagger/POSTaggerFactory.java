@@ -42,7 +42,6 @@ public class POSTaggerFactory {
         System.out.println(Arrays.toString(wts2));
     }
 */
-
     /**
      * 一次验证评估
      *
@@ -57,7 +56,6 @@ public class POSTaggerFactory {
         crossValidation.toScore();
         return crossValidation.getScore();
     }
-
     /**
      * 交叉验证评估
      *
@@ -72,7 +70,6 @@ public class POSTaggerFactory {
         crossValidation.toScore();
         return crossValidation.getScore();
     }
-
     /**
      * 指定语料生成标注器
      *

@@ -29,7 +29,7 @@ public abstract class WordTagStream {
     /**
      * 分割一个句子得到一个WordTag数组
      */
-    public abstract WordTag[] segSentence(String sentence);
+    public abstract WordTag[] segSentence (String sentence)throws IOException;
 
     /**
      *打开构造器中传入的的语料库

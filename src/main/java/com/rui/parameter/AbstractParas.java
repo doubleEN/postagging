@@ -32,7 +32,6 @@ public abstract class AbstractParas implements Serializable {
      * @param stream 读取特点语料的输入流
      */
     protected void initParas(WordTagStream stream) throws IOException{
-        stream.openReadStream();
 
         WordTag[] wts;
         Random generator = new Random(21);
@@ -60,7 +59,7 @@ public abstract class AbstractParas implements Serializable {
      * @param sentence 添加的句子形式的语料
      * @param stream 能够处理sentence的具体流
      */
-    public void addCorpus(String sentence, WordTagStream stream) {
+    public void addCorpus(String sentence, WordTagStream stream) throws IOException{
         WordTag[] wts = stream.segSentence(sentence);
         dictionary.addIndex(wts);
         this.addWordTags(wts);

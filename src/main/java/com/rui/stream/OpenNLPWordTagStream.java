@@ -3,6 +3,7 @@ package com.rui.stream;
 import com.rui.wordtag.WordTag;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import static com.rui.util.GlobalParas.logger;
@@ -31,7 +32,7 @@ public class OpenNLPWordTagStream extends WordTagStream {
      * @return 一行句子对应的[word/tag]数组
      */
     @Override
-    public WordTag[] segSentence(String sentence) {
+    public WordTag[] segSentence(String sentence) throws IOException{
         String[] wordTags = sentence.split("\\s+");
         WordTag[] wt = new WordTag[wordTags.length-1];
 
@@ -40,7 +41,7 @@ public class OpenNLPWordTagStream extends WordTagStream {
             String[] wordAndTag = wordTags[i+1].trim().split("_");
             if (wordAndTag.length != 2) {
                 logger.severe(WordTag.class.getName() + "不合法。");
-                System.exit(1);
+                throw new IOException("不能有效分割单词标注序列："+wordTags[i].toString()+"，默认分割符为_");
             }
             wt[i] = new WordTag(wordAndTag[0], wordAndTag[1]);
         }

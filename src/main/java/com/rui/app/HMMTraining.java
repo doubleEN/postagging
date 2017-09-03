@@ -19,7 +19,10 @@ import static com.rui.util.GlobalParas.logger;
 public class HMMTraining {
     /**
      * 从指定语料库
-     * @param args [0]:人民日报语料库路径 [1]:n-gram参数，2或者3 [2]:模型输出路径  [3]:语料字符编码方式
+     * @param args [0]:人民日报语料库路径
+     *             [1]:n-gram参数，2或者3
+     *             [2]:模型输出路径
+     *             [3]:语料字符编码方式
      */
     public static void main(String[] args) throws ClassNotFoundException,IOException{
         if (args.length != 4) {

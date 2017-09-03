@@ -17,16 +17,20 @@ public class TrigramParas extends AbstractParas {
 
     /**
      * 3-gram状态转移计数矩阵
+     * 三维数组中的每一个三元组代表时序上相连的三元隐藏状态[t_i,t_i+1,t_i+2]
+     * 在相同[t_i,t_i+1]的情况下，下一个可能的隐藏状态的计数，即[t_i,t_i+1]-->[t_i+2]
      */
     private int[][][] triNumMatA;
 
     /**
      * 2-gram状态转移计数矩阵
+     * 每一行为同一个隐藏转移状态下，转移到可能的下一个隐藏状态的计数，[t_i]-->[t_i+1]
      */
     private int[][] biNumMatA;
 
     /**
      * 3-gram状态发射计数矩阵
+     * 每一行为同一个隐藏状态下，转移到的可能的下一个观察状态的计数 [t_i]-->[w_i]
      */
     private int[][] numMatB;
 
@@ -37,31 +41,38 @@ public class TrigramParas extends AbstractParas {
 
     /**
      * 3-gram留存状态转移计数矩阵
+     * 三维数组中的每一个三元组代表时序上相连的三元隐藏状态[t_i,t_i+1,t_i+2]
+     * 在相同[t_i,t_i+1]的情况下，下一个可能的隐藏状态的计数，即[t_i,t_i+1]-->[t_i+2]
      */
     private int[][][] holdOut;
 
     /**
      * 3-gram状态转移概率矩阵
+     * 三维数组中的每一个三元组代表时序上相连的三元隐藏状态[t_i,t_i+1,t_i+2]
+     * 在相同[t_i,t_i+1]的情况下，下一个可能的隐藏状态的概率，即 P([t_i,t_i+1]-->[t_i+2])
      */
     private double[][][] triProbMatA;
 
     /**
      * 2-gram状态转移概率矩阵
+     * 每一行为同一个隐藏转移状态下，转移到可能的下一个隐藏状态的概率，即 p([t_i]-->[t_i+1])
      */
     private double[][] biProbMatA;
 
     /**
      * 3-gram状态转移平滑概率矩阵
+     * 对triProbMatA的平滑
      */
     private double[][][] smoothingMatA;
 
     /**
      * 2-gram状态发射概率矩阵
+     * 每一行为同一个隐藏转移状态下，转移到可能的下一个观察状态的概率,即 P([t_i]-->[w_i])
      */
     private double[][] probMatB;
 
     /**
-     * 3-gram状态转移概率矩阵
+     * 3-gram初始概率矩阵
      */
     private double[] probPi;
 
