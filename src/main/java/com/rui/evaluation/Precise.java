@@ -10,6 +10,10 @@ import static com.rui.util.GlobalParas.logger;
  * 正确率度量
  */
 public class Precise implements Estimator {
+    /**
+     * 是否打印标注错误的句子
+     */
+    boolean printFlag=false;
 
     /**
      * 累积输入评估对象的评估单元总数
@@ -20,6 +24,14 @@ public class Precise implements Estimator {
      * 累积输入评估对象的正确评估单元总数
      */
     private double correctNum;
+
+    public Precise(){
+
+    }
+    public Precise(boolean printFlag){
+        this.printFlag=printFlag;
+    }
+
 
     @Override
     public void eval(DictFactory dict, String unknownSentences, String[] predictedTags, String[] expectedTags) {
@@ -37,8 +49,10 @@ public class Precise implements Estimator {
                 flag = true;
             }
         }
-        if (flag) {
-            this.printTagging(unknownSentences, predictedTags, expectedTags);
+        if (this.printFlag) {
+            if (flag) {
+                this.printTagging(unknownSentences, predictedTags, expectedTags);
+            }
         }
     }
 

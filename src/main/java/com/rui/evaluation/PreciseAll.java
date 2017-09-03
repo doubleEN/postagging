@@ -10,6 +10,18 @@ import java.util.Arrays;
  * 各度量标准的汇总类。
  */
 public class PreciseAll implements Estimator {
+    /**
+     * 是否打印标注错误的句子
+     */
+    boolean printFlag=false;
+
+    public PreciseAll(){
+
+    }
+    public PreciseAll(boolean printFlag){
+        this.printFlag=printFlag;
+    }
+
     @Override
     public void eval(DictFactory dict, String unknownSentences, String[] predictedTags, String[] expectedTags) {
 

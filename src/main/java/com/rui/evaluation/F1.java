@@ -8,6 +8,20 @@ import static com.rui.util.GlobalParas.logger;
  * F1度量
  */
 public class F1 implements Estimator{
+    /**
+     * 是否打印标注错误的句子
+     */
+    boolean printFlag=false;
+
+    private double correctNum;
+
+    public F1(){
+
+    }
+    public F1(boolean printFlag){
+        this.printFlag=printFlag;
+    }
+
 
     @Override
     public void reset() {
