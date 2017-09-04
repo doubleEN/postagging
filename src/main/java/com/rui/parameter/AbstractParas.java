@@ -28,16 +28,25 @@ public abstract class AbstractParas implements Serializable {
     protected boolean calcFlag = false;
 
     /**
+     * 统计语料库规模，并生成映射词典
+     */
+    protected void generateDict(WordTagStream stream)throws IOException{
+        WordTag[]wts;
+        while ((wts=stream.readSentence())!=null) {
+            this.dictionary.addIndex(wts);
+        }
+        stream.close();
+    }
+
+    /**
      * 初始化[语料库]，并计算概率参数的[模板方法]
      * @param stream 读取特点语料的输入流
      */
     protected void initParas(WordTagStream stream) throws IOException{
-
         WordTag[] wts;
         Random generator = new Random(21);
-        while ((wts = stream.readSentence()) != null) {
-            dictionary.addIndex(wts);
 
+        while ((wts = stream.readSentence()) != null) {
             //按[1:3]换分[留存:训练集]
             int randNum = generator.nextInt(4);
             if (randNum == 1) {

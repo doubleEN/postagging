@@ -90,26 +90,13 @@ public class TrigramParas extends AbstractParas {
      */
     public TrigramParas(WordTagStream stream) throws IOException{
         this.dictionary = new DictFactory();
-        this.triNumMatA = new int[1][1][1];
-        this.biNumMatA = new int[1][1];
-        this.holdOut = new int[1][1][1];
-        this.numMatB = new int[1][1];
-        this.numPi = new int[1];
-        this.initParas(stream);
-    }
-
-    /**
-     * @param stream 指明特点语料路径的语料读取流
-     * @param tagNum 语料标注集大小
-     * @param wordNum 语料词数
-     */
-    public TrigramParas(WordTagStream stream,int tagNum, int wordNum)  throws IOException{
-        this.dictionary = new DictFactory();
-        this.triNumMatA = new int[tagNum][tagNum][tagNum];
-        this.biNumMatA = new int[1][1];
-        this.holdOut = new int[tagNum][tagNum][tagNum];
-        this.numMatB = new int[tagNum][wordNum];
-        this.numPi = new int[tagNum];
+        this.generateDict(stream);
+        stream.openReadStream();
+        this.triNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        this.biNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
+        this.numPi = new int[this.dictionary.getSizeOfTags()];
         this.initParas(stream);
     }
 
@@ -168,6 +155,7 @@ public class TrigramParas extends AbstractParas {
     protected void reBuildA() {
         int len=this.dictionary.getSizeOfTags();
         if (len > this.triNumMatA.length) {
+            logger.info("重建了计数数组Matrix A");
             int[][][] newA = new int[len][len][len];
             for (int i = 0; i < this.triNumMatA.length; ++i) {
                 for (int j = 0; j < this.triNumMatA.length; ++j) {
@@ -197,6 +185,7 @@ public class TrigramParas extends AbstractParas {
         int row = this.dictionary.getSizeOfTags() > this.numMatB.length ? this.dictionary.getSizeOfTags() : this.numMatB.length;
         int col = this.dictionary.getSizeOfWords() > this.numMatB[0].length ? this.dictionary.getSizeOfWords() : this.numMatB[0].length;
         int[][] newB = new int[row][col];
+        logger.info("重建了计数数组Matrix B");
         for (int i = 0; i < this.numMatB.length; ++i) {
             for (int j = 0; j < this.numMatB[0].length; ++j) {
                 newB[i][j] = this.numMatB[i][j];
@@ -208,9 +197,9 @@ public class TrigramParas extends AbstractParas {
     @Override
     protected void reBuildPi() {
         int[] pi = new int[this.dictionary.getSizeOfTags()];
+        logger.info("重建了计数数组Matrix PI");
         for (int i = 0; i < this.numPi.length; ++i) {
             pi[i] = this.numPi[i];
-
         }
         this.numPi = pi;
     }
@@ -234,7 +223,7 @@ public class TrigramParas extends AbstractParas {
     protected void expandHoldOut() {
         int len = this.dictionary.getSizeOfTags();
         int[][][] holdOut = new int[len][len][len];
-
+        logger.info("重建了平滑计数数组");
         for (int i = 0; i < this.holdOut.length; ++i) {
             for (int j = 0; j < this.holdOut[0].length; ++j) {
                 for (int k = 0; k < this.holdOut.length; ++k) {

@@ -1,18 +1,23 @@
 package com.rui.parameter;
 
 import com.rui.dictionary.DictFactory;
+import com.rui.model.FirstOrderHMM;
+import com.rui.model.HMM;
+import com.rui.model.SecondOrderHMM;
+import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;
 
 /**
  * 二元语法参数训练。
  */
-public class BigramParas extends AbstractParas {
+public class BigramParas extends AbstractParas{
 
     /**
      * 状态转移计数矩阵
@@ -73,24 +78,12 @@ public class BigramParas extends AbstractParas {
      */
     public BigramParas(WordTagStream stream) throws IOException{
         this.dictionary = new DictFactory();
-        this.numMatA = new int[1][1];
-        this.holdOut = new int[1][1];
-        this.numMatB = new int[1][1];
-        this.numPi = new int[1];
-        this.initParas(stream);
-    }
-
-    /**
-     * @param stream 指明特点语料路径的语料读取流
-     * @param tagNum 语料标注集大小
-     * @param wordNum 语料词数
-     */
-    public BigramParas(WordTagStream stream, int tagNum, int wordNum) throws IOException{
-        this.dictionary = new DictFactory();
-        this.numMatA = new int[tagNum][tagNum];
-        this.holdOut = new int[tagNum][tagNum];
-        this.numMatB = new int[tagNum][wordNum];
-        this.numPi = new int[tagNum];
+        this.generateDict(stream);
+        stream.openReadStream();
+        this.numMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
+        this.numPi = new int[this.dictionary.getSizeOfTags()];
         this.initParas(stream);
     }
 
@@ -141,6 +134,7 @@ public class BigramParas extends AbstractParas {
 
     @Override
     protected void reBuildA() {
+        logger.info("重建了计数数组Matrix A");
         int[][] newA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         for (int i = 0; i < this.numMatA[0].length; ++i) {
             for (int j = 0; j < this.numMatA[0].length; ++j) {
@@ -152,6 +146,7 @@ public class BigramParas extends AbstractParas {
 
     @Override
     protected void reBuildB() {
+        logger.info("重建了计数数组Matrix B");
         int row = this.dictionary.getSizeOfTags() > this.numMatB.length ? this.dictionary.getSizeOfTags() : this.numMatB.length;
         int col = this.dictionary.getSizeOfWords() > this.numMatB[0].length ? this.dictionary.getSizeOfWords() : this.numMatB[0].length;
         int[][] newB = new int[row][col];
@@ -165,6 +160,7 @@ public class BigramParas extends AbstractParas {
 
     @Override
     protected void reBuildPi() {
+        logger.info("重建了计数数组Matrix PI");
         int[] pi = new int[this.dictionary.getSizeOfTags()];
         for (int i = 0; i < this.numPi.length; ++i) {
             pi[i] = this.numPi[i];
@@ -190,7 +186,7 @@ public class BigramParas extends AbstractParas {
     @Override
     protected void expandHoldOut() {
         int[][] holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
-
+        logger.info("重建了平滑计数数组");
         for (int i = 0; i < this.holdOut.length; ++i) {
             for (int j = 0; j < this.holdOut[0].length; ++j) {
                 holdOut[i][j] = this.holdOut[i][j];

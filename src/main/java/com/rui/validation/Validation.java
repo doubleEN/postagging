@@ -29,7 +29,7 @@ import java.util.Set;
 public class Validation implements ModelScore {
 
     public static void main(String[] args) throws Exception{
-        ModelScore modelScore=new Validation(new OpenNLPWordTagStream("/home/mjx/桌面/PoS/corpus/open-pos.txt","gbk"),0.02,NGram.TriGram,new PreciseIV());
+        ModelScore modelScore=new Validation(new OpenNLPWordTagStream("/home/mjx/桌面/PoS/corpus/open-pos.txt","gbk"),0.02,NGram.BiGram,new PreciseIV(true));
         modelScore.toScore();
         System.out.println(modelScore.getScore());
     }
