@@ -11,7 +11,6 @@ import com.rui.model.SecondOrderHMM;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
-import com.rui.stream.OpenNLPWordTagStream;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
@@ -19,6 +18,8 @@ import com.rui.wordtag.WordTag;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -28,11 +29,6 @@ import java.util.Set;
  */
 public class Validation implements ModelScore {
 
-    public static void main(String[] args) throws Exception{
-        ModelScore modelScore=new Validation(new OpenNLPWordTagStream("/home/mjx/桌面/PoS/corpus/open-pos.txt","gbk"),0.02,NGram.BiGram,new PreciseIV(true));
-        modelScore.toScore();
-        System.out.println(modelScore.getScore());
-    }
     /**
      * 标明使用的n-gram
      */
@@ -61,7 +57,7 @@ public class Validation implements ModelScore {
     /**
      * 评估器
      */
-    private Estimator estimator;
+    private Estimator[] estimators;
 
     /**
      * 折数
@@ -76,28 +72,34 @@ public class Validation implements ModelScore {
     /**
      * 验证评分
      */
-    private double score;
+    private double[] scores;
 
-    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram, Estimator estimator) {
+    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram, Estimator... estimators) {
         this.stream = wordTagStream;
         this.ratio = ratio;
         this.nGram = nGram;
-        this.estimator = estimator;
+        this.estimators = estimators;
     }
 
     @Override
     public void toScore() throws FileNotFoundException,IOException{
+        this.scores=new double[estimators.length];
         this.tagger = this.getTagger();
         this.stream.openReadStream();
-        this.score = this.estimate();
+        for (int i=0;i<estimators.length;++i) {
+            this.scores[i] = this.estimate(i);
+            this.stream.openReadStream();
+        }
     }
 
     /**
      * 通过验证集获得隐藏状态标注器
      */
     private Tagger getTagger() throws IOException{
-        WordTag[] wts = null;
 
+
+
+        WordTag[] wts = null;
         Tagger tagger = null;
         Random random = new Random(11);
         double border = 1000 * this.ratio;
@@ -135,7 +137,7 @@ public class Validation implements ModelScore {
      *
      * @return 验证评分
      */
-    private double estimate() throws IOException{
+    private double estimate(int estimatorNo) throws IOException{
         WordTag[] wts = null;
 
         Tagger tagger = null;
@@ -151,10 +153,10 @@ public class Validation implements ModelScore {
                 for (int j = 0; j < predict.length; ++j) {
                     predictTags[j] = predict[j].getTag();
                 }
-                this.estimator.eval(this.dict, this.unknownSentence, predictTags, this.expectedTags);
+                this.estimators[estimatorNo].eval(this.dict, this.unknownSentence, predictTags, this.expectedTags);
             }
         }
-        return this.estimator.getResult();
+        return this.estimators[estimatorNo].getResult();
     }
 
 
@@ -173,7 +175,7 @@ public class Validation implements ModelScore {
     }
 
     @Override
-    public double getScore() {
-        return score;
+    public double[] getScores() {
+        return scores;
     }
 }

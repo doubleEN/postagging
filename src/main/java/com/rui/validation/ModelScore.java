@@ -16,6 +16,6 @@ public interface ModelScore {
     /**
      * 返回模型的评分
      */
-    double getScore();
+    double[] getScores();
 
 }

@@ -12,6 +12,11 @@ import static com.rui.util.GlobalParas.logger;
 public class PreciseOOV implements Estimator {
 
     /**
+     * 是否打印标注错误的句子
+     */
+    boolean printFlag = false;
+
+    /**
      * 累积输入评估对象的评估单元总数
      */
     private double sum;
@@ -21,15 +26,23 @@ public class PreciseOOV implements Estimator {
      */
     private double correctNum;
 
+
+    public PreciseOOV(){
+
+    }
+    public PreciseOOV(boolean printFlag){
+        this.printFlag=printFlag;
+    }
+
     @Override
     public double getResult() {
-         return this.correctNum/this.sum;
+        return this.correctNum / this.sum;
     }
 
     @Override
     public void reset() {
-        this.sum=0;
-        this.correctNum=0;
+        this.sum = 0;
+        this.correctNum = 0;
     }
 
     @Override
@@ -49,10 +62,11 @@ public class PreciseOOV implements Estimator {
                 }
             }
         }
-        if (flag) {
-            this.printTagging(unknownSentences, predictedTags, expectedTags);
+        if (this.printFlag) {
+            if (flag) {
+                this.printTagging(unknownSentences, predictedTags, expectedTags);
+            }
         }
-
     }
 
     @Override

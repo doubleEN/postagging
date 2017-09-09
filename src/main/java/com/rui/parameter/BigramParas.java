@@ -5,6 +5,7 @@ import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
 import com.rui.model.SecondOrderHMM;
 import com.rui.tagger.Tagger;
+import com.rui.util.GlobalMethods;
 import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
@@ -77,8 +78,7 @@ public class BigramParas extends AbstractParas{
      * @param stream 指明特点语料路径的语料读取流
      */
     public BigramParas(WordTagStream stream) throws IOException{
-        this.dictionary = new DictFactory();
-        this.generateDict(stream);
+        this.dictionary=GlobalMethods.generateDict(stream);//一次扫描生成语料库对应的[映射词典]
         stream.openReadStream();
         this.numMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];

@@ -51,10 +51,10 @@ public class POSTaggerFactory {
      * @param estimator 指定度量方式
      * @return 返回评分
      */
-    public static double scoreOnValidation(WordTagStream stream, double ratio, NGram nGram, Estimator estimator) throws IOException{
+    public static double[] scoreOnValidation(WordTagStream stream, double ratio, NGram nGram, Estimator estimator) throws IOException{
         ModelScore crossValidation = new Validation(stream, ratio, nGram, estimator);
         crossValidation.toScore();
-        return crossValidation.getScore();
+        return crossValidation.getScores();
     }
     /**
      * 交叉验证评估
@@ -65,10 +65,10 @@ public class POSTaggerFactory {
      * @param estimator 指定度量方式
      * @return 返回评分
      */
-    public static double crossValidation(WordTagStream stream, int fold, NGram nGram, Estimator estimator) throws IOException{
+    public static double[] crossValidation(WordTagStream stream, int fold, NGram nGram, Estimator estimator) throws IOException{
         ModelScore crossValidation = new CrossValidation(stream, fold, nGram, estimator);
         crossValidation.toScore();
-        return crossValidation.getScore();
+        return crossValidation.getScores();
     }
     /**
      * 指定语料生成标注器

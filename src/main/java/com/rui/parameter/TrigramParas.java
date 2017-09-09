@@ -1,6 +1,7 @@
 package com.rui.parameter;
 
 import com.rui.dictionary.DictFactory;
+import com.rui.util.GlobalMethods;
 import com.rui.util.GlobalParas;
 import com.rui.wordtag.WordTag;
 import com.rui.stream.PeopleDailyWordTagStream;
@@ -89,8 +90,7 @@ public class TrigramParas extends AbstractParas {
      * @param stream 指明特点语料路径的语料读取流
      */
     public TrigramParas(WordTagStream stream) throws IOException{
-        this.dictionary = new DictFactory();
-        this.generateDict(stream);
+        this.dictionary= GlobalMethods.generateDict(stream);//一次扫描生成语料库对应的[映射词典]
         stream.openReadStream();
         this.triNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.biNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];

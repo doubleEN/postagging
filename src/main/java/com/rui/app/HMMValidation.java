@@ -16,6 +16,8 @@ import com.rui.validation.ModelScore;
 import com.rui.validation.NGram;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;
 
@@ -67,7 +69,7 @@ public class HMMValidation {
         }
         ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream(args[0],args[4]), cv, nGram,estimator);
         modelScore.toScore();
-        logger.info("交加验证评分为： "+modelScore.getScore());
+        logger.info("交加验证评分为： "+ Arrays.toString(modelScore.getScores()));
     }
 
 }
