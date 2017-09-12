@@ -33,10 +33,11 @@ public class FirstOrderHMM extends HMM {
         String[] words = sentence.trim().split("\\s+");
         int wordLen = words.length;
         int tagSize = this.hmmParas.getDictionary().getSizeOfTags();
+        //tagIds记录k个最优的标注序列
         int[][] tagIds = new int[k][wordLen];
-
+        //rankProbs记录每次句子概率计算时，每个标注下的最大概率
         this.rankProbs = new double[k][tagSize];
-
+        //indexs记录每次句子概率计算时，每个标注下的最大概率对应的整个标注
         this.indexs = new int[k][tagSize][wordLen];
 
         //计算需要的句子概率
@@ -99,6 +100,7 @@ public class FirstOrderHMM extends HMM {
                 }
                 double[] midProbs = Arrays.copyOf(probs, tagSize);
                 Arrays.sort(midProbs);
+                //k次计算句子的概率的步骤都一样，不一样的是每次转移概率取的第k大的概率
                 for (int i = 0; i < tagSize; ++i) {
                     if (probs[i] == midProbs[tagSize - ranking]) {
                         index = i;
@@ -115,7 +117,7 @@ public class FirstOrderHMM extends HMM {
             }
         }
 
-        //取出最后一列的最大概率并返回
+        //取出最后一列的最大概率并返回，这个概率要放入全部概率中进行排序
         double[] maxProbs = new double[tagSize];
         for (int i = 0; i < tagSize; ++i) {
             maxProbs[i] = sentencesProb[i][wordLen - 1];

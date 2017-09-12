@@ -41,10 +41,8 @@ public abstract class HMM implements Serializable {
     /**
      * HMM序列化
      * @param path 指定的序列化路径
-     * @throws FileNotFoundException
-     * @throws IOException
      */
-    public void writeHMM(String path) throws FileNotFoundException,IOException {
+    public void writeHMM(String path) throws IOException {
         ObjectOutputStream oos = null;
         oos = new ObjectOutputStream(new FileOutputStream(path));
         oos.writeObject(this);
