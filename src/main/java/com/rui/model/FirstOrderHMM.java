@@ -1,9 +1,9 @@
 package com.rui.model;
 
-import com.rui.wordtag.WordTag;
 import com.rui.parameter.AbstractParas;
 
 import static com.rui.util.GlobalParas.logger;
+
 import java.util.Arrays;
 
 /**
@@ -11,136 +11,147 @@ import java.util.Arrays;
  */
 public class FirstOrderHMM extends HMM {
 
-    public static void main(String[] args) {
+    private int[][][] backTrackTool;
+
+    private double[][] allProbs;
+
+
+    public FirstOrderHMM(AbstractParas paras) {
+        this.hmmParas = paras;
     }
 
-    /**
-     * 记录k次viterbi解码中计算得到的句子概率
-     */
-    private double[][] rankProbs;
-
-    /**
-     * 解码时的辅助数组
-     */
-    private int[][][] indexs;
-
-    public FirstOrderHMM(AbstractParas hmmParas) {
-        this.hmmParas = hmmParas;
-    }
-
-    @Override
     public int[][] decode(String sentence, int k) {
-        String[] words = sentence.trim().split("\\s+");
-        int wordLen = words.length;
-        int tagSize = this.hmmParas.getDictionary().getSizeOfTags();
-        //tagIds记录k个最优的标注序列
-        int[][] tagIds = new int[k][wordLen];
-        //rankProbs记录每次句子概率计算时，每个标注下的最大概率
-        this.rankProbs = new double[k][tagSize];
-        //indexs记录每次句子概率计算时，每个标注下的最大概率对应的整个标注
-        this.indexs = new int[k][tagSize][wordLen];
 
-        //计算需要的句子概率
-        for (int rank = 1; rank <= k; ++rank) {
-            this.forward(sentence, rank);
+        //处理k大于标注集大小的边界问题
+        int sizeOfTags = this.hmmParas.getDictionary().getSizeOfTags();
+        if (k > sizeOfTags) {
+            return this.decode(sentence, sizeOfTags);
         }
 
-        WordTag[][] wts = new WordTag[k][wordLen];
-        //找到k个概率最大的句子并解码
-        for (int rank = 1; rank <= k; ++rank) {
-            int index_i = -1;
-            int index_j = -1;
-            double currProb = Math.log(0);
+        String[] words = sentence.trim().split("\\s+");
+        int lenOfSentence = words.length;
 
-            //找到当前概率最大的索引
+        //解码回溯的索引数组：比句子长度短1的，k，标注集大小
+        this.backTrackTool = new int[lenOfSentence - 1][k][sizeOfTags];
+        //记录序列上最有一个节点的k次最有概率值
+        this.allProbs = new double[k][sizeOfTags];
+
+        this.forward(sentence, k);
+
+        int[][] bestKSequence = new int[k][lenOfSentence];
+
+
+        for (int rank = 0; rank < k; ++rank) {
+
+            double no_KProb = Math.log(0);
+
+            int rankIndex = -1, tagIndex = -1;
+
+
             for (int i = 0; i < k; ++i) {
-                for (int j = 0; j < tagSize; ++j) {
-                    if (this.rankProbs[i][j] >=currProb) {
-                        currProb = this.rankProbs[i][j];
-                        index_i = i;
-                        index_j = j;
+                for (int j = 0; j < sizeOfTags; ++j) {
+                    if (this.allProbs[i][j] >= no_KProb) {
+                        rankIndex = i;
+                        tagIndex = j;
+                        no_KProb = this.allProbs[i][j];
                     }
                 }
             }
-            this.rankProbs[index_i][index_j] = Math.log(0);
-            //index_i为第index_i次前向算法，index_j为index_i次前向算法中的某个概率索引
-            tagIds[rank - 1] = this.backTrack(index_i, index_j);
+
+            bestKSequence[rank] = this.backTrack(rankIndex, tagIndex);
+            this.allProbs[rankIndex][tagIndex]=Math.log(0);
         }
-        return tagIds;
+
+        return bestKSequence;
     }
 
-    @Override
-    public void forward(String sentence, int ranking) {
-        String[] words = sentence.split("\\s+");
-        int wordLen = words.length;
-        int tagSize = this.hmmParas.getDictionary().getSizeOfTags();
-        //索引数组差概率数组一位
-        double[][] sentencesProb = new double[tagSize][wordLen];
-        int[][] indexs = new int[tagSize][wordLen];
+    protected void forward(String sentence, int ranks) {
+        int sizeOfTags = this.hmmParas.getDictionary().getSizeOfTags();
+        String[] words = sentence.trim().split("\\s+");
+        int lenOfSentence = words.length;
 
-        //带入初始状态计算第一个观察态概率，不用记录最大值索引
-        for (int i = 0; i < tagSize; ++i) {
-            //句首的未登录词处理
+        //三维：句子长度，k，标注集大小，该三维数组用以记录viterbi产生的中间概率，这个概率是发射过后的概率，而不仅仅是转移后的概率
+        double[][][] midProb = new double[lenOfSentence][ranks][sizeOfTags];
+
+        //计算初始的发射概率，不用记录最大概率索引
+        for (int tagIndex = 0; tagIndex < sizeOfTags; ++tagIndex) {
+            //句首的未登录词处理，log(1)=0
             double launchProb = 0;
             if (this.hmmParas.getDictionary().getWordId(words[0]) != null) {
-                launchProb = Math.log(this.hmmParas.getProbB(i, this.hmmParas.getDictionary().getWordId(words[0])));
+                //发射概率
+                launchProb = Math.log(this.hmmParas.getProbB(tagIndex, this.hmmParas.getDictionary().getWordId(words[0])));
             }
-            sentencesProb[i][0] = Math.log(this.hmmParas.getProbPi(i)) + launchProb;
+            double val = Math.log(this.hmmParas.getProbPi(tagIndex)) + launchProb;
+            //为k次最优赋予相同的初始发射概率
+            for (int rank = 0; rank < ranks; ++rank) {
+                midProb[0][rank][tagIndex] = val;
+            }
         }
 
-        //外层循环：t(i)-->t(i+1)-->w(i+1)
-        for (int wordIndex = 1; wordIndex < wordLen; ++wordIndex) {
-            for (int nextTag = 0; nextTag < tagSize; ++nextTag) {
-                int index = -1;
-                //同一个转移后状态接受的概率存入数组
-                double[] probs = new double[tagSize];
+        //句子在时序上遍历
+        for (int wordIndex = 1; wordIndex < lenOfSentence; ++wordIndex) {
+            //遍历k次最优
+            for (int rank = 0; rank < ranks; ++rank) {
 
-                for (int preTag = 0; preTag < tagSize; ++preTag) {
-                    probs[preTag] = sentencesProb[preTag][wordIndex - 1] + Math.log(this.hmmParas.getProbSmoothA(preTag, nextTag));
-                }
-                double[] midProbs = Arrays.copyOf(probs, tagSize);
-                Arrays.sort(midProbs);
-                //k次计算句子的概率的步骤都一样，不一样的是每次转移概率取的第k大的概率
-                for (int i = 0; i < tagSize; ++i) {
-                    if (probs[i] == midProbs[tagSize - ranking]) {
-                        index = i;
-                        break;
+                //将要转移的下一个隐藏状态
+                for (int currTag = 0; currTag < sizeOfTags; ++currTag) {
+                    double[] tempArr = new double[sizeOfTags];
+
+
+                    //转移前的隐藏状态
+                    for (int preTag = 0; preTag < sizeOfTags; ++preTag) {
+                        tempArr[preTag] = midProb[wordIndex - 1][rank][preTag] + Math.log(this.hmmParas.getProbSmoothA(preTag, currTag));
                     }
+
+                    //获得下一个隐藏状态一定的情况下，概率第k大的转移前状态的索引和概率
+                    int indexOfBestK = -1;
+                    double bestKProb = -1;
+                    //用以找到第k优概率的排序数组
+                    double[] sortedArr = Arrays.copyOf(tempArr, sizeOfTags);
+                    Arrays.sort(sortedArr);
+                    //k次计算句子的概率的步骤都一样，不一样的是每次转移概率取的第k大的概率
+                    for (int i = 0; i < sizeOfTags; ++i) {
+                        if (tempArr[i] == sortedArr[sizeOfTags - rank - 1]) {
+                            indexOfBestK = i;
+                            bestKProb = tempArr[i];
+                            break;
+                        }
+                    }
+                    //回溯用中间数组含义：第rank次最优，时序wordIndex上的currTag状态的最大转移概率对应的上一个隐藏状态是indexOfBestK
+                    this.backTrackTool[wordIndex - 1][rank][currTag] = indexOfBestK;
+
+                    //状态发射时的未登录词处理
+                    double launchProb = 0;
+                    if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
+                        launchProb = Math.log(this.hmmParas.getProbB(currTag, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
+                    }
+
+                    //状态转移和发射的概率积
+                    midProb[wordIndex][rank][currTag] = bestKProb + launchProb;
                 }
-                double launchProb = 0;
-                //未登录词处理
-                if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
-                    launchProb = Math.log(this.hmmParas.getProbB(nextTag, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
-                }
-                sentencesProb[nextTag][wordIndex] = midProbs[tagSize - ranking] + launchProb;
-                indexs[nextTag][wordIndex - 1] = index;
+
+                this.allProbs[rank] = midProb[wordIndex][rank];
             }
         }
 
-        //取出最后一列的最大概率并返回，这个概率要放入全部概率中进行排序
-        double[] maxProbs = new double[tagSize];
-        for (int i = 0; i < tagSize; ++i) {
-            maxProbs[i] = sentencesProb[i][wordLen - 1];
-        }
-        this.indexs[ranking - 1] = indexs;
-        this.rankProbs[ranking - 1] = maxProbs;
     }
 
     @Override
-    public int[] backTrack(int ranking, int... lastIndexs) {
-        if (lastIndexs.length != 1) {
+    public int[] backTrack(int rank, int... lastTagIndexs) {
+        if (lastTagIndexs.length != 1) {
             logger.severe("回溯参数不合法。");
             System.exit(1);
         }
-        int wordLen = this.indexs[0][0].length;
+        int wordLen = this.backTrackTool.length + 1;
         int[] tagIds = new int[wordLen];
-        tagIds[wordLen - 1] = lastIndexs[0];
-        int maxRow = lastIndexs[0];
+        tagIds[wordLen - 1] = lastTagIndexs[0];
+        int maxRow = lastTagIndexs[0];
 
         for (int col = wordLen - 2; col >= 0; --col) {
-            maxRow = this.indexs[ranking][maxRow][col];
+            maxRow = this.backTrackTool[col][rank][maxRow];
             tagIds[col] = maxRow;
         }
         return tagIds;
     }
+
 }

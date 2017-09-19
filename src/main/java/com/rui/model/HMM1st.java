@@ -2,8 +2,11 @@ package com.rui.model;
 
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
+import com.rui.parameter.TrigramParas;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.tagger.Tagger;
+import com.rui.wordtag.WordTag;
+import jdk.nashorn.internal.runtime.WithObject;
 
 import java.util.Arrays;
 
@@ -12,66 +15,83 @@ import static com.rui.util.GlobalParas.logger;
 
 public class HMM1st extends HMM {
 
-    private int[][][] backTrackTool;
+    public static void main(String[] args) throws Exception {
+        AbstractParas paras = new BigramParas(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"));
+        HMM hmm = new HMM1st(paras);
+        Tagger tagger = new Tagger(hmm);
 
-    private double[][] allProbs;
+        System.out.println("no.1:" + Arrays.toString(tagger.tag("好好 学习 ， 天天 向上 。")));
+        WordTag[][] wordTags = tagger.tagTopK("好好 学习 ， 天天 向上 。", 10);
+        for (WordTag[] wts : wordTags) {
+            System.out.println(Arrays.toString(wts));
+        }
+
+    }
+
+    /**
+     * 回溯中间索引数组
+     */
+    private int[][][][] backTrackTool;
+
+    /**
+     * 序列上最后一个节点上每个隐藏状态对应的k个最优概率值
+     */
+    private double[][] lastLayerProbs;
 
 
     public HMM1st(AbstractParas paras) {
         this.hmmParas = paras;
     }
 
-    public int[][] decode(String sentence, int k) {
+    public int[][] decode(String sentence, int topK) {
 
-        //处理k大于标注集大小的边界问题
         int sizeOfTags = this.hmmParas.getDictionary().getSizeOfTags();
-        if (k > sizeOfTags) {
-            return this.decode(sentence, sizeOfTags);
-        }
 
         String[] words = sentence.trim().split("\\s+");
         int lenOfSentence = words.length;
 
-        //解码回溯的索引数组：比句子长度短1的，k，标注集大小
-        this.backTrackTool = new int[lenOfSentence - 1][k][sizeOfTags];
-        //记录序列上最有一个节点的k次最有概率值
-        this.allProbs = new double[k][sizeOfTags];
+        //解码回溯的索引数组
+        this.backTrackTool = new int[lenOfSentence - 1][topK][sizeOfTags][2];
+        //记录序列上最后一个节点每个隐藏状态的k次最优概率值
+        this.lastLayerProbs = new double[topK][sizeOfTags];
 
-        this.forward(sentence, k);
+        this.forward(sentence, topK);
 
-        int[][] bestKSequence = new int[k][lenOfSentence];
+        int[][] bestKSequence = new int[topK][lenOfSentence];
 
 
-        for (int rank = 0; rank < k; ++rank) {
+        for (int rank = 0; rank < topK; ++rank) {
 
-            double no_KProb = Math.log(0);
+            double KProb = Math.log(0);
 
             int rankIndex = -1, tagIndex = -1;
 
 
-            for (int i = 0; i < k; ++i) {
+            for (int i = 0; i < topK; ++i) {
                 for (int j = 0; j < sizeOfTags; ++j) {
-                    if (this.allProbs[i][j] >= no_KProb) {
+                    if (this.lastLayerProbs[i][j] >= KProb) {
                         rankIndex = i;
                         tagIndex = j;
-                        no_KProb = this.allProbs[i][j];
+                        KProb = this.lastLayerProbs[i][j];
                     }
                 }
             }
 
             bestKSequence[rank] = this.backTrack(rankIndex, tagIndex);
+            this.lastLayerProbs[rankIndex][tagIndex] = Math.log(0);
+
         }
 
         return bestKSequence;
     }
 
-    protected void forward(String sentence, int ranks) {
+    protected void forward(String sentence, int topK) {
         int sizeOfTags = this.hmmParas.getDictionary().getSizeOfTags();
         String[] words = sentence.trim().split("\\s+");
         int lenOfSentence = words.length;
 
         //三维：句子长度，k，标注集大小，该三维数组用以记录viterbi产生的中间概率，这个概率是发射过后的概率，而不仅仅是转移后的概率
-        double[][][] midProb = new double[lenOfSentence][ranks][sizeOfTags];
+        double[][][] midProb = new double[lenOfSentence][topK][sizeOfTags];
 
         //计算初始的发射概率，不用记录最大概率索引
         for (int tagIndex = 0; tagIndex < sizeOfTags; ++tagIndex) {
@@ -83,7 +103,7 @@ public class HMM1st extends HMM {
             }
             double val = Math.log(this.hmmParas.getProbPi(tagIndex)) + launchProb;
             //为k次最优赋予相同的初始发射概率
-            for (int rank = 0; rank < ranks; ++rank) {
+            for (int rank = 0; rank < topK; ++rank) {
                 midProb[0][rank][tagIndex] = val;
             }
         }
@@ -91,49 +111,55 @@ public class HMM1st extends HMM {
         //句子在时序上遍历
         for (int wordIndex = 1; wordIndex < lenOfSentence; ++wordIndex) {
             //遍历k次最优
-            for (int rank = 0; rank < ranks; ++rank) {
 
-                //将要转移的下一个隐藏状态
-                for (int currTag = 0; currTag < sizeOfTags; ++currTag) {
-                    double[] tempArr = new double[sizeOfTags];
+            //将要转移的下一个隐藏状态
+            for (int currTag = 0; currTag < sizeOfTags; ++currTag) {
 
+                //记录下一个隐藏状态固定的情况下，所有k*sizeOfTags个概率
+                double[][] tempArr = new double[topK][sizeOfTags];
+
+                for (int rank = 0; rank < topK; ++rank) {
 
                     //转移前的隐藏状态
                     for (int preTag = 0; preTag < sizeOfTags; ++preTag) {
-                        tempArr[preTag] = midProb[wordIndex - 1][rank][preTag] + Math.log(this.hmmParas.getProbSmoothA(preTag, currTag));
+                        tempArr[rank][preTag] = midProb[wordIndex - 1][rank][preTag] + Math.log(this.hmmParas.getProbSmoothA(preTag, currTag));
                     }
+                }
 
-                    //获得下一个隐藏状态一定的情况下，概率第k大的转移前状态的索引和概率
-                    int indexOfBestK = -1;
-                    double bestKProb = -1;
-                    //用以找到第k优概率的排序数组
-                    double[] sortedArr = Arrays.copyOf(tempArr, sizeOfTags);
-                    Arrays.sort(sortedArr);
-                    //k次计算句子的概率的步骤都一样，不一样的是每次转移概率取的第k大的概率
-                    for (int i = 0; i < sizeOfTags; ++i) {
-                        if (tempArr[i] == sortedArr[sizeOfTags - rank - 1]) {
-                            indexOfBestK = i;
-                            bestKProb = tempArr[i];
-                            break;
+                //在下一个状态固定的情况下，找到当前ranks*sizeOfTags中最优的ranks个概率
+                for (int countK = 0; countK < topK; ++countK) {
+
+                    double maxProb = Math.log(0);
+
+                    int max_i = -1, max_j = -1;
+                    for (int rank2 = 0; rank2 < topK; ++rank2) {
+                        for (int tagIndex = 0; tagIndex < sizeOfTags; ++tagIndex) {
+                            if (maxProb <= tempArr[rank2][tagIndex]) {
+                                maxProb = tempArr[rank2][tagIndex];
+                                max_i = rank2;
+                                max_j = tagIndex;
+                            }
+
                         }
+
                     }
-                    //回溯用中间数组含义：第rank次最优，时序wordIndex上的currTag状态的最大转移概率对应的上一个隐藏状态是indexOfBestK
-                    this.backTrackTool[wordIndex - 1][rank][currTag] = indexOfBestK;
+                    //回溯用中间数组含义：记录下当前隐藏状态currTag下第countK优的概率对应的上一个k和隐藏状态
+                    this.backTrackTool[wordIndex - 1][countK][currTag] = new int[]{max_i, max_j};
 
                     //状态发射时的未登录词处理
                     double launchProb = 0;
                     if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
                         launchProb = Math.log(this.hmmParas.getProbB(currTag, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
                     }
+                    midProb[wordIndex][countK][currTag] = maxProb + launchProb;
 
-                    //状态转移和发射的概率积
-                    midProb[wordIndex][rank][currTag] = bestKProb + launchProb;
+                    //排除已找到的最大概率
+                    tempArr[max_i][max_j] = Math.log(0);
                 }
-
-                this.allProbs[rank] = midProb[wordIndex][rank];
             }
         }
-
+        //只需要最后一层每个隐藏状态的k个最优概率
+        this.lastLayerProbs = midProb[lenOfSentence - 1];
     }
 
     @Override
@@ -145,12 +171,14 @@ public class HMM1st extends HMM {
         int wordLen = this.backTrackTool.length + 1;
         int[] tagIds = new int[wordLen];
         tagIds[wordLen - 1] = lastTagIndexs[0];
-        int maxRow = lastTagIndexs[0];
+        int[] maxRow = new int[]{rank, lastTagIndexs[0]};
 
         for (int col = wordLen - 2; col >= 0; --col) {
-            maxRow = this.backTrackTool[col][rank][maxRow];
-            tagIds[col] = maxRow;
+            maxRow = this.backTrackTool[col][maxRow[0]][maxRow[1]];
+            //只取固定的rank下的一个标注序列
+            tagIds[col] = maxRow[1];
         }
+        System.out.println(Arrays.toString(tagIds));
         return tagIds;
     }
 }

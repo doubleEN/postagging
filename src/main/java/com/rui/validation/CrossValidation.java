@@ -4,6 +4,7 @@ import com.rui.dictionary.DictFactory;
 import com.rui.evaluation.*;
 import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
+import com.rui.model.HMM1st;
 import com.rui.model.SecondOrderHMM;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
@@ -21,6 +22,14 @@ import java.util.*;
  * 交叉验证
  */
 public class CrossValidation implements ModelScore {
+
+    public static void main(String[] args) throws Exception{
+        ModelScore modelScore=new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"),5,NGram.BiGram,new PreciseIV(),new PreciseOOV());
+        modelScore.toScore();
+        System.out.println(Arrays.toString(modelScore.getScores()));
+        //[0.9193199381761978, 0.0] validation
+        //[0.9227914082549832, 0.4101969952509756]
+    }
     /**
      * 标明使用的n-gram
      */
@@ -110,7 +119,7 @@ public class CrossValidation implements ModelScore {
         HMM hmm = null;
         if (this.nGram == NGram.BiGram) {
             paras = new BigramParas();
-            hmm = new FirstOrderHMM(paras);
+            hmm = new HMM1st(paras);
         } else if (this.nGram == NGram.TriGram) {
             paras = new TrigramParas();
             hmm = new SecondOrderHMM(paras);
