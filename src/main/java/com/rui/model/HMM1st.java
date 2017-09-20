@@ -58,14 +58,9 @@ public class HMM1st extends HMM {
         this.forward(sentence, topK);
 
         int[][] bestKSequence = new int[topK][lenOfSentence];
-
-
         for (int rank = 0; rank < topK; ++rank) {
-
             double KProb = Math.log(0);
-
             int rankIndex = -1, tagIndex = -1;
-
 
             for (int i = 0; i < topK; ++i) {
                 for (int j = 0; j < sizeOfTags; ++j) {
@@ -79,16 +74,14 @@ public class HMM1st extends HMM {
 
             bestKSequence[rank] = this.backTrack(rankIndex, tagIndex);
             this.lastLayerProbs[rankIndex][tagIndex] = Math.log(0);
-
         }
-
         return bestKSequence;
     }
 
     protected void forward(String sentence, int topK) {
-        int sizeOfTags = this.hmmParas.getDictionary().getSizeOfTags();
         String[] words = sentence.trim().split("\\s+");
         int lenOfSentence = words.length;
+        int sizeOfTags = this.hmmParas.getDictionary().getSizeOfTags();
 
         //三维：句子长度，k，标注集大小，该三维数组用以记录viterbi产生的中间概率，这个概率是发射过后的概率，而不仅仅是转移后的概率
         double[][][] midProb = new double[lenOfSentence][topK][sizeOfTags];
@@ -110,7 +103,6 @@ public class HMM1st extends HMM {
 
         //句子在时序上遍历
         for (int wordIndex = 1; wordIndex < lenOfSentence; ++wordIndex) {
-            //遍历k次最优
 
             //将要转移的下一个隐藏状态
             for (int currTag = 0; currTag < sizeOfTags; ++currTag) {
@@ -130,8 +122,8 @@ public class HMM1st extends HMM {
                 for (int countK = 0; countK < topK; ++countK) {
 
                     double maxProb = Math.log(0);
-
                     int max_i = -1, max_j = -1;
+
                     for (int rank2 = 0; rank2 < topK; ++rank2) {
                         for (int tagIndex = 0; tagIndex < sizeOfTags; ++tagIndex) {
                             if (maxProb <= tempArr[rank2][tagIndex]) {

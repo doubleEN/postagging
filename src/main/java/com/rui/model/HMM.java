@@ -21,7 +21,7 @@ public abstract class HMM implements Serializable {
      * @param k 最可能的标注序列个数
      * @return k个最可能的标注序列的id序列
      */
-    public abstract int[][] decode(String sentence, int k);
+    public abstract int[][] decode(String sentence, int topK);
 
     /**
      * 获得句子可能的标注中，第[ranking]大的概率
@@ -36,7 +36,7 @@ public abstract class HMM implements Serializable {
      * @param lastIndexs 计算指定排名句子概率的最后一个词对应的标注id
      * @return 指定的概率排名下的标注序列
      */
-    protected abstract int[] backTrack(int ranking, int... lastIndexs);
+    protected abstract int[] backTrack(int ranking, int... lastTagIndexs);
 
     /**
      * HMM序列化
