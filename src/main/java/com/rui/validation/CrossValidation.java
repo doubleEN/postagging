@@ -2,10 +2,7 @@ package com.rui.validation;
 
 import com.rui.dictionary.DictFactory;
 import com.rui.evaluation.*;
-import com.rui.model.FirstOrderHMM;
-import com.rui.model.HMM;
-import com.rui.model.HMM1st;
-import com.rui.model.SecondOrderHMM;
+import com.rui.model.*;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
@@ -122,7 +119,7 @@ public class CrossValidation implements ModelScore {
             hmm = new HMM1st(paras);
         } else if (this.nGram == NGram.TriGram) {
             paras = new TrigramParas();
-            hmm = new SecondOrderHMM(paras);
+            hmm = new HMM2nd(paras);
         }
 
         while ((wts = this.stream.readSentence()) != null) {

@@ -5,10 +5,7 @@ import com.rui.evaluation.Estimator;
 import com.rui.evaluation.Precise;
 import com.rui.evaluation.PreciseIV;
 import com.rui.evaluation.PreciseOOV;
-import com.rui.model.FirstOrderHMM;
-import com.rui.model.HMM;
-import com.rui.model.HMM1st;
-import com.rui.model.SecondOrderHMM;
+import com.rui.model.*;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
@@ -27,9 +24,19 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * 一次验证评估，按比例划分语料
+ * 一次验证评估，按比例划分语料。
  */
 public class Validation implements ModelScore {
+
+    public static void main(String[] args) throws Exception{
+        ModelScore modelScore=new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt","utf-8"),10, NGram.TriGram,new PreciseIV(),new PreciseOOV());
+        modelScore.toScore();
+        System.out.println(Arrays.toString(modelScore.getScores()));
+
+        ModelScore modelScore2=new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt","utf-8"),0.001, NGram.TriGram,new PreciseIV(),new PreciseOOV());
+        modelScore2.toScore();
+        System.out.println(Arrays.toString(modelScore2.getScores()));
+    }
 
     /**
      * 标明使用的n-gram
@@ -84,7 +91,7 @@ public class Validation implements ModelScore {
     }
 
     @Override
-    public void toScore() throws FileNotFoundException,IOException{
+    public void toScore() throws IOException{
         this.scores=new double[estimators.length];
         this.tagger = this.getTagger();
         this.stream.openReadStream();
@@ -113,7 +120,7 @@ public class Validation implements ModelScore {
             hmm = new HMM1st(paras);
         } else if (this.nGram == NGram.TriGram) {
             paras = new TrigramParas();
-            hmm = new SecondOrderHMM(paras);
+            hmm = new HMM2nd(paras);
         }
 
         while ((wts = this.stream.readSentence()) != null) {

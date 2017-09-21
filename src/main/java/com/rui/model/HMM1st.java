@@ -170,7 +170,6 @@ public class HMM1st extends HMM {
             //只取固定的rank下的一个标注序列
             tagIds[col] = maxRow[1];
         }
-        System.out.println(Arrays.toString(tagIds));
         return tagIds;
     }
 }
