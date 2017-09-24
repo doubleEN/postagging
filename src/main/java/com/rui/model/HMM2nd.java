@@ -1,6 +1,13 @@
 package com.rui.model;
 
 import com.rui.parameter.AbstractParas;
+import com.rui.parameter.BigramParas;
+import com.rui.parameter.TrigramParas;
+import com.rui.stream.PeopleDailyWordTagStream;
+import com.rui.tagger.Tagger;
+import com.rui.wordtag.WordTag;
+
+import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;
 
@@ -8,6 +15,16 @@ import static com.rui.util.GlobalParas.logger;
  * 二阶隐马尔科夫。
  */
 public class HMM2nd extends HMM {
+
+    public static void main(String[] args) throws Exception {
+        AbstractParas paras = new BigramParas(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"));
+        HMM hmm = new HMM1st(paras);
+        Tagger tagger = new Tagger(hmm);
+        WordTag[][] wordTags = tagger.tagTopK("学习 自然 语言 。", 4);
+        for (WordTag[] wts : wordTags) {
+            System.out.println(Arrays.toString(wts));
+        }
+    }
 
     /**
      * 回溯中间索引数组
@@ -161,32 +178,35 @@ public class HMM2nd extends HMM {
         //处理t_2以后的状态
         //O(topK*sizeOfTags*sizeOfTags*sizeOfTags*sizeOfTags)
         for (int wordIndex = 2; wordIndex < lenOfSentence; ++wordIndex) {
-
             //一个三元：tag_i,tag_j,tag_k
             for (int tag_k = 0; tag_k < sizeOfTags; ++tag_k) {
 
 
                 for (int tag_j = 0; tag_j < sizeOfTags; ++tag_j) {
+
                     //记录tag_j,tag_k固定的情况下，所有 k*sizeOfTags 个概率
                     double[][] tempArr = new double[topK][sizeOfTags];
                     for (int rank = 0; rank < topK; ++rank) {
                         for (int tag_i = 0; tag_i < sizeOfTags; ++tag_i) {
                             //当tag_j,tag_k固定的情况下，计算并记录转移到tag_k的前topK个概率
                             //概率转移：[i,j]--> k
+
                             tempArr[rank][tag_i] = midProb[wordIndex - 1][rank][tag_i][tag_j] + Math.log(this.hmmParas.getProbSmoothA(tag_i, tag_j, tag_k));
                         }
-
                     }
-                    //找到 k*sizeOfTags*sizeOfTags 个概率中的topK
+
                     for (int rankCount = 0; rankCount < topK; ++rankCount) {
+
                         double maxProb = Math.log(0);
                         int max_i = -1, max_rank = -1;
+
                         for (int rank2 = 0; rank2 < topK; ++rank2) {
                             for (int i = 0; i < sizeOfTags; ++i) {
+
                                 if (maxProb <= tempArr[rank2][i]) {
                                     maxProb = tempArr[rank2][i];
-                                    max_i = i;
                                     max_rank = rank2;
+                                    max_i = i;
                                 }
                             }
                         }
@@ -201,12 +221,18 @@ public class HMM2nd extends HMM {
                         }
                         midProb[wordIndex][rankCount][tag_j][tag_k] = maxProb + launchProb;
 
-                        //排除已找到的最大概率
-                        tempArr[max_rank][max_i] = Math.log(0);
+                        //重构版本为什么总是在最后一个节点向下溢出
+                        for (int i=0;i<topK;++i) {
+                            for (int j=0;j<sizeOfTags;++j) {
+                                if (tempArr[max_rank][max_i] == tempArr[i][j]) {
+                                    //排除已找到的最大概率
+                                    tempArr[i][j]=Math.log(0);
+                                }
+                            }
+                        }
                     }
                 }
             }
-
         }
         //只需要最后一层每个隐藏状态的k个最优概率
         this.lastLayerProbs = midProb[lenOfSentence - 1];

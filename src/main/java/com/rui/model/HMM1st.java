@@ -1,14 +1,6 @@
 package com.rui.model;
 
 import com.rui.parameter.AbstractParas;
-import com.rui.parameter.BigramParas;
-import com.rui.parameter.TrigramParas;
-import com.rui.stream.PeopleDailyWordTagStream;
-import com.rui.tagger.Tagger;
-import com.rui.wordtag.WordTag;
-import jdk.nashorn.internal.runtime.WithObject;
-
-import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;
 
@@ -16,19 +8,6 @@ import static com.rui.util.GlobalParas.logger;
  * 一阶隐马尔科夫。
  */
 public class HMM1st extends HMM {
-
-    public static void main(String[] args) throws Exception {
-        AbstractParas paras = new BigramParas(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"));
-        HMM hmm = new HMM1st(paras);
-        Tagger tagger = new Tagger(hmm);
-
-        System.out.println("no.1:" + Arrays.toString(tagger.tag("好好 学习 ， 天天 向上 。")));
-        WordTag[][] wordTags = tagger.tagTopK("好好 学习 ， 天天 向上 。", 10);
-        for (WordTag[] wts : wordTags) {
-            System.out.println(Arrays.toString(wts));
-        }
-
-    }
 
     /**
      * 回溯中间索引数组
@@ -60,6 +39,7 @@ public class HMM1st extends HMM {
         this.forward(sentence, topK);
 
         int[][] bestKSequence = new int[topK][lenOfSentence];
+
         for (int rank = 0; rank < topK; ++rank) {
             double KProb = Math.log(0);
             int rankIndex = -1, tagIndex = -1;
@@ -77,6 +57,7 @@ public class HMM1st extends HMM {
             bestKSequence[rank] = this.backTrack(rankIndex, tagIndex);
             this.lastLayerProbs[rankIndex][tagIndex] = Math.log(0);
         }
+
         return bestKSequence;
     }
 
@@ -121,6 +102,7 @@ public class HMM1st extends HMM {
                 }
 
                 //在下一个状态固定的情况下，找到当前ranks*sizeOfTags中最优的ranks个概率
+                double[] repeatedProbs = new double[topK];
                 for (int countK = 0; countK < topK; ++countK) {
 
                     double maxProb = Math.log(0);
@@ -128,7 +110,13 @@ public class HMM1st extends HMM {
 
                     for (int rank2 = 0; rank2 < topK; ++rank2) {
                         for (int tagIndex = 0; tagIndex < sizeOfTags; ++tagIndex) {
-                            if (maxProb <= tempArr[rank2][tagIndex]) {
+                            /*
+                            在序列的t_0节点，各个rank下同一个currTag的概率是一样的
+                            此后t_1到t_n-1上，存在不同rank下相同状态转移关系[preTag-->currTag]上概率一样的情况，而且这种一样的概率会沿着序列进行传播，从而导致k个最优序列结果是一样的
+                            所以，在确定的[preTag-->currTag]下，在大小为[topK*sizeOfTags]的tempArr上，每找到一个最优概率，都要判断这个概率值是否已经被找到过
+                            问题：是否会发生二阶HMM的溢出问题？
+                             */
+                            if (maxProb <= tempArr[rank2][tagIndex] && !this.isRepeated(tempArr[rank2][tagIndex], repeatedProbs)) {
                                 maxProb = tempArr[rank2][tagIndex];
                                 max_i = rank2;
                                 max_j = tagIndex;
@@ -148,12 +136,25 @@ public class HMM1st extends HMM {
                     midProb[wordIndex][countK][currTag] = maxProb + launchProb;
 
                     //排除已找到的最大概率
-                    tempArr[max_i][max_j] = Math.log(0);
+                    repeatedProbs[countK] = tempArr[max_i][max_j];
                 }
             }
         }
+
         //只需要最后一层每个隐藏状态的k个最优概率
         this.lastLayerProbs = midProb[lenOfSentence - 1];
+    }
+
+    /**
+     * 判断概率probability，是否存在于概率集合repeatedProbs中
+     */
+    private boolean isRepeated(double probability, double[] repeatedProbs) {
+        for (double p : repeatedProbs) {
+            if (probability == p) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
