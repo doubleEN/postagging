@@ -4,19 +4,12 @@ import com.rui.evaluation.Estimator;
 import com.rui.evaluation.Precise;
 import com.rui.evaluation.PreciseIV;
 import com.rui.evaluation.PreciseOOV;
-import com.rui.model.FirstOrderHMM;
-import com.rui.model.HMM;
-import com.rui.model.SecondOrderHMM;
-import com.rui.parameter.AbstractParas;
-import com.rui.parameter.BigramParas;
-import com.rui.parameter.TrigramParas;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.validation.CrossValidation;
 import com.rui.validation.ModelScore;
 import com.rui.validation.NGram;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;

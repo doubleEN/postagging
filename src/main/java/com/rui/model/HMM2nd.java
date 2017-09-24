@@ -1,17 +1,12 @@
 package com.rui.model;
 
-import com.rui.evaluation.PreciseIV;
-import com.rui.evaluation.PreciseOOV;
 import com.rui.parameter.AbstractParas;
-import com.rui.stream.PeopleDailyWordTagStream;
-import com.rui.validation.CrossValidation;
-import com.rui.validation.ModelScore;
-import com.rui.validation.NGram;
-
-import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;
 
+/**
+ * 二阶隐马尔科夫。
+ */
 public class HMM2nd extends HMM {
 
     /**

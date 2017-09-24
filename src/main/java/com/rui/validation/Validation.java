@@ -29,11 +29,7 @@ import java.util.Set;
 public class Validation implements ModelScore {
 
     public static void main(String[] args) throws Exception{
-        ModelScore modelScore=new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt","utf-8"),10, NGram.TriGram,new PreciseIV(),new PreciseOOV());
-        modelScore.toScore();
-        System.out.println(Arrays.toString(modelScore.getScores()));
-
-        ModelScore modelScore2=new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt","utf-8"),0.001, NGram.TriGram,new PreciseIV(),new PreciseOOV());
+        ModelScore modelScore2=new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt","utf-8"),0.001, NGram.BiGram,new PreciseIV(),new PreciseOOV());
         modelScore2.toScore();
         System.out.println(Arrays.toString(modelScore2.getScores()));
     }

@@ -12,7 +12,9 @@ import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;
 
-
+/**
+ * 一阶隐马尔科夫。
+ */
 public class HMM1st extends HMM {
 
     public static void main(String[] args) throws Exception {

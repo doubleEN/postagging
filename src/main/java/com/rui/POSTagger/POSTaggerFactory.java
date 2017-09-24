@@ -1,9 +1,9 @@
 package com.rui.POSTagger;
 
 import com.rui.evaluation.Estimator;
-import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
-import com.rui.model.SecondOrderHMM;
+import com.rui.model.HMM1st;
+import com.rui.model.HMM2nd;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
@@ -84,10 +84,10 @@ public class POSTaggerFactory {
         HMM hmm = null;
         if (nGram == NGram.BiGram) {
             paras = new BigramParas(stream);
-            hmm = new FirstOrderHMM(paras);
+            hmm = new HMM1st(paras);
         } else if (nGram == NGram.TriGram) {
             paras = new TrigramParas(stream);
-            hmm = new SecondOrderHMM(paras);
+            hmm = new HMM2nd(paras);
         }
 
         hmm.writeHMM(writePath);
@@ -107,11 +107,11 @@ public class POSTaggerFactory {
         HMM hmm = null;
         if (nGram == NGram.BiGram) {
             paras = new BigramParas(stream);
-            hmm = new FirstOrderHMM(paras);
+            hmm = new HMM1st(paras);
             tagger = new Tagger(hmm);
         } else if (nGram == NGram.TriGram) {
             paras = new TrigramParas(stream);
-            hmm = new SecondOrderHMM(paras);
+            hmm = new HMM2nd(paras);
             tagger = new Tagger(hmm);
         }
 

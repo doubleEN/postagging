@@ -1,13 +1,6 @@
 package com.rui.app;
 
 import com.rui.POSTagger.POSTaggerFactory;
-import com.rui.model.FirstOrderHMM;
-import com.rui.model.HMM;
-import com.rui.model.SecondOrderHMM;
-import com.rui.parameter.AbstractParas;
-import com.rui.parameter.BigramParas;
-import com.rui.parameter.TrigramParas;
-import com.rui.stream.OpenNLPWordTagStream;
 import com.rui.tagger.Tagger;
 
 import java.io.IOException;
