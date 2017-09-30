@@ -4,18 +4,13 @@ import com.rui.evaluation.Estimator;
 import com.rui.evaluation.Precise;
 import com.rui.evaluation.PreciseIV;
 import com.rui.evaluation.PreciseOOV;
-import com.rui.model.FirstOrderHMM;
-import com.rui.model.HMM;
-import com.rui.model.SecondOrderHMM;
-import com.rui.parameter.AbstractParas;
-import com.rui.parameter.BigramParas;
-import com.rui.parameter.TrigramParas;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.validation.CrossValidation;
 import com.rui.validation.ModelScore;
 import com.rui.validation.NGram;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;
 
@@ -67,7 +62,7 @@ public class HMMValidation {
         }
         ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream(args[0],args[4]), cv, nGram,estimator);
         modelScore.toScore();
-        logger.info("交加验证评分为： "+modelScore.getScore());
+        logger.info("交加验证评分为： "+ Arrays.toString(modelScore.getScores()));
     }
 
 }

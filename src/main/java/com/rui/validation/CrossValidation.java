@@ -2,9 +2,7 @@ package com.rui.validation;
 
 import com.rui.dictionary.DictFactory;
 import com.rui.evaluation.*;
-import com.rui.model.FirstOrderHMM;
-import com.rui.model.HMM;
-import com.rui.model.SecondOrderHMM;
+import com.rui.model.*;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
@@ -21,6 +19,14 @@ import java.util.*;
  * 交叉验证
  */
 public class CrossValidation implements ModelScore {
+
+    public static void main(String[] args) throws Exception{
+        ModelScore modelScore=new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"),5,NGram.BiGram,new PreciseIV(),new PreciseOOV());
+        modelScore.toScore();
+        System.out.println(Arrays.toString(modelScore.getScores()));
+        //[0.9193199381761978, 0.0] validation
+        //[0.9227914082549832, 0.4101969952509756]
+    }
     /**
      * 标明使用的n-gram
      */
@@ -50,7 +56,7 @@ public class CrossValidation implements ModelScore {
     /**
      * 评估器
      */
-    private Estimator estimator;
+    private Estimator[] estimators;
 
     /**
      * 折数
@@ -65,39 +71,42 @@ public class CrossValidation implements ModelScore {
     /**
      * 每折验证的评分
      */
-    private double[] scores;
+    private double[][] scores;
 
     /**
      * @param wordTagStream 包含特点语料路径的语料读取流
-     * @param fold 交叉验证折数
-     * @param nGram 语法参数
-     * @param estimator 评估方式
+     * @param fold          交叉验证折数
+     * @param nGram         语法参数
+     * @param estimators    评估方式
      */
-    public CrossValidation(WordTagStream wordTagStream, int fold, NGram nGram, Estimator estimator) {
+    public CrossValidation(WordTagStream wordTagStream, int fold, NGram nGram, Estimator... estimators) {
         this.stream = wordTagStream;
         this.fold = fold;
         this.nGram = nGram;
-        this.estimator = estimator;
+        this.estimators = estimators;
     }
 
     @Override
-    public void toScore() throws IOException,FileNotFoundException{
-        this.scores = new double[this.fold];
+    public void toScore() throws IOException, FileNotFoundException {
+        this.scores = new double[this.fold][this.estimators.length];
         for (int i = 0; i < this.fold; ++i) {
             this.tagger = this.getTagger(i);
             this.stream.openReadStream();
-            this.scores[i] = this.estimate(i);
-            this.stream.openReadStream();
-            this.estimator.reset();
+            for (int j = 0; j < this.estimators.length; ++j) {
+                this.scores[i][j] = this.estimate(i, j);
+                this.stream.openReadStream();
+                this.estimators[j].reset();
+            }
         }
     }
 
     /**
      * 获得指定训练集上训练的隐藏状态标注器
+     *
      * @param taggerNO 代表训练集的编号
      * @return 隐藏状态标注器
      */
-    private Tagger getTagger(int taggerNO) throws IOException{
+    private Tagger getTagger(int taggerNO) throws IOException {
         WordTag[] wts = null;
         int num = 0;
         Tagger tagger = null;
@@ -107,10 +116,10 @@ public class CrossValidation implements ModelScore {
         HMM hmm = null;
         if (this.nGram == NGram.BiGram) {
             paras = new BigramParas();
-            hmm = new FirstOrderHMM(paras);
+            hmm = new HMM1st(paras);
         } else if (this.nGram == NGram.TriGram) {
             paras = new TrigramParas();
-            hmm = new SecondOrderHMM(paras);
+            hmm = new HMM2nd(paras);
         }
 
         while ((wts = this.stream.readSentence()) != null) {
@@ -137,10 +146,10 @@ public class CrossValidation implements ModelScore {
      *
      * @return 一折验证的评分
      */
-    private double estimate(int taggerNo) throws IOException{
+    private double estimate(int taggerNo, int estimatorNo) throws IOException {
         WordTag[] wts = null;
         int num = 0;
-        String[] predictTags=null;
+        String[] predictTags = null;
 
         while ((wts = this.stream.readSentence()) != null) {
             if (num % this.fold == taggerNo) {
@@ -151,15 +160,16 @@ public class CrossValidation implements ModelScore {
                 for (int j = 0; j < predict.length; ++j) {
                     predictTags[j] = predict[j].getTag();
                 }
-                this.estimator.eval(this.dict,this.unknownSentence,predictTags,this.expectedTags);
+                this.estimators[estimatorNo].eval(this.dict, this.unknownSentence, predictTags, this.expectedTags);
             }
             ++num;
         }
-        return estimator.getResult();
+        return estimators[estimatorNo].getResult();
     }
 
     /**
      * 分割验证集观察状态和隐藏状态
+     *
      * @param wts 带标注的句子
      */
     private void getTagOfValidation(WordTag[] wts) {
@@ -176,18 +186,17 @@ public class CrossValidation implements ModelScore {
      * @return 返回此次验证评分
      */
     @Override
-    public double getScore() {
-        double sum = 0;
-        for (double score : scores) {
-            sum += score;
+    public double[] getScores() {
+        double[] sums = new double[this.estimators.length];
+
+        for (int j = 0; j < this.estimators.length; ++j) {
+            double sum = 0.0;
+            for (int i = 0; i < this.fold; ++i) {
+                sum += this.scores[i][j];
+            }
+            sums[j] = sum / this.fold;
         }
-        return sum / scores.length;
+        return sums;
     }
 
-    /**
-     * 返回每折评分结果
-     */
-    public double[] getScores() {
-        return this.scores;
-    }
 }

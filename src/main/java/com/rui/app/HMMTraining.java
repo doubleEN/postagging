@@ -1,14 +1,13 @@
 package com.rui.app;
 
-import com.rui.model.FirstOrderHMM;
 import com.rui.model.HMM;
-import com.rui.model.SecondOrderHMM;
+import com.rui.model.HMM1st;
+import com.rui.model.HMM2nd;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
 import com.rui.stream.PeopleDailyWordTagStream;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static com.rui.util.GlobalParas.logger;
@@ -34,10 +33,10 @@ public class HMMTraining {
         HMM hmm = null;
         if (args[1].equals("2")) {
             paras = new BigramParas(new PeopleDailyWordTagStream(args[0],args[3]));
-            hmm = new FirstOrderHMM(paras);
+            hmm = new HMM1st(paras);
         } else if (args[1].equals("3")) {
             paras = new TrigramParas(new PeopleDailyWordTagStream(args[0],args[3]));
-            hmm = new SecondOrderHMM(paras);
+            hmm = new HMM2nd(paras);
         } else {
             logger.severe("n-gram参数形式不合法：参数值应为 2 或 3 。");
             System.exit(1);
