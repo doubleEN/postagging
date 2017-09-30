@@ -1,5 +1,8 @@
 package com.rui.model;
 
+import com.rui.parameter.BigramParas;
+import com.rui.stream.PeopleDailyWordTagStream;
+import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 import com.rui.parameter.AbstractParas;
 
@@ -9,9 +12,19 @@ import java.util.Arrays;
 /**
  * 一阶HMM实现。
  */
-public class FirstOrderHMM extends HMM {
+public class FirstOrderHMM extends HMM{
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
+
+        AbstractParas paras=new BigramParas(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt","utf-8"));
+        HMM hmm = new FirstOrderHMM(paras);
+        Tagger tagger = new Tagger(hmm);
+
+        WordTag[][] sequence = tagger.tagTopK("学习 自然 语言 处理 。",20);
+        for (WordTag[] wts : sequence) {
+            System.out.println(Arrays.toString(wts));
+        }
+
     }
 
     /**

@@ -29,6 +29,7 @@ public abstract class AbstractParas implements Serializable {
 
     /**
      * 统计语料库规模，并生成映射词典
+     * @param stream 特定语料的输入流
      */
     protected void generateDict(WordTagStream stream)throws IOException{
         WordTag[]wts;

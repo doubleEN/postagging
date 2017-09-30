@@ -1,7 +1,9 @@
 package com.rui.model;
 
 import com.rui.parameter.AbstractParas;
+import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
+import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 
@@ -13,6 +15,18 @@ import static com.rui.util.GlobalParas.logger;
  * 二阶HMM
  */
 public class SecondOrderHMM extends HMM {
+
+    public static void main(String[] args) throws Exception{
+
+        AbstractParas paras=new TrigramParas(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt","utf-8"));
+        HMM hmm = new SecondOrderHMM(paras);
+        Tagger tagger = new Tagger(hmm);
+
+        WordTag[][] sequence = tagger.tagTopK("学习 自然 语言 处理 。",20);
+        for (WordTag[] wts : sequence) {
+            System.out.println(Arrays.toString(wts));
+        }
+    }
 
     /**
      * 记录k次viterbi解码中计算得到的句子概率

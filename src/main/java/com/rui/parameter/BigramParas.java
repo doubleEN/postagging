@@ -78,7 +78,7 @@ public class BigramParas extends AbstractParas{
      */
     public BigramParas(WordTagStream stream) throws IOException{
         this.dictionary = new DictFactory();
-        this.generateDict(stream);
+        this.generateDict(stream);//一次扫描生成语料库对应的[映射词典]
         stream.openReadStream();
         this.numMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
