@@ -28,8 +28,8 @@ import java.util.Set;
  */
 public class Validation implements ModelScore {
 
-    public static void main(String[] args) throws Exception{
-        ModelScore modelScore2=new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt","utf-8"),0.001, NGram.BiGram,new PreciseIV(),new PreciseOOV());
+    public static void main(String[] args) throws Exception {
+        ModelScore modelScore2 = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.001, NGram.BiGram, new PreciseIV(), new PreciseOOV());
         modelScore2.toScore();
         System.out.println(Arrays.toString(modelScore2.getScores()));
     }
@@ -87,11 +87,11 @@ public class Validation implements ModelScore {
     }
 
     @Override
-    public void toScore() throws IOException{
-        this.scores=new double[estimators.length];
+    public void toScore() throws IOException {
+        this.scores = new double[estimators.length];
         this.tagger = this.getTagger();
         this.stream.openReadStream();
-        for (int i=0;i<estimators.length;++i) {
+        for (int i = 0; i < estimators.length; ++i) {
             this.scores[i] = this.estimate(i);
             this.stream.openReadStream();
         }
@@ -100,14 +100,14 @@ public class Validation implements ModelScore {
     /**
      * 通过验证集获得隐藏状态标注器
      */
-    private Tagger getTagger() throws IOException{
-
-
+    private Tagger getTagger() throws IOException {
 
         WordTag[] wts = null;
         Tagger tagger = null;
         Random random = new Random(11);
-        double border = 1000 * this.ratio;
+        double r = 1 / this.ratio;
+        int fold = (int) r;
+        int num = 0;
 
         AbstractParas paras = null;
         HMM hmm = null;
@@ -119,9 +119,21 @@ public class Validation implements ModelScore {
             hmm = new HMM2nd(paras);
         }
 
+        //第一次扫描
         while ((wts = this.stream.readSentence()) != null) {
             //在1000中取指定比例样本
-            if (random.nextInt(1000) >= border) {
+            if (num % fold != 0) {
+                paras.getDictionary().addIndex(wts);
+            }
+            ++num;
+        }
+
+        this.stream.openReadStream();
+        num=0;
+        //会初始化计数矩阵
+        while ((wts = this.stream.readSentence()) != null) {
+            //在1000中取指定比例样本
+            if (num % fold != 0) {
                 int randNum = random.nextInt(4);
                 if (randNum == 1) {
                     paras.addHoldOut(wts);
@@ -129,6 +141,7 @@ public class Validation implements ModelScore {
                     paras.addCorpus(wts);
                 }
             }
+            ++num;
         }
         paras.calcProbs();
         tagger = new Tagger(hmm);
@@ -142,16 +155,18 @@ public class Validation implements ModelScore {
      *
      * @return 验证评分
      */
-    private double estimate(int estimatorNo) throws IOException{
+    private double estimate(int estimatorNo) throws IOException {
         WordTag[] wts = null;
 
         Tagger tagger = null;
         Random random = new Random(11);
         double border = 1000 * this.ratio;
         String[] predictTags = null;
+        int fold = (int) (1 / this.ratio);
+        int num = 0;
 
         while ((wts = this.stream.readSentence()) != null) {
-            if (random.nextInt(1000) < border) {
+            if (num % fold == 0) {
                 this.getTagOfValidation(wts);
                 WordTag[] predict = this.tagger.tag(this.unknownSentence);
                 predictTags = new String[predict.length];
@@ -160,6 +175,7 @@ public class Validation implements ModelScore {
                 }
                 this.estimators[estimatorNo].eval(this.dict, this.unknownSentence, predictTags, this.expectedTags);
             }
+            ++num;
         }
         return this.estimators[estimatorNo].getResult();
     }
@@ -167,6 +183,7 @@ public class Validation implements ModelScore {
 
     /**
      * 分割验证集观察状态和隐藏状态
+     *
      * @param wts 带标注的句子
      */
     private void getTagOfValidation(WordTag[] wts) {

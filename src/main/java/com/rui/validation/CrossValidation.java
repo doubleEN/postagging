@@ -21,11 +21,9 @@ import java.util.*;
 public class CrossValidation implements ModelScore {
 
     public static void main(String[] args) throws Exception{
-        ModelScore modelScore=new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"),5,NGram.BiGram,new PreciseIV(),new PreciseOOV());
+        ModelScore modelScore=new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"),10,NGram.TriGram,new PreciseIV(),new PreciseOOV());
         modelScore.toScore();
         System.out.println(Arrays.toString(modelScore.getScores()));
-        //[0.9193199381761978, 0.0] validation
-        //[0.9227914082549832, 0.4101969952509756]
     }
     /**
      * 标明使用的n-gram
@@ -108,7 +106,6 @@ public class CrossValidation implements ModelScore {
      */
     private Tagger getTagger(int taggerNO) throws IOException {
         WordTag[] wts = null;
-        int num = 0;
         Tagger tagger = null;
         Random random = new Random(11);
 
@@ -122,6 +119,17 @@ public class CrossValidation implements ModelScore {
             hmm = new HMM2nd(paras);
         }
 
+        int num = 0;
+        while ((wts = this.stream.readSentence()) != null) {
+            if (num % this.fold != taggerNO) {
+                //语料不能直接放入内存
+                paras.getDictionary().addIndex(wts);
+            }
+            ++num;
+        }
+
+        num=0;
+        this.stream.openReadStream();
         while ((wts = this.stream.readSentence()) != null) {
             if (num % this.fold != taggerNO) {
                 //语料不能直接放入内存
