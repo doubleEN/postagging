@@ -102,4 +102,17 @@ public class DictFactory implements Serializable {
         return (String[]) tagSet.toArray(new String[0]);
     }
 
+    /**
+     * 由词的映射词典获得关于词的词典
+     */
+    public HashSet<String> getWordSet(){
+        HashSet<String> wordSet = new HashSet<>();
+
+        Set<Map.Entry<String,Integer>> entrySet=this.wordId.entrySet();
+        for (Map.Entry<String, Integer> entry : entrySet) {
+            wordSet.add(entry.getKey());
+        }
+        return wordSet;
+    }
+
 }

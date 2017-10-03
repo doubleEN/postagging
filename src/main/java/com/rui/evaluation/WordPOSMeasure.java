@@ -88,8 +88,9 @@ public class WordPOSMeasure {
      */
     public void updateScores(final String[] words, final String[] references, final String[] predictions)
     {
-        sentences++;
+        sentences++;//累计句子的数量
 
+        //累计完全正确的句子数量
         if (references.length == predictions.length)
         {
             boolean okSent = true;
@@ -97,19 +98,20 @@ public class WordPOSMeasure {
             {
                 if (!references[i].equals(predictions[i]))
                     okSent = false;
+                    break;//提前终止内层循环
             }
 
             if (okSent)
-                sentencesOK++;
+                sentencesOK++;//累计完全正确的句子的数量
         }
 
-        truePositive += countTruePositivesWithDictionary(words, references, predictions);
-
-        target += references.length;
+        //累计了truePositive，target，IV,OOV
+        truePositive += countTruePositivesWithDictionary(words, references, predictions);//累计正确的单元总数
+        target += references.length;//累计单元总数
     }
 
     /**
-     * 合并其他评价结果
+     * 合并其他评价结果，是计数上的求和
      *
      * @param measure
      *            待合并评价结果
@@ -184,7 +186,7 @@ public class WordPOSMeasure {
     }
 
     /**
-     * 根据参考结果和系统结果统计正确标注的单词数。
+     * Z在没有词典的情况下，根据参考结果和系统结果统计正确标注的单词数。
      *
      *
      * @param references
@@ -217,7 +219,7 @@ public class WordPOSMeasure {
      */
     public static double precision(final String[] references, final String[] predictions)
     {
-
+        //计算一个序列的准确率
         if (predictions.length > 0)
         {
             return countTruePositives(references, predictions) / (double) predictions.length;

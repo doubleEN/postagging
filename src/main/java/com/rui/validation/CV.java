@@ -1,8 +1,9 @@
 package com.rui.validation;
 
-import com.rui.dictionary.DictFactory;
-import com.rui.evaluation.*;
-import com.rui.model.*;
+import com.rui.evaluation.WordPOSMeasure;
+import com.rui.model.HMM;
+import com.rui.model.HMM1st;
+import com.rui.model.HMM2nd;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
 import com.rui.parameter.TrigramParas;
@@ -11,18 +12,18 @@ import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Random;
 
-/**
- * 交叉验证
- */
-public class CrossValidation implements ModelScore {
+public class CV implements ModelScore {
+
     public static void main(String[] args) throws Exception{
-        ModelScore modelScore=new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"),10,NGram.TriGram,new PreciseIV(),new PreciseOOV());
+        ModelScore modelScore=new CV(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"),5,NGram.BiGram);
         modelScore.toScore();
-        System.out.println(Arrays.toString(modelScore.getScores()));
+        WordPOSMeasure posMeasure=((CV)modelScore).getMeasure();
+        System.out.println(Arrays.toString(modelScore.getScores())+"\n"+posMeasure);
     }
 
     /**
@@ -54,7 +55,7 @@ public class CrossValidation implements ModelScore {
     /**
      * 评估器
      */
-    private Estimator[] estimators;
+    private WordPOSMeasure measure;
 
     /**
      * 折数
@@ -64,37 +65,27 @@ public class CrossValidation implements ModelScore {
     /**
      * 映射词典
      */
-    private DictFactory dict;
-
-    /**
-     * 每折验证的评分
-     */
-    private double[][] scores;
+    private HashSet<String> wordDict;
 
     /**
      * @param wordTagStream 包含特点语料路径的语料读取流
      * @param fold          交叉验证折数
      * @param nGram         语法参数
-     * @param estimators    评估方式
      */
-    public CrossValidation(WordTagStream wordTagStream, int fold, NGram nGram, Estimator... estimators) {
+    public CV(WordTagStream wordTagStream, int fold, NGram nGram) {
         this.stream = wordTagStream;
         this.fold = fold;
         this.nGram = nGram;
-        this.estimators = estimators;
+        this.measure = new WordPOSMeasure();
     }
 
     @Override
-    public void toScore() throws IOException, FileNotFoundException {
-        this.scores = new double[this.fold][this.estimators.length];
+    public void toScore() throws IOException {
         for (int i = 0; i < this.fold; ++i) {
             this.tagger = this.getTagger(i);
             this.stream.openReadStream();
-            for (int j = 0; j < this.estimators.length; ++j) {
-                this.scores[i][j] = this.estimate(i, j);
-                this.stream.openReadStream();
-                this.estimators[j].reset();
-            }
+            this.measure.mergeInto(this.estimate(i));
+            this.stream.openReadStream();
         }
     }
 
@@ -128,7 +119,7 @@ public class CrossValidation implements ModelScore {
             ++num;
         }
 
-        num=0;
+        num = 0;
         this.stream.openReadStream();
         while ((wts = this.stream.readSentence()) != null) {
             if (num % this.fold != taggerNO) {
@@ -144,8 +135,7 @@ public class CrossValidation implements ModelScore {
         }
         paras.calcProbs();
         tagger = new Tagger(hmm);
-
-        this.dict = paras.getDictionary();
+        this.wordDict = paras.getDictionary().getWordSet();
         return tagger;
     }
 
@@ -154,25 +144,28 @@ public class CrossValidation implements ModelScore {
      *
      * @return 一折验证的评分
      */
-    private double estimate(int taggerNo, int estimatorNo) throws IOException {
+    private WordPOSMeasure estimate(int taggerNo) throws IOException {
+        WordPOSMeasure posMeasure = new WordPOSMeasure(this.wordDict);
         WordTag[] wts = null;
         int num = 0;
         String[] predictTags = null;
+
 
         while ((wts = this.stream.readSentence()) != null) {
             if (num % this.fold == taggerNo) {
                 //验证语料不能直接放入内存
                 this.getTagOfValidation(wts);
+                String[]words=this.unknownSentence.trim().split("\\s+");
                 WordTag[] predict = this.tagger.tag(this.unknownSentence);
                 predictTags = new String[predict.length];
                 for (int j = 0; j < predict.length; ++j) {
                     predictTags[j] = predict[j].getTag();
                 }
-                this.estimators[estimatorNo].eval(this.dict, this.unknownSentence, predictTags, this.expectedTags);
+                posMeasure.updateScores(words, this.expectedTags,predictTags);
             }
             ++num;
         }
-        return estimators[estimatorNo].getResult();
+        return posMeasure;
     }
 
     /**
@@ -195,16 +188,18 @@ public class CrossValidation implements ModelScore {
      */
     @Override
     public double[] getScores() {
-        double[] sums = new double[this.estimators.length];
-
-        for (int j = 0; j < this.estimators.length; ++j) {
-            double sum = 0.0;
-            for (int i = 0; i < this.fold; ++i) {
-                sum += this.scores[i][j];
-            }
-            sums[j] = sum / this.fold;
-        }
-        return sums;
+        double[]scores=new double[4];
+        scores[0]=this.measure.getSentenceAccuracy();
+        scores[1]=this.measure.getPrecisionScore();
+        scores[2]=this.measure.getPrecisionScoreIV();
+        scores[3]=this.measure.getPrecisionScoreOOV();
+        return scores;
     }
 
+    /**
+     * @return 返回评测类
+     */
+    public WordPOSMeasure getMeasure(){
+        return this.measure;
+    }
 }
