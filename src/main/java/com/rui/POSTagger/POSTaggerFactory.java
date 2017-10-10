@@ -1,6 +1,7 @@
 package com.rui.POSTagger;
 
 import com.rui.evaluation.Estimator;
+import com.rui.evaluation.WordPOSMeasure;
 import com.rui.model.HMM;
 import com.rui.model.HMM1st;
 import com.rui.model.HMM2nd;
@@ -51,8 +52,8 @@ public class POSTaggerFactory {
      * @param estimator 指定度量方式
      * @return 返回评分
      */
-    public static double[] scoreOnValidation(WordTagStream stream, double ratio, NGram nGram, Estimator estimator) throws IOException{
-        ModelScore crossValidation = new Validation(stream, ratio, nGram, estimator);
+    public static WordPOSMeasure scoreOnValidation(WordTagStream stream, double ratio, NGram nGram, Estimator estimator) throws IOException{
+        ModelScore crossValidation = new Validation(stream, ratio, nGram);
         crossValidation.toScore();
         return crossValidation.getScores();
     }
@@ -65,8 +66,8 @@ public class POSTaggerFactory {
      * @param estimator 指定度量方式
      * @return 返回评分
      */
-    public static double[] crossValidation(WordTagStream stream, int fold, NGram nGram, Estimator estimator) throws IOException{
-        ModelScore crossValidation = new CrossValidation(stream, fold, nGram, estimator);
+    public static WordPOSMeasure crossValidation(WordTagStream stream, int fold, NGram nGram, Estimator estimator) throws IOException{
+        ModelScore crossValidation = new CrossValidation(stream, fold, nGram);
         crossValidation.toScore();
         return crossValidation.getScores();
     }

@@ -60,9 +60,9 @@ public class HMMValidation {
             logger.severe("评估类型参数形式不合法：参数值应为p,piv,poov。");
             System.exit(1);
         }
-        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream(args[0],args[4]), cv, nGram,estimator);
+        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream(args[0],args[4]), cv, nGram);
         modelScore.toScore();
-        logger.info("交加验证评分为： "+ Arrays.toString(modelScore.getScores()));
+        logger.info("交加验证评分为： "+ modelScore.getScores().toString());
     }
 
 }

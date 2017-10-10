@@ -1,10 +1,7 @@
 package com.rui.validation;
 
 import com.rui.dictionary.DictFactory;
-import com.rui.evaluation.Estimator;
-import com.rui.evaluation.Precise;
-import com.rui.evaluation.PreciseIV;
-import com.rui.evaluation.PreciseOOV;
+import com.rui.evaluation.*;
 import com.rui.model.*;
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
@@ -29,9 +26,9 @@ import java.util.Set;
 public class Validation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore2 = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.001, NGram.BiGram, new PreciseIV(), new PreciseOOV());
+        ModelScore modelScore2 = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.01, NGram.BiGram);
         modelScore2.toScore();
-        System.out.println(Arrays.toString(modelScore2.getScores()));
+        System.out.println(modelScore2.getScores().toString());
     }
 
     /**
@@ -62,7 +59,7 @@ public class Validation implements ModelScore {
     /**
      * 评估器
      */
-    private Estimator[] estimators;
+    private WordPOSMeasure measure;
 
     /**
      * 折数
@@ -72,38 +69,27 @@ public class Validation implements ModelScore {
     /**
      * 词典
      */
-    private DictFactory dict;
+    private HashSet<String> dict;
 
-    /**
-     * 验证评分
-     */
-    private double[] scores;
-
-    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram, Estimator... estimators) {
+    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram) {
         this.stream = wordTagStream;
         this.ratio = ratio;
         this.nGram = nGram;
-        this.estimators = estimators;
     }
 
     @Override
     public void toScore() throws IOException {
-        this.scores = new double[estimators.length];
-        this.tagger = this.getTagger();
+        this.getTagger();
         this.stream.openReadStream();
-        for (int i = 0; i < estimators.length; ++i) {
-            this.scores[i] = this.estimate(i);
-            this.stream.openReadStream();
-        }
+        this.estimate();
     }
 
     /**
      * 通过验证集获得隐藏状态标注器
      */
-    private Tagger getTagger() throws IOException {
+    private void getTagger() throws IOException {
 
         WordTag[] wts = null;
-        Tagger tagger = null;
         Random random = new Random(11);
         double r = 1 / this.ratio;
         int fold = (int) r;
@@ -129,7 +115,7 @@ public class Validation implements ModelScore {
         }
 
         this.stream.openReadStream();
-        num=0;
+        num = 0;
         //会初始化计数矩阵
         while ((wts = this.stream.readSentence()) != null) {
             //在1000中取指定比例样本
@@ -144,10 +130,8 @@ public class Validation implements ModelScore {
             ++num;
         }
         paras.calcProbs();
-        tagger = new Tagger(hmm);
-
-        this.dict = paras.getDictionary();
-        return tagger;
+        this.measure = new WordPOSMeasure(paras.getDictionary().getWordSet());
+        this.tagger = new Tagger(hmm);
     }
 
     /**
@@ -155,12 +139,9 @@ public class Validation implements ModelScore {
      *
      * @return 验证评分
      */
-    private double estimate(int estimatorNo) throws IOException {
+    private void estimate() throws IOException {
         WordTag[] wts = null;
 
-        Tagger tagger = null;
-        Random random = new Random(11);
-        double border = 1000 * this.ratio;
         String[] predictTags = null;
         int fold = (int) (1 / this.ratio);
         int num = 0;
@@ -169,15 +150,16 @@ public class Validation implements ModelScore {
             if (num % fold == 0) {
                 this.getTagOfValidation(wts);
                 WordTag[] predict = this.tagger.tag(this.unknownSentence);
+                String[] words = new String[predict.length];
                 predictTags = new String[predict.length];
                 for (int j = 0; j < predict.length; ++j) {
                     predictTags[j] = predict[j].getTag();
+                    words[j] = predict[j].getWord();
                 }
-                this.estimators[estimatorNo].eval(this.dict, this.unknownSentence, predictTags, this.expectedTags);
+                this.measure.updateScores(words, this.expectedTags, predictTags);
             }
             ++num;
         }
-        return this.estimators[estimatorNo].getResult();
     }
 
 
@@ -197,7 +179,7 @@ public class Validation implements ModelScore {
     }
 
     @Override
-    public double[] getScores() {
-        return scores;
+    public WordPOSMeasure getScores() {
+        return measure;
     }
 }

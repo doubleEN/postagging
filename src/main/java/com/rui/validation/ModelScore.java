@@ -1,5 +1,7 @@
 package com.rui.validation;
 
+import com.rui.evaluation.WordPOSMeasure;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -16,6 +18,6 @@ public interface ModelScore {
     /**
      * 返回模型的评分
      */
-    double[] getScores();
+    WordPOSMeasure getScores();
 
 }
