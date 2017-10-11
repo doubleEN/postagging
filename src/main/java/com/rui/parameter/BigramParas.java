@@ -1,16 +1,10 @@
 package com.rui.parameter;
 
 import com.rui.dictionary.DictFactory;
-import com.rui.model.FirstOrderHMM;
-import com.rui.model.HMM;
-import com.rui.model.SecondOrderHMM;
-import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
-import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;
 

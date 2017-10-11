@@ -37,6 +37,6 @@ public class TaggingTest {
 
         ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream(args[0],args[3]),new PeopleDailyWordTagStream(args[1],args[4]), nGram);
         modelScore.toScore();
-        logger.info("交加验证评分为：\n "+ modelScore.getScores().toString());
+        logger.info("交加验证评分为：\n"+ modelScore.getScores().toString());
     }
 }

@@ -1,6 +1,5 @@
 package com.rui.POSTagger;
 
-import com.rui.evaluation.Estimator;
 import com.rui.evaluation.WordPOSMeasure;
 import com.rui.model.HMM;
 import com.rui.model.HMM1st;
@@ -30,11 +29,11 @@ public class POSTaggerFactory {
 
  /*   public static void main(String[] args) throws IOException{
         AbstractParas paras = new BigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 44, 50000);
-        HMM hmm = new FirstOrderHMM(paras);
+        HMM hmm = new HMM1st(paras);
         hmm.writeHMM("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/BiGram.bin");
 
         AbstractParas paras2 = new TrigramParas(new PeopleDailyWordTagStream("/home/mjx/桌面/PoS/corpus/199801_format.txt"), 44, 50000);
-        HMM hmm2 = new SecondOrderHMM(paras);
+        HMM hmm2 = new HMM2nd(paras);
         hmm.writeHMM("/home/mjx/IdeaProjects/tags/src/main/java/com/rui/POSTagger/TriGram.bin");
 
         WordTag[]wts1=POSTaggerFactory.tag2Gram("学习 自然 语言 处理 ， 实现 台湾 统一 。");
@@ -49,10 +48,9 @@ public class POSTaggerFactory {
      * @param stream    读取特点语料的特点流
      * @param ratio     验证集比例
      * @param nGram     {@link NGram}常量类型
-     * @param estimator 指定度量方式
      * @return 返回评分
      */
-    public static WordPOSMeasure scoreOnValidation(WordTagStream stream, double ratio, NGram nGram, Estimator estimator) throws IOException{
+    public static WordPOSMeasure scoreOnValidation(WordTagStream stream, double ratio, NGram nGram) throws IOException{
         ModelScore crossValidation = new Validation(stream, ratio, nGram);
         crossValidation.toScore();
         return crossValidation.getScores();
@@ -63,10 +61,9 @@ public class POSTaggerFactory {
      * @param stream    读取特点语料的特点流
      * @param fold      交叉验证折数
      * @param nGram     {@link NGram}常量类型
-     * @param estimator 指定度量方式
      * @return 返回评分
      */
-    public static WordPOSMeasure crossValidation(WordTagStream stream, int fold, NGram nGram, Estimator estimator) throws IOException{
+    public static WordPOSMeasure crossValidation(WordTagStream stream, int fold, NGram nGram) throws IOException{
         ModelScore crossValidation = new CrossValidation(stream, fold, nGram);
         crossValidation.toScore();
         return crossValidation.getScores();
