@@ -1,5 +1,6 @@
 package com.rui.validation;
 
+import com.rui.dictionary.DictFactory;
 import com.rui.evaluation.WordPOSMeasure;
 import com.rui.model.HMM;
 import com.rui.model.HMM1st;
@@ -100,24 +101,25 @@ public class CrossValidation implements ModelScore {
         Random random = new Random(11);
 
         AbstractParas paras = null;
+        DictFactory dictFactory=new DictFactory();
         HMM hmm = null;
-        if (this.nGram == NGram.BiGram) {
-            paras = new BigramParas();
-            hmm = new HMM1st(paras);
-        } else if (this.nGram == NGram.TriGram) {
-            paras = new TrigramParas();
-            hmm = new HMM2nd(paras);
-        }
 
         int num = 0;
         while ((wts = this.stream.readSentence()) != null) {
             if (num % this.fold != taggerNO) {
                 //语料不能直接放入内存
-                paras.getDictionary().addIndex(wts);
+                dictFactory.addIndex(wts);
             }
             ++num;
         }
 
+        if (this.nGram == NGram.BiGram) {
+            paras = new BigramParas(dictFactory);
+            hmm = new HMM1st(paras);
+        } else if (this.nGram == NGram.TriGram) {
+            paras = new TrigramParas(dictFactory);
+            hmm = new HMM2nd(paras);
+        }
         num = 0;
         this.stream.openReadStream();
         while ((wts = this.stream.readSentence()) != null) {
@@ -134,7 +136,7 @@ public class CrossValidation implements ModelScore {
         }
         paras.calcProbs();
         tagger = new Tagger(hmm);
-        this.wordDict = paras.getDictionary().getWordSet();
+        this.wordDict = dictFactory.getWordSet();
         return tagger;
     }
 

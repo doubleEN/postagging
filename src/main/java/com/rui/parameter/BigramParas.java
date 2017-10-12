@@ -67,6 +67,15 @@ public class BigramParas extends AbstractParas{
         this.numPi = new int[1];
     }
 
+
+    public BigramParas(DictFactory dict) {
+        this.dictionary = dict;
+        this.numMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
+        this.numPi = new int[this.dictionary.getSizeOfTags()];
+    }
+
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
@@ -83,9 +92,6 @@ public class BigramParas extends AbstractParas{
 
     @Override
     protected void countMatA(String[] tags) {
-        if (this.dictionary.getSizeOfTags() > this.numMatA[0].length) {
-            this.reBuildA();
-        }
         for (int i = 1; i < tags.length; i++) {
             this.numMatA[this.dictionary.getTagId(tags[i - 1])][this.dictionary.getTagId(tags[i])]++;
         }
@@ -96,9 +102,6 @@ public class BigramParas extends AbstractParas{
         if (words.length != tags.length) {
             logger.warning("词组，标注长度不匹配。");//Level.info
             return;
-        }
-        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
-            this.reBuildB();
         }
 
         for (int i = 0; i < words.length; i++) {
@@ -118,49 +121,9 @@ public class BigramParas extends AbstractParas{
 
     @Override
     protected void countPi(String[] tags) {
-        if (this.dictionary.getSizeOfTags() > this.numPi.length) {
-            this.reBuildPi();
-        }
         for (String tag : tags) {
             this.numPi[this.dictionary.getTagId(tag)]++;
         }
-    }
-
-    @Override
-    protected void reBuildA() {
-        logger.info("重建了计数数组Matrix A");
-        int[][] newA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
-        for (int i = 0; i < this.numMatA[0].length; ++i) {
-            for (int j = 0; j < this.numMatA[0].length; ++j) {
-                newA[i][j] = this.numMatA[i][j];
-            }
-        }
-        this.numMatA = newA;
-    }
-
-    @Override
-    protected void reBuildB() {
-        logger.info("重建了计数数组Matrix B");
-        int row = this.dictionary.getSizeOfTags() > this.numMatB.length ? this.dictionary.getSizeOfTags() : this.numMatB.length;
-        int col = this.dictionary.getSizeOfWords() > this.numMatB[0].length ? this.dictionary.getSizeOfWords() : this.numMatB[0].length;
-        int[][] newB = new int[row][col];
-        for (int i = 0; i < this.numMatB.length; ++i) {
-            for (int j = 0; j < this.numMatB[0].length; ++j) {
-                newB[i][j] = this.numMatB[i][j];
-            }
-        }
-        this.numMatB = newB;
-    }
-
-    @Override
-    protected void reBuildPi() {
-        logger.info("重建了计数数组Matrix PI");
-        int[] pi = new int[this.dictionary.getSizeOfTags()];
-        for (int i = 0; i < this.numPi.length; ++i) {
-            pi[i] = this.numPi[i];
-
-        }
-        this.numPi = pi;
     }
 
     /**
@@ -169,40 +132,8 @@ public class BigramParas extends AbstractParas{
     @Override
     public void addHoldOut(WordTag[] wts) {
         this.dictionary.addIndex(wts);
-        if (this.dictionary.getSizeOfTags() > this.holdOut.length) {
-            this.expandHoldOut();
-        }
         for (int i = 1; i < wts.length; i++) {
             this.holdOut[this.dictionary.getTagId(wts[i - 1].getTag())][this.dictionary.getTagId(wts[i].getTag())]++;
-        }
-    }
-
-    @Override
-    protected void expandHoldOut() {
-        int[][] holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
-        logger.info("重建了平滑计数数组");
-        for (int i = 0; i < this.holdOut.length; ++i) {
-            for (int j = 0; j < this.holdOut[0].length; ++j) {
-                holdOut[i][j] = this.holdOut[i][j];
-            }
-        }
-        this.holdOut = holdOut;
-    }
-
-    @Override
-    protected void ensureLenOfTag() {
-        int tagSize = this.dictionary.getSizeOfTags();
-        if (tagSize > this.numMatA.length) {
-            this.reBuildA();
-        }
-        if (tagSize > this.holdOut.length) {
-            this.expandHoldOut();
-        }
-        if (tagSize > this.numPi.length) {
-            this.reBuildPi();
-        }
-        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
-            this.reBuildB();
         }
     }
 

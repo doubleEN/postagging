@@ -86,6 +86,16 @@ public class TrigramParas extends AbstractParas {
         this.numPi = new int[1];
     }
 
+
+    public TrigramParas(DictFactory dict) {
+        this.dictionary = dict;
+        this.triNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        this.biNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
+        this.numPi = new int[this.dictionary.getSizeOfTags()];
+    }
+
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
@@ -106,7 +116,6 @@ public class TrigramParas extends AbstractParas {
             logger.info("标注长度小于3，不能用于统计转移频数。");
             return;
         }
-        this.reBuildA();
         //三元标注状态统计
         for (int i = 2; i < tags.length; i++) {
             this.triNumMatA[this.dictionary.getTagId(tags[i - 2])][this.dictionary.getTagId(tags[i - 1])][this.dictionary.getTagId(tags[i])]++;
@@ -122,9 +131,6 @@ public class TrigramParas extends AbstractParas {
         if (words.length != tags.length) {
             logger.info("词组，标注长度不匹配。");
             return;
-        }
-        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
-            this.reBuildB();
         }
 
         for (int i = 0; i < words.length; i++) {
@@ -143,66 +149,12 @@ public class TrigramParas extends AbstractParas {
 
     @Override
     protected void countPi(String[] tags) {
-        if (this.dictionary.getSizeOfTags() > this.numPi.length) {
-            this.reBuildPi();
-        }
+
         for (String tag : tags) {
             this.numPi[this.dictionary.getTagId(tag)]++;
         }
     }
 
-    @Override
-    protected void reBuildA() {
-        int len=this.dictionary.getSizeOfTags();
-        if (len > this.triNumMatA.length) {
-            logger.info("重建了计数数组Matrix A");
-            int[][][] newA = new int[len][len][len];
-            for (int i = 0; i < this.triNumMatA.length; ++i) {
-                for (int j = 0; j < this.triNumMatA.length; ++j) {
-                    for (int k = 0; k < this.triNumMatA.length; ++k) {
-
-                        newA[i][j][k] = this.triNumMatA[i][j][k];
-                    }
-                }
-            }
-            this.triNumMatA = newA;
-        }
-
-        if (len > this.biNumMatA.length) {
-            int[][] newA = new int[len][len];
-            for (int i = 0; i < this.biNumMatA.length; ++i) {
-                for (int j = 0; j < this.biNumMatA[0].length; ++j) {
-                    newA[i][j] = this.biNumMatA[i][j];
-                }
-            }
-            this.biNumMatA = newA;
-        }
-
-    }
-
-    @Override
-    protected void reBuildB() {
-        int row = this.dictionary.getSizeOfTags() > this.numMatB.length ? this.dictionary.getSizeOfTags() : this.numMatB.length;
-        int col = this.dictionary.getSizeOfWords() > this.numMatB[0].length ? this.dictionary.getSizeOfWords() : this.numMatB[0].length;
-        int[][] newB = new int[row][col];
-        logger.info("重建了计数数组Matrix B");
-        for (int i = 0; i < this.numMatB.length; ++i) {
-            for (int j = 0; j < this.numMatB[0].length; ++j) {
-                newB[i][j] = this.numMatB[i][j];
-            }
-        }
-        this.numMatB = newB;
-    }
-
-    @Override
-    protected void reBuildPi() {
-        int[] pi = new int[this.dictionary.getSizeOfTags()];
-        logger.info("重建了计数数组Matrix PI");
-        for (int i = 0; i < this.numPi.length; ++i) {
-            pi[i] = this.numPi[i];
-        }
-        this.numPi = pi;
-    }
 
     @Override
     public void addHoldOut(WordTag[] wts) {
@@ -211,45 +163,10 @@ public class TrigramParas extends AbstractParas {
             return;
         }
         this.dictionary.addIndex(wts);
-        if (this.dictionary.getSizeOfTags() > this.holdOut.length) {
-            this.expandHoldOut();
-        }
         for (int i = 2; i < wts.length; i++) {
             this.holdOut[this.dictionary.getTagId(wts[i - 2].getTag())][this.dictionary.getTagId(wts[i - 1].getTag())][this.dictionary.getTagId(wts[i].getTag())]++;
         }
     }
-
-    @Override
-    protected void expandHoldOut() {
-        int len = this.dictionary.getSizeOfTags();
-        int[][][] holdOut = new int[len][len][len];
-        logger.info("重建了平滑计数数组");
-        for (int i = 0; i < this.holdOut.length; ++i) {
-            for (int j = 0; j < this.holdOut[0].length; ++j) {
-                for (int k = 0; k < this.holdOut.length; ++k) {
-                    holdOut[i][j][k] = this.holdOut[i][j][k];
-                }
-            }
-        }
-        this.holdOut = holdOut;
-    }
-
-    @Override
-    protected void ensureLenOfTag() {
-        int tagSize = this.dictionary.getSizeOfTags();
-        this.reBuildA();
-        if (this.dictionary.getSizeOfTags() > this.holdOut.length) {
-            this.expandHoldOut();
-        }
-
-        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
-            this.reBuildB();
-        }
-        if (this.dictionary.getSizeOfTags() > this.numMatB.length || this.dictionary.getSizeOfWords() > this.numMatB[0].length) {
-            this.reBuildB();
-        }
-    }
-
     @Override
     protected void calcProbA() {
 

@@ -16,16 +16,6 @@ import static com.rui.util.GlobalParas.logger;
  */
 public class HMM2nd extends HMM {
 
-    public static void main(String[] args) throws Exception {
-        AbstractParas paras = new BigramParas(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"));
-        HMM hmm = new HMM1st(paras);
-        Tagger tagger = new Tagger(hmm);
-        WordTag[][] wordTags = tagger.tagTopK("学习 自然 语言 。", 4);
-        for (WordTag[] wts : wordTags) {
-            System.out.println(Arrays.toString(wts));
-        }
-    }
-
     /**
      * 回溯中间索引数组
      */

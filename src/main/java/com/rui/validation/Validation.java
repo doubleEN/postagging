@@ -26,7 +26,7 @@ import java.util.Set;
 public class Validation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore2 = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.01, NGram.BiGram);
+        ModelScore modelScore2 = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.01, NGram.TriGram);
         modelScore2.toScore();
         System.out.println(modelScore2.getScores().toString());
     }
@@ -88,6 +88,7 @@ public class Validation implements ModelScore {
      * 通过验证集获得隐藏状态标注器
      */
     private void getTagger() throws IOException {
+        DictFactory dictFactory=new DictFactory();
 
         WordTag[] wts = null;
         Random random = new Random(11);
@@ -95,25 +96,24 @@ public class Validation implements ModelScore {
         int fold = (int) r;
         int num = 0;
 
-        AbstractParas paras = null;
-        HMM hmm = null;
-        if (this.nGram == NGram.BiGram) {
-            paras = new BigramParas();
-            hmm = new HMM1st(paras);
-        } else if (this.nGram == NGram.TriGram) {
-            paras = new TrigramParas();
-            hmm = new HMM2nd(paras);
-        }
-
         //第一次扫描
         while ((wts = this.stream.readSentence()) != null) {
             //在1000中取指定比例样本
             if (num % fold != 0) {
-                paras.getDictionary().addIndex(wts);
+                dictFactory.addIndex(wts);
             }
             ++num;
         }
 
+        AbstractParas paras = null;
+        HMM hmm = null;
+        if (this.nGram == NGram.BiGram) {
+            paras = new BigramParas(dictFactory);
+            hmm = new HMM1st(paras);
+        } else if (this.nGram == NGram.TriGram) {
+            paras = new TrigramParas(dictFactory);
+            hmm = new HMM2nd(paras);
+        }
         this.stream.openReadStream();
         num = 0;
         //会初始化计数矩阵
@@ -130,7 +130,7 @@ public class Validation implements ModelScore {
             ++num;
         }
         paras.calcProbs();
-        this.measure = new WordPOSMeasure(paras.getDictionary().getWordSet());
+        this.measure = new WordPOSMeasure(dictFactory.getWordSet());
         this.tagger = new Tagger(hmm);
     }
 

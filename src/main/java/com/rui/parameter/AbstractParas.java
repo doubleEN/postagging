@@ -127,35 +127,10 @@ public abstract class AbstractParas implements Serializable {
     protected abstract void countPi(String[] tags);
 
     /**
-     * 扩展[转移状态矩阵]
-     */
-    protected abstract void reBuildA();
-
-    /**
-     * 扩展[混淆状态矩阵]
-     */
-    protected abstract void reBuildB();
-
-    /**
-     * 扩展[初始状态向量]
-     */
-    protected abstract void reBuildPi();
-
-    /**
      * 划分[留存数据]
      * @param wts WordTag[]形式的留存语料
      */
     public abstract void addHoldOut(WordTag[] wts);
-
-    /**
-     * 扩展[留存状态矩阵]
-     */
-    protected abstract void expandHoldOut();
-
-    /**
-     * 由频数参数计算概率参数前，确定标注集大小是否合法
-     */
-    protected abstract void ensureLenOfTag();
 
     /**
      * 计算概率参数的[模板方法]
@@ -166,8 +141,6 @@ public abstract class AbstractParas implements Serializable {
             logger.severe("未添加初始语料库或未加入新的语料,不能计算转移概率。");
         }
 
-        //在计算概率以前，保证训练集，留存和映射词典的编号长度一致
-        this.ensureLenOfTag();
         //+1平滑混淆状态频数
         this.smoothMatB();
         this.calcProbB();
