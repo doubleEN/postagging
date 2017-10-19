@@ -121,6 +121,7 @@ public class BigramParas extends AbstractParas{
 
     @Override
     protected void countPi(String[] tags) {
+        //初始状态计数的方式（1,2）
         for (String tag : tags) {
             this.numPi[this.dictionary.getTagId(tag)]++;
         }
@@ -228,7 +229,6 @@ public class BigramParas extends AbstractParas{
         double sumOfRow = 0.0;
 
         for (int row = 0; row < len; ++row) {
-
             for (int num : this.holdOut[row]) {
                 sumOfRow += num;
                 sumOfTag += num;

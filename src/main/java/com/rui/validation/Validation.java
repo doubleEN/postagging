@@ -26,9 +26,9 @@ import java.util.Set;
 public class Validation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore2 = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.01, NGram.TriGram);
-        modelScore2.toScore();
-        System.out.println(modelScore2.getScores().toString());
+        ModelScore modelScore = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.01, NGram.BiGram);
+        modelScore.toScore();
+        System.out.println(modelScore.getScores().toString());
     }
 
     /**

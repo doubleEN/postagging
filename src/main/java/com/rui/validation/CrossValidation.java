@@ -19,13 +19,11 @@ import java.util.Random;
 
 public class CrossValidation implements ModelScore {
 
-    public static void main(String[] args) throws Exception{
-        ModelScore modelScore=new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"),5,NGram.BiGram);
+    public static void main(String[] args) throws Exception {
+        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 10, NGram.BiGram);
         modelScore.toScore();
-        WordPOSMeasure posMeasure=modelScore.getScores();
-        System.out.println(posMeasure.toString());
+        System.out.println(modelScore.getScores().toString());
     }
-
     /**
      * 标明使用的n-gram
      */
@@ -125,7 +123,7 @@ public class CrossValidation implements ModelScore {
         while ((wts = this.stream.readSentence()) != null) {
             if (num % this.fold != taggerNO) {
                 //语料不能直接放入内存
-                int randNum = random.nextInt(4);
+                int randNum = random.nextInt(1000);
                 if (randNum == 1) {
                     paras.addHoldOut(wts);
                 } else {
