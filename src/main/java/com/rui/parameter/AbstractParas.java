@@ -49,7 +49,7 @@ public abstract class AbstractParas implements Serializable {
 
         while ((wts = stream.readSentence()) != null) {
             //按[1:3]换分[留存:训练集]
-            int randNum = generator.nextInt(4);
+            int randNum = generator.nextInt(1000);
             if (randNum == 1) {
                 this.addHoldOut(wts);
             } else {
@@ -172,6 +172,11 @@ public abstract class AbstractParas implements Serializable {
      */
     protected abstract void smoothMatA();
 
+    public abstract double unkInitProb(int currTag);
+
+    public abstract double unkLaplace();
+
+    public abstract double unkZXF(String preWord,int currTag);
     /**
      * 获得指定标注的初始概率
      * @param indexOfTag 标注的id
@@ -185,21 +190,14 @@ public abstract class AbstractParas implements Serializable {
      * @param indexOfWord 单词的id
      * @return 标注到词的发射概率
      */
-    public abstract double getProbB(int indexOfTag, int indexOfWord);
+    public abstract double getProbB(boolean smoothFlag,int indexOfTag, int indexOfWord);
 
     /**
      * 获得指定[tag_i-->tag_i+1]的转移概率
      * @param tagIndexs 多个标注的id
      * @return 指定n-gram下的标注转移概率
      */
-    public abstract double getProbA(int... tagIndexs);
-
-    /**
-     * 获得指定[tag_i-->tag_i+1]的平滑后的转移概率
-     * @param tagIndexs 多个标注的id
-     * @return 指定n-gram下的平滑后标注转移概率
-     */
-    public abstract double getProbSmoothA(int... tagIndexs);
+    public abstract double getProbA(boolean smoothFlag,int... tagIndexs);
 
     /**
      * @return 返回[映射词典]

@@ -104,7 +104,7 @@ public class HMM2nd extends HMM {
             int maxIndex = -1;
             for (int i = 0; i < sizeOfTags; ++i) {
                 double probs = -1;
-                probs = this.hmmParas.getProbPi(i) * this.hmmParas.getProbB(i, wordId);
+                probs = this.hmmParas.getProbPi(i) * this.hmmParas.getProbB(false,i, wordId);
                 if (maxProb < probs) {
                     maxIndex = i;
                     maxProb = probs;
@@ -137,7 +137,9 @@ public class HMM2nd extends HMM {
             for (int tag_j = 0; tag_j < sizeOfTags; ++tag_j) {
                 double launchProb = 0;
                 if (this.hmmParas.getDictionary().getWordId(words[0]) != null) {
-                    launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[0])));
+                    launchProb = Math.log(this.hmmParas.getProbB(false,tag_k, this.hmmParas.getDictionary().getWordId(words[0])));
+                } else {
+                    launchProb=Math.log(this.hmmParas.unkInitProb(tag_k));
                 }
 
                 double val = Math.log(this.hmmParas.getProbPi(tag_k)) + launchProb;
@@ -156,11 +158,13 @@ public class HMM2nd extends HMM {
 
                 double launchProb = 0;
                 if (this.hmmParas.getDictionary().getWordId(words[1]) != null) {
-                    launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[1])));
+                    launchProb = Math.log(this.hmmParas.getProbB(false, tag_k, this.hmmParas.getDictionary().getWordId(words[1])));
+                } else {
+                    launchProb=Math.log(this.hmmParas.unkInitProb(tag_k));
                 }
 
                 for (int rank = 0; rank < topK; ++rank) {
-                    midProb[1][rank][tag_j][tag_k] = midProb[0][rank][0][tag_j] + Math.log(this.hmmParas.getProbSmoothA(tag_j, tag_k)) + launchProb;
+                    midProb[1][rank][tag_j][tag_k] = midProb[0][rank][0][tag_j] + Math.log(this.hmmParas.getProbA(true,tag_j, tag_k)) + launchProb;
                 }
             }
         }
@@ -181,7 +185,7 @@ public class HMM2nd extends HMM {
                             //当tag_j,tag_k固定的情况下，计算并记录转移到tag_k的前topK个概率
                             //概率转移：[i,j]--> k
 
-                            tempArr[rank][tag_i] = midProb[wordIndex - 1][rank][tag_i][tag_j] + Math.log(this.hmmParas.getProbSmoothA(tag_i, tag_j, tag_k));
+                            tempArr[rank][tag_i] = midProb[wordIndex - 1][rank][tag_i][tag_j] + Math.log(this.hmmParas.getProbA(true,tag_i, tag_j, tag_k));
                         }
                     }
 
@@ -207,7 +211,9 @@ public class HMM2nd extends HMM {
                         //状态发射时的未登录词处理
                         double launchProb = 0;
                         if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
-                            launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
+                            launchProb = Math.log(this.hmmParas.getProbB(false,tag_k, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
+                        } else {
+                            launchProb=Math.log(this.hmmParas.unkInitProb(tag_k));
                         }
                         midProb[wordIndex][rankCount][tag_j][tag_k] = maxProb + launchProb;
 

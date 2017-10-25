@@ -94,6 +94,13 @@ public class DictFactory implements Serializable {
 
     }
 
+    public void addWord(String word) {
+        if (!this.wordId.containsKey(word)) {
+            this.wordId.put(word, this.wordId.size());
+            this.wordDict.put(this.wordDict.size(), word);
+        }
+    }
+
     /**
      * 获得所有标注集的字符串数组
      */

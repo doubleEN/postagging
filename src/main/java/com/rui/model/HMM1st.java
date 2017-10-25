@@ -75,7 +75,9 @@ public class HMM1st extends HMM {
             double launchProb = 0;
             if (this.hmmParas.getDictionary().getWordId(words[0]) != null) {
                 //发射概率
-                launchProb = Math.log(this.hmmParas.getProbB(tagIndex, this.hmmParas.getDictionary().getWordId(words[0])));
+                launchProb = Math.log(this.hmmParas.getProbB(false, tagIndex, this.hmmParas.getDictionary().getWordId(words[0])));
+            } else {
+                launchProb = Math.log(this.hmmParas.unkZXF(null,tagIndex));//边界上的观察态如何给定:null, tagIndex
             }
             double val = Math.log(this.hmmParas.getProbPi(tagIndex)) + launchProb;
             //为k次最优赋予相同的初始发射概率
@@ -94,10 +96,9 @@ public class HMM1st extends HMM {
                 double[][] tempArr = new double[topK][sizeOfTags];
 
                 for (int rank = 0; rank < topK; ++rank) {
-
                     //转移前的隐藏状态
                     for (int preTag = 0; preTag < sizeOfTags; ++preTag) {
-                        tempArr[rank][preTag] = midProb[wordIndex - 1][rank][preTag] + Math.log(this.hmmParas.getProbSmoothA(preTag, currTag));
+                        tempArr[rank][preTag] = midProb[wordIndex - 1][rank][preTag] + Math.log(this.hmmParas.getProbA(true, preTag, currTag));
                     }
                 }
 
@@ -131,7 +132,9 @@ public class HMM1st extends HMM {
                     //状态发射时的未登录词处理
                     double launchProb = 0;
                     if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
-                        launchProb = Math.log(this.hmmParas.getProbB(currTag, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
+                        launchProb = Math.log(this.hmmParas.getProbB(false, currTag, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
+                    } else {
+                        launchProb = Math.log(this.hmmParas.unkZXF(words[wordIndex-1],currTag));//words[wordIndex-1], currTag
                     }
                     midProb[wordIndex][countK][currTag] = maxProb + launchProb;
 

@@ -11,6 +11,13 @@ import java.util.logging.Logger;
 public class GlobalParas {
 
     /**
+     * 平滑参数
+     */
+    public static final String DELETE_INTERPOLATION="DELETE_INTERPOLATION";
+    public static final String LAPLACE="LAPLACE";
+    public static final String GOOD_TURING="GOOD_TURING";
+
+    /**
      * PeopleDailyNews语料库标注集大小
      */
     public static int tagSizePDN=44;

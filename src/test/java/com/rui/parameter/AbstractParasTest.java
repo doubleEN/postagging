@@ -30,11 +30,11 @@ public class AbstractParasTest {
         assertEquals(0.375,paras.getProbPi(tag_n),0.001);
         assertEquals(0.125,paras.getProbPi(tag_yn),0.001);
 
-        assertEquals(0.5,paras.getProbA(tag_v,tag_n),0.1);
+        assertEquals(0.5,paras.getProbA(true,tag_v,tag_n),0.1);
 
         int word_xuexi=paras.getDictionary().getWordId("学习");
         //发射概率进行了+1平滑，发射计数矩阵中，v-->学习：（2+1）/（2+6）=0.375
-        assertEquals(0.375,paras.getProbB(tag_v,word_xuexi),0.001);
+        assertEquals(0.375,paras.getProbB(true,tag_v,word_xuexi),0.001);
     }
 
     @Test
@@ -54,11 +54,11 @@ public class AbstractParasTest {
         assertEquals(0.5,paras.getProbPi(tag_n),0.001);
 
         //两个标注状态转移到第三个状态
-        assertEquals(0.5,paras.getProbA(tag_v,tag_n,tag_n),0.01);
+        assertEquals(0.5,paras.getProbA(true,tag_v,tag_n,tag_n),0.01);
 
         int word_xuexi=paras.getDictionary().getWordId("学习");
         //发射概率进行了+1平滑，发射计数矩阵中，v-->学习：（2+1）/（2+7）=0.333...
-        assertEquals(0.333,paras.getProbB(tag_v,word_xuexi),0.001);
+        assertEquals(0.333,paras.getProbB(true,tag_v,word_xuexi),0.001);
     }
 
 

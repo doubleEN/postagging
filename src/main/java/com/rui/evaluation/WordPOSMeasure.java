@@ -32,7 +32,6 @@ public class WordPOSMeasure {
     private long truePositiveIV;
     private long truePositiveOOV;
 
-    private PrintStream errOut;
 
     public WordPOSMeasure(HashSet<String> dict) {
         this.dictionary = dict;
@@ -40,10 +39,6 @@ public class WordPOSMeasure {
 
     public WordPOSMeasure() {
 
-    }
-
-    public WordPOSMeasure(OutputStream out){
-        this.errOut=new PrintStream(out);
     }
 
     /**
@@ -97,9 +92,6 @@ public class WordPOSMeasure {
             for (int i = 0; i < references.length; i++) {
                 if (!references[i].equals(predictions[i])) {
                     okSent = false;
-                    errOut.println("sentence:   "+Arrays.toString(words));
-                    errOut.println("references: "+Arrays.toString(references));
-                    errOut.println("predictions:"+Arrays.toString(predictions));
                     break;
                 }
             }

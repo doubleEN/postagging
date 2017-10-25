@@ -392,14 +392,18 @@ public class TrigramParas extends AbstractParas {
     }
 
     @Override
-    public double getProbB(int indexOfTag, int indexOfWord) {
+    public double getProbB(boolean smoothFlag,int indexOfTag, int indexOfWord) {
         return this.probMatB[indexOfTag][indexOfWord];
     }
 
     @Override
-    public double getProbA(int... tagIndex) {
+    public double getProbA(boolean smoothFlag,int... tagIndex) {
         if (tagIndex.length == 3) {
-            return this.triProbMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
+            if (smoothFlag) {
+                return this.smoothingMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
+            } else {
+                return this.triProbMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
+            }
         }else if (tagIndex.length==2){
             return this.biProbMatA[tagIndex[0]][tagIndex[1]];
         }else {
@@ -409,16 +413,19 @@ public class TrigramParas extends AbstractParas {
         return -1;
     }
 
+
     @Override
-    public double getProbSmoothA(int... tagIndex) {
-        if (tagIndex.length == 3) {
-            return this.smoothingMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
-        }else if (tagIndex.length==2){
-            return this.biProbMatA[tagIndex[0]][tagIndex[1]];
-        }else {
-            logger.warning("参数不合法。");
-            System.exit(1);
-        }
-        return -1;
+    public double unkZXF( String preWord, int currTag) {
+        return 1.0;
+    }
+
+    @Override
+    public double unkInitProb(int currTag) {
+        return this.probPi[currTag];
+    }
+
+    @Override
+    public double unkLaplace() {
+        return 1.0;
     }
 }

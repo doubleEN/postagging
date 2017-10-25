@@ -5,13 +5,14 @@ import com.rui.wordtag.WordTag;
 import com.rui.stream.WordTagStream;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;
 
 /**
  * 二元语法参数训练。
  */
-public class BigramParas extends AbstractParas{
+public class BigramParas extends AbstractParas {
 
     /**
      * 状态转移计数矩阵
@@ -55,7 +56,7 @@ public class BigramParas extends AbstractParas{
     private double[][] probMatB;
 
     /**
-        初始状态概率
+     * 初始状态概率
      */
     private double[] probPi;
 
@@ -79,7 +80,7 @@ public class BigramParas extends AbstractParas{
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
-    public BigramParas(WordTagStream stream) throws IOException{
+    public BigramParas(WordTagStream stream) throws IOException {
         this.dictionary = new DictFactory();
         this.generateDict(stream);//一次扫描生成语料库对应的[映射词典]
         stream.openReadStream();
@@ -109,6 +110,40 @@ public class BigramParas extends AbstractParas{
         }
     }
 
+    protected void reBuildA() {
+        logger.info("重建了计数数组Matrix A");
+        int[][] newA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
+        for (int i = 0; i < this.numMatA[0].length; ++i) {
+            for (int j = 0; j < this.numMatA[0].length; ++j) {
+                newA[i][j] = this.numMatA[i][j];
+            }
+        }
+        this.numMatA = newA;
+    }
+
+    protected void reBuildB() {
+        logger.info("重建了计数数组Matrix B");
+        int row = this.dictionary.getSizeOfTags() > this.numMatB.length ? this.dictionary.getSizeOfTags() : this.numMatB.length;
+        int col = this.dictionary.getSizeOfWords() > this.numMatB[0].length ? this.dictionary.getSizeOfWords() : this.numMatB[0].length;
+        int[][] newB = new int[row][col];
+        for (int i = 0; i < this.numMatB.length; ++i) {
+            for (int j = 0; j < this.numMatB[0].length; ++j) {
+                newB[i][j] = this.numMatB[i][j];
+            }
+        }
+        this.numMatB = newB;
+    }
+
+    protected void reBuildPi() {
+        logger.info("重建了计数数组Matrix PI");
+        int[] pi = new int[this.dictionary.getSizeOfTags()];
+        for (int i = 0; i < this.numPi.length; ++i) {
+            pi[i] = this.numPi[i];
+
+        }
+        this.numPi = pi;
+    }
+
     //+1平滑会引入偏差
     @Override
     protected void smoothMatB() {
@@ -128,7 +163,7 @@ public class BigramParas extends AbstractParas{
     }
 
     /**
-        留存数据处理
+     * 留存数据处理
      */
     @Override
     public void addHoldOut(WordTag[] wts) {
@@ -144,7 +179,6 @@ public class BigramParas extends AbstractParas{
     */
     @Override
     protected void calcProbA() {
-
         int len = this.dictionary.getSizeOfTags();
 
         this.probMatA = new double[len][len];
@@ -168,7 +202,6 @@ public class BigramParas extends AbstractParas{
 
     @Override
     protected void calcProbB() {
-
         int rowSize = this.dictionary.getSizeOfTags();
         int colSize = this.dictionary.getSizeOfWords();
 
@@ -272,7 +305,7 @@ public class BigramParas extends AbstractParas{
     }
 
     /**
-        参数访问接口的实现
+     * 参数访问接口的实现
      */
     @Override
     public double getProbPi(int indexOfTag) {
@@ -280,26 +313,59 @@ public class BigramParas extends AbstractParas{
     }
 
     @Override
-    public double getProbB(int indexOfTag, int indexOfWord) {
-        return this.probMatB[indexOfTag][indexOfWord];
+    public double getProbB(boolean isSmooth, int indexOfTag, int indexOfWord) {
+        if (isSmooth) {
+            return this.probMatB[indexOfTag][indexOfWord];
+        } else {
+            return this.probMatB[indexOfTag][indexOfWord];
+        }
     }
 
     @Override
-    public double getProbA(int... tagIndex) {
+    public double getProbA(boolean isSmooth, int... tagIndex) {
         if (tagIndex.length != 2) {
             logger.severe("获取转移概率参数不合法。");
             System.exit(1);
         }
-        return this.probMatA[tagIndex[0]][tagIndex[1]];
+        if (isSmooth) {
+            return this.smoothingMatA[tagIndex[0]][tagIndex[1]];
+        } else {
+            return this.probMatA[tagIndex[0]][tagIndex[1]];
+        }
     }
 
     @Override
-    public double getProbSmoothA(int... tagIndex) {
-        if (tagIndex.length != 2) {
-            logger.severe("获取转移概率参数不合法。");
-            System.exit(1);
-        }
-        return this.smoothingMatA[tagIndex[0]][tagIndex[1]];
+    public double unkInitProb(int currTag) {
+        return this.probPi[currTag];
     }
 
+    public double unkLaplace() {
+        return 1.0;
+    }
+
+    public double unkZXF(String preWord, int currTag) {
+        if (preWord == null) {
+            return 1.0;
+        }
+        //前一个词的频数
+        double word_i = 0.0;
+        if (this.dictionary.getWordId(preWord) == null) {
+            word_i = this.dictionary.getSizeOfTags();
+        } else {
+            for (int tag = 0; tag < this.dictionary.getSizeOfTags(); ++tag) {
+                word_i += this.numMatB[tag][this.dictionary.getWordId(preWord)];
+            }
+        }
+        double sum = 0.0;
+        for (int tag = 0; tag < this.dictionary.getSizeOfTags(); ++tag) {
+            double part = 0;
+            if (this.dictionary.getWordId(preWord) == null) {
+                part = (1 / (double) word_i) * (this.numMatA[tag][currTag] / (double) this.numPi[tag]);
+            } else {
+                part = (this.numMatB[tag][this.dictionary.getWordId(preWord)] / (double) word_i) * this.probMatA[tag][currTag];
+            }
+            sum += part;
+        }
+        return sum / this.numPi[currTag];
+    }
 }
