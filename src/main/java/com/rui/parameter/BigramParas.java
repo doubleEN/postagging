@@ -81,8 +81,7 @@ public class BigramParas extends AbstractParas {
      * @param stream 指明特点语料路径的语料读取流
      */
     public BigramParas(WordTagStream stream) throws IOException {
-        this.dictionary = new DictFactory();
-        this.generateDict(stream);//一次扫描生成语料库对应的[映射词典]
+        this.dictionary = DictFactory.generateDict(stream);
         stream.openReadStream();
         this.numMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
@@ -366,6 +365,7 @@ public class BigramParas extends AbstractParas {
             }
             sum += part;
         }
+        System.out.println(sum+"/"+this.numPi[currTag]+"="+sum / this.numPi[currTag]);
         return sum / this.numPi[currTag];
     }
 }

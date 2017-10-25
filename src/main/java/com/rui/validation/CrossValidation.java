@@ -20,7 +20,7 @@ import java.util.Random;
 public class CrossValidation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 8, NGram.TriGram);
+        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 8, NGram.BiGram);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }
@@ -122,7 +122,7 @@ public class CrossValidation implements ModelScore {
         this.stream.openReadStream();
         while ((wts = this.stream.readSentence()) != null) {
             if (num % this.fold != taggerNO) {
-                //语料不能直接放入内存
+                //相比于第一次扫描，因为划分了训练集和留存，训练参数中可能有些状态没有记录到
                 int randNum = random.nextInt(1000);
                 if (randNum == 1) {
                     paras.addHoldOut(wts);

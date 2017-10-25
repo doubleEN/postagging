@@ -140,6 +140,7 @@ public class HMM1st extends HMM {
 
                     //排除已找到的最大概率
                     repeatedProbs[countK] = tempArr[max_i][max_j];
+//                    tempArr[max_i][max_j]=Math.log(0);
                 }
             }
         }

@@ -27,17 +27,6 @@ public abstract class AbstractParas implements Serializable {
      */
     protected boolean calcFlag = false;
 
-    /**
-     * 统计语料库规模，并生成映射词典
-     * @param stream 特定语料的输入流
-     */
-    protected void generateDict(WordTagStream stream)throws IOException{
-        WordTag[]wts;
-        while ((wts=stream.readSentence())!=null) {
-            this.dictionary.addIndex(wts);
-        }
-        stream.close();
-    }
 
     /**
      * 初始化[语料库]，并计算概率参数的[模板方法]

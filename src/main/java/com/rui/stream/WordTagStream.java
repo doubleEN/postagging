@@ -1,5 +1,6 @@
 package com.rui.stream;
 
+import com.rui.dictionary.DictFactory;
 import com.rui.wordtag.WordTag;
 
 import java.io.*;
@@ -86,4 +87,5 @@ public abstract class WordTagStream {
     public String getCorpusPath() {
         return corpusPath;
     }
+
 }
