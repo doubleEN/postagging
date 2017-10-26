@@ -365,7 +365,6 @@ public class BigramParas extends AbstractParas {
             }
             sum += part;
         }
-        System.out.println(sum+"/"+this.numPi[currTag]+"="+sum / this.numPi[currTag]);
         return sum / this.numPi[currTag];
     }
 }

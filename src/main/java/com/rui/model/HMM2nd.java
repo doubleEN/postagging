@@ -31,15 +31,14 @@ public class HMM2nd extends HMM {
     }
 
     @Override
-    public int[][] decode(String sentence, int topK) {
+    public int[][] decode(String[] words, int topK) {
         //句长
-        String[] words = sentence.trim().split("\\s+");
         int lenOfSentence = words.length;
         //隐藏状态数
         int sizeOfTags = this.hmmParas.getDictionary().getSizeOfTags();
 
         if (lenOfSentence == 1) {
-            logger.info(" 独词成句<" + sentence + ">");
+            logger.info(" 独词成句<" + Arrays.toString(words) + ">");
             return this.decodeOneWord(words[0], topK);
         }
 
@@ -48,7 +47,7 @@ public class HMM2nd extends HMM {
         this.lastLayerProbs = new double[topK][sizeOfTags][sizeOfTags];
 
         //计算句子概率
-        this.forward(sentence, topK);
+        this.forward(words, topK);
 
         //回溯解码得到topK个最优序列
         int[][] bestKSequence = new int[topK][lenOfSentence];
@@ -121,8 +120,7 @@ public class HMM2nd extends HMM {
     }
 
     @Override
-    protected void forward(String sentence, int topK) {
-        String[] words = sentence.trim().split("\\s+");
+    protected void forward(String[] words, int topK) {
         int lenOfSentence = words.length;
         int sizeOfTags = this.hmmParas.getDictionary().getSizeOfTags();
 

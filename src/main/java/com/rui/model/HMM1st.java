@@ -24,11 +24,10 @@ public class HMM1st extends HMM {
         this.hmmParas = paras;
     }
 
-    public int[][] decode(String sentence, int topK) {
+    public int[][] decode(String[] words, int topK) {
 
         int sizeOfTags = this.hmmParas.getDictionary().getSizeOfTags();
 
-        String[] words = sentence.trim().split("\\s+");
         int lenOfSentence = words.length;
 
         //解码回溯的索引数组
@@ -36,7 +35,7 @@ public class HMM1st extends HMM {
         //记录序列上最后一个节点每个隐藏状态的k次最优概率值
         this.lastLayerProbs = new double[topK][sizeOfTags];
 
-        this.forward(sentence, topK);
+        this.forward(words, topK);
 
         int[][] bestKSequence = new int[topK][lenOfSentence];
 
@@ -61,8 +60,7 @@ public class HMM1st extends HMM {
         return bestKSequence;
     }
 
-    protected void forward(String sentence, int topK) {
-        String[] words = sentence.trim().split("\\s+");
+    protected void forward(String[] words, int topK) {
         int lenOfSentence = words.length;
         int sizeOfTags = this.hmmParas.getDictionary().getSizeOfTags();
 

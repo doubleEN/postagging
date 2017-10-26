@@ -17,18 +17,18 @@ public abstract class HMM implements Serializable {
 
     /**
      * 返回k个最可能的标注序列
-     * @param sentence 未标注的句子
+     * @param words 未标注的句子
      * @param topK 最可能的标注序列个数
      * @return k个最可能的标注序列的id序列
      */
-    public abstract int[][] decode(String sentence, int topK);
+    public abstract int[][] decode(String[] words, int topK);
 
     /**
      * 获得句子可能的标注中，第[ranking]大的概率
-     * @param sentence 未标注的句子
+     * @param words 未标注的句子
      * @param ranking 指定的概率排名
      */
-    protected abstract void forward(String sentence, int ranking);
+    protected abstract void forward(String[] words, int ranking);
 
     /**
      * viterbi回溯得标注id
