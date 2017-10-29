@@ -26,7 +26,7 @@ import java.util.Set;
 public class Validation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.1, NGram.BiGram);
+        ModelScore modelScore = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.1, NGram.BiGram,1000);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }
@@ -67,14 +67,15 @@ public class Validation implements ModelScore {
     private double ratio;
 
     /**
-     * 词典
+     * 留存数据比例
      */
-    private HashSet<String> dict;
+    private int holdOutRatio;
 
-    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram) {
+    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram,int holdOutRatio) {
         this.stream = wordTagStream;
         this.ratio = ratio;
         this.nGram = nGram;
+        this.holdOutRatio=holdOutRatio;
     }
 
     @Override
@@ -119,7 +120,7 @@ public class Validation implements ModelScore {
         while ((wts = this.stream.readSentence()) != null) {
             //在1000中取指定比例样本
             if (num % fold != 0) {
-                int randNum = random.nextInt(1000);
+                int randNum = random.nextInt(this.holdOutRatio);
                 if (randNum == 1) {
                     paras.addHoldOut(wts);
                 } else {

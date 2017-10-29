@@ -22,17 +22,6 @@ import static com.rui.util.GlobalParas.logger;
  */
 public class Tagger {
 
-    public static void main(String[] args) throws Exception{
-        AbstractParas paras = new BigramParas(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"));
-        HMM1st h1mm = new HMM1st(paras);
-        Tagger tagger = new Tagger(h1mm);
-        System.out.println(Arrays.deepToString(tagger.tagTopK("学习 自然 语言 处理 。",5)));
-        System.out.println(Arrays.deepToString(tagger.tagTopK(new String[]{"学习","自然","语言","处理","。"},5)));
-        System.out.println(Arrays.toString(tagger.tag("学习 自然 语言 处理 。")));
-        System.out.println(Arrays.toString(tagger.tag(new String[]{"学习","自然","语言","处理","。"})));
-
-    }
-
     /**
      * 隐马尔科夫模型
      */

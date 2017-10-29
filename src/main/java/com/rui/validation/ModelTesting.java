@@ -18,7 +18,7 @@ import java.util.HashSet;
 public class ModelTesting implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/training", "utf-8"),new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/testing", "utf-8"), NGram.BiGram);
+        ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/training", "utf-8"),new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/testing", "utf-8"), NGram.BiGram,1000);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }
@@ -64,10 +64,16 @@ public class ModelTesting implements ModelScore {
      */
     private WordPOSMeasure measure;
 
-    public ModelTesting(WordTagStream training, WordTagStream testing, NGram nGram) {
+    /**
+     * 留存数据比例
+     */
+    private int holdOutRatio;
+
+    public ModelTesting(WordTagStream training, WordTagStream testing, NGram nGram,int holdOutRatio) {
         this.training = training;
         this.testing = testing;
         this.nGram = nGram;
+        this.holdOutRatio=holdOutRatio;
     }
 
     @Override
@@ -85,10 +91,10 @@ public class ModelTesting implements ModelScore {
         AbstractParas paras = null;
         HMM hmm = null;
         if (this.nGram == NGram.BiGram) {
-            paras = new BigramParas(this.training);
+            paras = new BigramParas(this.training,this.holdOutRatio);
             hmm = new HMM1st(paras);
         } else if (this.nGram == NGram.TriGram) {
-            paras = new TrigramParas(this.training);
+            paras = new TrigramParas(this.training,this.holdOutRatio);
             hmm = new HMM2nd(paras);
         }
         this.tagger = new Tagger(hmm);

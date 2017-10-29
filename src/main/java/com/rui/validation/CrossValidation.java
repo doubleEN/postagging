@@ -20,7 +20,7 @@ import java.util.Random;
 public class CrossValidation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 8, NGram.BiGram);
+        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 1000, NGram.BiGram,1000);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }
@@ -66,15 +66,21 @@ public class CrossValidation implements ModelScore {
     private HashSet<String> wordDict;
 
     /**
+     * 留存数据比例
+     */
+    private int holdOutRatio;
+
+    /**
      * @param wordTagStream 包含特点语料路径的语料读取流
      * @param fold          交叉验证折数
      * @param nGram         语法参数
      */
-    public CrossValidation(WordTagStream wordTagStream, int fold, NGram nGram) {
+    public CrossValidation(WordTagStream wordTagStream, int fold, NGram nGram,int holdOutRatio) {
         this.stream = wordTagStream;
         this.fold = fold;
         this.nGram = nGram;
         this.measure = new WordPOSMeasure();
+        this.holdOutRatio=holdOutRatio;
     }
 
     @Override
@@ -105,7 +111,6 @@ public class CrossValidation implements ModelScore {
         int num = 0;
         while ((wts = this.stream.readSentence()) != null) {
             if (num % this.fold != taggerNO) {
-                //语料不能直接放入内存
                 dictFactory.addIndex(wts);
             }
             ++num;
@@ -123,7 +128,7 @@ public class CrossValidation implements ModelScore {
         while ((wts = this.stream.readSentence()) != null) {
             if (num % this.fold != taggerNO) {
                 //相比于第一次扫描，因为划分了训练集和留存，训练参数中可能有些状态没有记录到
-                int randNum = random.nextInt(1000);
+                int randNum = random.nextInt(this.holdOutRatio);
                 if (randNum == 1) {
                     paras.addHoldOut(wts);
                 } else {
@@ -188,5 +193,4 @@ public class CrossValidation implements ModelScore {
     public WordPOSMeasure getScores() {
         return this.measure;
     }
-
 }

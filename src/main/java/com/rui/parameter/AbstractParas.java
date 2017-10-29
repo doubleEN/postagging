@@ -27,25 +27,34 @@ public abstract class AbstractParas implements Serializable {
      */
     protected boolean calcFlag = false;
 
+    /**
+     * 是否使用留存平滑
+     */
+    protected boolean smoothFlag=false;
 
     /**
      * 初始化[语料库]，并计算概率参数的[模板方法]
+     *
      * @param stream 读取特点语料的输入流
      */
-    protected void initParas(WordTagStream stream) throws IOException{
+    public void initParas(WordTagStream stream,int holdOutRatio) throws IOException {
         WordTag[] wts;
-        Random generator = new Random(21);
 
-        while ((wts = stream.readSentence()) != null) {
-            //按[1:3]换分[留存:训练集]
-            int randNum = generator.nextInt(1000);
-            if (randNum == 1) {
-                this.addHoldOut(wts);
-            } else {
+        if (holdOutRatio > 0) {
+            Random generator = new Random(21);
+            while ((wts = stream.readSentence()) != null) {
+                int randNum = generator.nextInt(holdOutRatio);
+                if (randNum == 1) {
+                    this.addHoldOut(wts);
+                } else {
+                    this.addWordTags(wts);
+                }
+            }
+        } else {
+            while ((wts = stream.readSentence()) != null) {
                 this.addWordTags(wts);
             }
         }
-
         //初始添加了语料库，可计算概率参数
         this.calcFlag = true;
 
@@ -55,10 +64,11 @@ public abstract class AbstractParas implements Serializable {
 
     /**
      * 添加新语料，另外提供特点流处理这个字符串形式的句子
+     *
      * @param sentence 添加的句子形式的语料
-     * @param stream 能够处理sentence的具体流
+     * @param stream   能够处理sentence的具体流
      */
-    public void addCorpus(String sentence, WordTagStream stream) throws IOException{
+    public void addCorpus(String sentence, WordTagStream stream) throws IOException {
         WordTag[] wts = stream.segSentence(sentence);
         dictionary.addIndex(wts);
         this.addWordTags(wts);
@@ -67,6 +77,7 @@ public abstract class AbstractParas implements Serializable {
 
     /**
      * 添加新语料
+     *
      * @param wts WordTag[]形式的新语料
      */
     public void addCorpus(WordTag[] wts) {
@@ -77,6 +88,7 @@ public abstract class AbstractParas implements Serializable {
 
     /**
      * 所有添加语料方法的底层方法
+     *
      * @param wts WordTag[]形式的新语料
      */
     private void addWordTags(WordTag[] wts) {
@@ -93,14 +105,16 @@ public abstract class AbstractParas implements Serializable {
 
     /**
      * 统计[转移状态频数]
+     *
      * @param tags 有序的标注序列
      */
     protected abstract void countMatA(String[] tags);
 
     /**
      * 统计[混淆状态频数]
+     *
      * @param words 有序的单词序列
-     * @param tags 有序的标注序列
+     * @param tags  有序的标注序列
      */
     protected abstract void countMatB(String[] words, String[] tags);
 
@@ -111,12 +125,14 @@ public abstract class AbstractParas implements Serializable {
 
     /**
      * 统计[初始状态频数]
+     *
      * @param tags 标注集
      */
     protected abstract void countPi(String[] tags);
 
     /**
      * 划分[留存数据]
+     *
      * @param wts WordTag[]形式的留存语料
      */
     public abstract void addHoldOut(WordTag[] wts);
@@ -137,7 +153,9 @@ public abstract class AbstractParas implements Serializable {
         this.calcProbPi();
 
         this.calcProbA();
-        this.smoothMatA();
+        if (this.smoothFlag) {
+            this.smoothMatA();
+        }
         this.calcFlag = false;
     }
 
@@ -165,9 +183,11 @@ public abstract class AbstractParas implements Serializable {
 
     public abstract double unkLaplace();
 
-    public abstract double unkZXF(String preWord,int currTag);
+    public abstract double unkZXF(String preWord, int currTag);
+
     /**
      * 获得指定标注的初始概率
+     *
      * @param indexOfTag 标注的id
      * @return 标注的初始概率
      */
@@ -175,18 +195,20 @@ public abstract class AbstractParas implements Serializable {
 
     /**
      * 获得指定[tag-->word]的混淆概率
-     * @param indexOfTag 标注的id
+     *
+     * @param indexOfTag  标注的id
      * @param indexOfWord 单词的id
      * @return 标注到词的发射概率
      */
-    public abstract double getProbB(boolean smoothFlag,int indexOfTag, int indexOfWord);
+    public abstract double getProbB(boolean smoothFlag, int indexOfTag, int indexOfWord);
 
     /**
      * 获得指定[tag_i-->tag_i+1]的转移概率
+     *
      * @param tagIndexs 多个标注的id
      * @return 指定n-gram下的标注转移概率
      */
-    public abstract double getProbA(boolean smoothFlag,int... tagIndexs);
+    public abstract double getProbA(boolean smoothFlag, int... tagIndexs);
 
     /**
      * @return 返回[映射词典]

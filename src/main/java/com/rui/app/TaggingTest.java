@@ -17,10 +17,11 @@ public class TaggingTest {
      *              [2]:n-gram参数，2或者3，分别代表二元或三元
      *              [3]:训练语料字符编码方式
      *              [4]:测试语料字符编码方式
+     *              [5]:留存数据比例
      */
     public static void main(String[] args) throws Exception{
-        if (args.length != 5) {
-            logger.severe("参数数目不合法，数目为" + args.length + ",应为5。");
+        if (args.length != 6) {
+            logger.severe("参数数目不合法，数目为" + args.length + ",应为6。");
             System.exit(1);
         }
 
@@ -35,7 +36,7 @@ public class TaggingTest {
             System.exit(1);
         }
 
-        ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream(args[0],args[3]),new PeopleDailyWordTagStream(args[1],args[4]), nGram);
+        ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream(args[0],args[3]),new PeopleDailyWordTagStream(args[1],args[4]), nGram,Integer.parseInt(args[5]));
         modelScore.toScore();
         logger.info("交加验证评分为：\n"+ modelScore.getScores().toString());
     }

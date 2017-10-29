@@ -22,20 +22,21 @@ public class HMMTraining {
      *             [1]:n-gram参数，2或者3
      *             [2]:模型输出路径
      *             [3]:语料字符编码方式
+     *             [4]:留存数据比例
      */
     public static void main(String[] args) throws ClassNotFoundException,IOException{
-        if (args.length != 4) {
-            logger.severe("参数数目不合法，数目为"+args.length+",应为4。");
+        if (args.length != 5) {
+            logger.severe("参数数目不合法，数目为"+args.length+",应为5。");
             System.exit(1);
         }
         //路劲也判断
         AbstractParas paras = null;
         HMM hmm = null;
         if (args[1].equals("2")) {
-            paras = new BigramParas(new PeopleDailyWordTagStream(args[0],args[3]));
+            paras = new BigramParas(new PeopleDailyWordTagStream(args[0],args[3]),Integer.parseInt(args[4]));
             hmm = new HMM1st(paras);
         } else if (args[1].equals("3")) {
-            paras = new TrigramParas(new PeopleDailyWordTagStream(args[0],args[3]));
+            paras = new TrigramParas(new PeopleDailyWordTagStream(args[0],args[3]),Integer.parseInt(args[4]));
             hmm = new HMM2nd(paras);
         } else {
             logger.severe("n-gram参数形式不合法：参数值应为 2 或 3 。");

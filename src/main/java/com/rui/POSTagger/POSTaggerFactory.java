@@ -48,10 +48,11 @@ public class POSTaggerFactory {
      * @param stream    读取特点语料的特点流
      * @param ratio     验证集比例
      * @param nGram     {@link NGram}常量类型
+     * @holdOutRatio    留存数据比例
      * @return 返回评分
      */
-    public static WordPOSMeasure scoreOnValidation(WordTagStream stream, double ratio, NGram nGram) throws IOException{
-        ModelScore crossValidation = new Validation(stream, ratio, nGram);
+    public static WordPOSMeasure scoreOnValidation(WordTagStream stream, double ratio, NGram nGram,int holdOutRatio) throws IOException{
+        ModelScore crossValidation = new Validation(stream, ratio, nGram,holdOutRatio);
         crossValidation.toScore();
         return crossValidation.getScores();
     }
@@ -63,8 +64,8 @@ public class POSTaggerFactory {
      * @param nGram     {@link NGram}常量类型
      * @return 返回评分
      */
-    public static WordPOSMeasure crossValidation(WordTagStream stream, int fold, NGram nGram) throws IOException{
-        ModelScore crossValidation = new CrossValidation(stream, fold, nGram);
+    public static WordPOSMeasure crossValidation(WordTagStream stream, int fold, NGram nGram,int holdOutRatio) throws IOException{
+        ModelScore crossValidation = new CrossValidation(stream, fold, nGram,holdOutRatio);
         crossValidation.toScore();
         return crossValidation.getScores();
     }
@@ -76,15 +77,15 @@ public class POSTaggerFactory {
      * @param writePath 模型序列化路径
      * @throws IOException
      */
-    public static void writeHMM(WordTagStream stream, NGram nGram, String writePath) throws IOException {
+    public static void writeHMM(WordTagStream stream, NGram nGram, String writePath,int holdOutRatio) throws IOException {
 
         AbstractParas paras = null;
         HMM hmm = null;
         if (nGram == NGram.BiGram) {
-            paras = new BigramParas(stream);
+            paras = new BigramParas(stream,holdOutRatio);
             hmm = new HMM1st(paras);
         } else if (nGram == NGram.TriGram) {
-            paras = new TrigramParas(stream);
+            paras = new TrigramParas(stream,holdOutRatio);
             hmm = new HMM2nd(paras);
         }
 
@@ -98,17 +99,17 @@ public class POSTaggerFactory {
      * @param nGram  {@link NGram}
      * @return 标注器
      */
-    public static Tagger buildTagger(WordTagStream stream, NGram nGram) throws IOException{
+    public static Tagger buildTagger(WordTagStream stream, NGram nGram,int holdOutRatio) throws IOException{
         Tagger tagger = null;
 
         AbstractParas paras = null;
         HMM hmm = null;
         if (nGram == NGram.BiGram) {
-            paras = new BigramParas(stream);
+            paras = new BigramParas(stream,holdOutRatio);
             hmm = new HMM1st(paras);
             tagger = new Tagger(hmm);
         } else if (nGram == NGram.TriGram) {
-            paras = new TrigramParas(stream);
+            paras = new TrigramParas(stream,holdOutRatio);
             hmm = new HMM2nd(paras);
             tagger = new Tagger(hmm);
         }

@@ -99,7 +99,7 @@ public class TrigramParas extends AbstractParas {
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
-    public TrigramParas(WordTagStream stream) throws IOException{
+    public TrigramParas(WordTagStream stream,int holdOutRatio) throws IOException{
         this.dictionary= DictFactory.generateDict(stream);//一次扫描生成语料库对应的[映射词典]
         stream.openReadStream();
         this.triNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
@@ -107,7 +107,7 @@ public class TrigramParas extends AbstractParas {
         this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
         this.numPi = new int[this.dictionary.getSizeOfTags()];
-        this.initParas(stream);
+        this.initParas(stream,holdOutRatio);
     }
 
     @Override
@@ -162,6 +162,7 @@ public class TrigramParas extends AbstractParas {
             logger.info("句子长度不够，不能添加留存频数。");
             return;
         }
+        this.smoothFlag=true;
         this.dictionary.addIndex(wts);
         for (int i = 2; i < wts.length; i++) {
             this.holdOut[this.dictionary.getTagId(wts[i - 2].getTag())][this.dictionary.getTagId(wts[i - 1].getTag())][this.dictionary.getTagId(wts[i].getTag())]++;
@@ -400,7 +401,12 @@ public class TrigramParas extends AbstractParas {
     public double getProbA(boolean smoothFlag,int... tagIndex) {
         if (tagIndex.length == 3) {
             if (smoothFlag) {
-                return this.smoothingMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
+                if (this.smoothFlag) {
+                    return this.smoothingMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
+                } else {
+                    logger.severe("未构造留存信息"+",返回未平滑概率替代。");
+                    return this.triProbMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
+                }
             } else {
                 return this.triProbMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
             }

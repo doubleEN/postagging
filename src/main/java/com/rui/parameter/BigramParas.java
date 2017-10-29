@@ -80,14 +80,14 @@ public class BigramParas extends AbstractParas {
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
-    public BigramParas(WordTagStream stream) throws IOException {
+    public BigramParas(WordTagStream stream,int holdOutRatio) throws IOException {
         this.dictionary = DictFactory.generateDict(stream);
         stream.openReadStream();
         this.numMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
         this.numPi = new int[this.dictionary.getSizeOfTags()];
-        this.initParas(stream);
+        this.initParas(stream,holdOutRatio);
     }
 
     @Override
@@ -166,6 +166,7 @@ public class BigramParas extends AbstractParas {
      */
     @Override
     public void addHoldOut(WordTag[] wts) {
+        this.smoothFlag=true;
         this.dictionary.addIndex(wts);
         for (int i = 1; i < wts.length; i++) {
             this.holdOut[this.dictionary.getTagId(wts[i - 1].getTag())][this.dictionary.getTagId(wts[i].getTag())]++;
@@ -321,13 +322,18 @@ public class BigramParas extends AbstractParas {
     }
 
     @Override
-    public double getProbA(boolean isSmooth, int... tagIndex) {
+    public double getProbA(boolean isSmooth, int... tagIndex){
         if (tagIndex.length != 2) {
             logger.severe("获取转移概率参数不合法。");
             System.exit(1);
         }
         if (isSmooth) {
-            return this.smoothingMatA[tagIndex[0]][tagIndex[1]];
+            if (this.smoothFlag) {
+                return this.smoothingMatA[tagIndex[0]][tagIndex[1]];
+            } else {
+                logger.severe("未构造留存信息,返回未平滑概率替代。");
+                return this.probMatA[tagIndex[0]][tagIndex[1]];
+            }
         } else {
             return this.probMatA[tagIndex[0]][tagIndex[1]];
         }
