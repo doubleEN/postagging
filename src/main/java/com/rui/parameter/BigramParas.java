@@ -21,17 +21,6 @@ public class BigramParas extends AbstractParas {
     private int[][] numMatA;
 
     /**
-     * 状态发射计数矩阵
-     * 每一行为同一个隐藏状态下，发射到的可能的同一时刻观察状态的计数[t_i]-->[w_i]
-     */
-    private int[][] numMatB;
-
-    /**
-     * 不同隐藏状态计数矩阵
-     */
-    private int[] numPi;
-
-    /**
      * 留存状态转移计数矩阵
      * 每一行为同一个隐藏转移状态下，转移到可能的下一个隐藏状态的计数，即[t_i]-->[t_i+1]
      */
@@ -48,17 +37,6 @@ public class BigramParas extends AbstractParas {
      * 对probMatA的平滑
      */
     private double[][] smoothingMatA;
-
-    /**
-     * 状态发射概率矩阵
-     * 每一行为同一个隐藏转移状态下，发射到可能的同一时刻观察状态的概率,即 P([t_i]-->[w_i])
-     */
-    private double[][] probMatB;
-
-    /**
-     * 初始状态概率
-     */
-    private double[] probPi;
 
     public BigramParas() {
         this.dictionary = new DictFactory();
@@ -97,52 +75,6 @@ public class BigramParas extends AbstractParas {
         }
     }
 
-    @Override
-    protected void countMatB(String[] words, String[] tags) {
-        if (words.length != tags.length) {
-            logger.warning("词组，标注长度不匹配。");//Level.info
-            return;
-        }
-
-        for (int i = 0; i < words.length; i++) {
-            this.numMatB[this.dictionary.getTagId(tags[i])][this.dictionary.getWordId(words[i])]++;
-        }
-    }
-
-    protected void reBuildA() {
-        logger.info("重建了计数数组Matrix A");
-        int[][] newA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
-        for (int i = 0; i < this.numMatA[0].length; ++i) {
-            for (int j = 0; j < this.numMatA[0].length; ++j) {
-                newA[i][j] = this.numMatA[i][j];
-            }
-        }
-        this.numMatA = newA;
-    }
-
-    protected void reBuildB() {
-        logger.info("重建了计数数组Matrix B");
-        int row = this.dictionary.getSizeOfTags() > this.numMatB.length ? this.dictionary.getSizeOfTags() : this.numMatB.length;
-        int col = this.dictionary.getSizeOfWords() > this.numMatB[0].length ? this.dictionary.getSizeOfWords() : this.numMatB[0].length;
-        int[][] newB = new int[row][col];
-        for (int i = 0; i < this.numMatB.length; ++i) {
-            for (int j = 0; j < this.numMatB[0].length; ++j) {
-                newB[i][j] = this.numMatB[i][j];
-            }
-        }
-        this.numMatB = newB;
-    }
-
-    protected void reBuildPi() {
-        logger.info("重建了计数数组Matrix PI");
-        int[] pi = new int[this.dictionary.getSizeOfTags()];
-        for (int i = 0; i < this.numPi.length; ++i) {
-            pi[i] = this.numPi[i];
-
-        }
-        this.numPi = pi;
-    }
-
     //+1平滑会引入偏差
     @Override
     protected void smoothMatB() {
@@ -150,14 +82,6 @@ public class BigramParas extends AbstractParas {
             for (int j = 0; j < this.numMatB[0].length; ++j) {
                 ++this.numMatB[i][j];
             }
-        }
-    }
-
-    @Override
-    protected void countPi(String[] tags) {
-        //初始状态计数的方式（1,2）
-        for (String tag : tags) {
-            this.numPi[this.dictionary.getTagId(tag)]++;
         }
     }
 
@@ -199,53 +123,6 @@ public class BigramParas extends AbstractParas {
             }
         }
     }
-
-    @Override
-    protected void calcProbB() {
-        int rowSize = this.dictionary.getSizeOfTags();
-        int colSize = this.dictionary.getSizeOfWords();
-
-        this.probMatB = new double[rowSize][colSize];
-
-        for (int row = 0; row < rowSize; ++row) {
-            double sumPerRow = 0;
-
-            for (int col = 0; col < colSize; ++col) {
-                sumPerRow += this.numMatB[row][col];
-            }
-
-            for (int col = 0; col < colSize; ++col) {
-                if (sumPerRow != 0) {
-                    probMatB[row][col] = (this.numMatB[row][col]) / (sumPerRow);
-                } else {
-                    probMatB[row][col] = 0.0;
-                }
-            }
-        }
-
-    }
-
-    @Override
-    protected void calcProbPi() {
-
-        int vectorSize = this.dictionary.getSizeOfTags();
-
-        this.probPi = new double[vectorSize];
-
-        double sumOfVector = 0.0;
-        for (int val : this.numPi) {
-            sumOfVector += val;
-        }
-        for (int index = 0; index < vectorSize; ++index) {
-            if (sumOfVector != 0) {
-                this.probPi[index] = this.numPi[index] / sumOfVector;
-            } else {
-                this.probPi[index] = 0.0;
-            }
-
-        }
-    }
-
 
     @Override
     protected void smoothMatA() {
@@ -331,7 +208,7 @@ public class BigramParas extends AbstractParas {
             if (this.smoothFlag) {
                 return this.smoothingMatA[tagIndex[0]][tagIndex[1]];
             } else {
-                logger.severe("未构造留存信息,返回未平滑概率替代。");
+//                logger.severe("未构造留存信息,返回未平滑概率替代。");
                 return this.probMatA[tagIndex[0]][tagIndex[1]];
             }
         } else {
@@ -344,10 +221,12 @@ public class BigramParas extends AbstractParas {
         return this.probPi[currTag];
     }
 
+    @Override
     public double unkLaplace() {
         return 1.0;
     }
 
+    @Override
     public double unkZXF(String preWord, int currTag) {
         if (preWord == null) {
             return 1.0;

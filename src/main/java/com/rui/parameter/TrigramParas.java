@@ -30,17 +30,6 @@ public class TrigramParas extends AbstractParas {
     private int[][] biNumMatA;
 
     /**
-     * 3-gram状态发射计数矩阵
-     * 每一行为同一个隐藏状态下，转移到的可能的下一个观察状态的计数 [t_i]-->[w_i]
-     */
-    private int[][] numMatB;
-
-    /**
-     * 初始状态计数矩阵
-     */
-    private int[] numPi;
-
-    /**
      * 3-gram留存状态转移计数矩阵
      * 三维数组中的每一个三元组代表时序上相连的三元隐藏状态[t_i,t_i+1,t_i+2]
      * 在相同[t_i,t_i+1]的情况下，下一个可能的隐藏状态的计数，即[t_i,t_i+1]-->[t_i+2]
@@ -65,17 +54,6 @@ public class TrigramParas extends AbstractParas {
      * 对triProbMatA的平滑
      */
     private double[][][] smoothingMatA;
-
-    /**
-     * 2-gram状态发射概率矩阵
-     * 每一行为同一个隐藏转移状态下，转移到可能的下一个观察状态的概率,即 P([t_i]-->[w_i])
-     */
-    private double[][] probMatB;
-
-    /**
-     * 3-gram初始概率矩阵
-     */
-    private double[] probPi;
 
     public TrigramParas() {
         this.dictionary = new DictFactory();
@@ -127,18 +105,6 @@ public class TrigramParas extends AbstractParas {
     }
 
     @Override
-    protected void countMatB(String[] words, String[] tags) {
-        if (words.length != tags.length) {
-            logger.info("词组，标注长度不匹配。");
-            return;
-        }
-
-        for (int i = 0; i < words.length; i++) {
-            this.numMatB[this.dictionary.getTagId(tags[i])][this.dictionary.getWordId(words[i])]++;
-        }
-    }
-
-    @Override
     protected void smoothMatB() {
         for (int i = 0; i < this.numMatB.length; ++i) {
             for (int j = 0; j < this.numMatB[0].length; ++j) {
@@ -146,15 +112,6 @@ public class TrigramParas extends AbstractParas {
             }
         }
     }
-
-    @Override
-    protected void countPi(String[] tags) {
-
-        for (String tag : tags) {
-            this.numPi[this.dictionary.getTagId(tag)]++;
-        }
-    }
-
 
     @Override
     public void addHoldOut(WordTag[] wts) {
@@ -168,6 +125,7 @@ public class TrigramParas extends AbstractParas {
             this.holdOut[this.dictionary.getTagId(wts[i - 2].getTag())][this.dictionary.getTagId(wts[i - 1].getTag())][this.dictionary.getTagId(wts[i].getTag())]++;
         }
     }
+
     @Override
     protected void calcProbA() {
 
@@ -212,53 +170,6 @@ public class TrigramParas extends AbstractParas {
                         this.triProbMatA[t_1][t_2][t_3] = 0.0;
                     }
                 }
-            }
-
-        }
-    }
-
-    @Override
-    protected void calcProbB() {
-
-        int rowSize = this.dictionary.getSizeOfTags();
-        int colSize = this.dictionary.getSizeOfWords();
-
-        this.probMatB = new double[rowSize][colSize];
-
-        for (int row = 0; row < rowSize; ++row) {
-            double sumPerRow = 0;
-
-            for (int col = 0; col < colSize; ++col) {
-                sumPerRow += this.numMatB[row][col];
-            }
-
-            for (int col = 0; col < colSize; ++col) {
-                if (sumPerRow != 0) {
-                    probMatB[row][col] = (this.numMatB[row][col]) / (sumPerRow);
-                } else {
-                    probMatB[row][col] = 0.0;
-                }
-            }
-        }
-
-    }
-
-    @Override
-    protected void calcProbPi() {
-
-        int vectorSize = this.dictionary.getSizeOfTags();
-
-        this.probPi = new double[vectorSize];
-
-        double sumOfVector = 0.0;
-        for (int val : this.numPi) {
-            sumOfVector += val;
-        }
-        for (int index = 0; index < vectorSize; ++index) {
-            if (sumOfVector != 0) {
-                this.probPi[index] = this.numPi[index] / sumOfVector;
-            } else {
-                this.probPi[index] = 0.0;
             }
 
         }
@@ -399,12 +310,15 @@ public class TrigramParas extends AbstractParas {
 
     @Override
     public double getProbA(boolean smoothFlag,int... tagIndex) {
+        /**
+         * 一阶、二阶概念糅杂到了一起
+         */
         if (tagIndex.length == 3) {
             if (smoothFlag) {
                 if (this.smoothFlag) {
                     return this.smoothingMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
                 } else {
-                    logger.severe("未构造留存信息"+",返回未平滑概率替代。");
+//                    logger.severe("未构造留存信息"+",返回未平滑概率替代。");
                     return this.triProbMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
                 }
             } else {

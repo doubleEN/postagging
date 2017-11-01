@@ -19,7 +19,7 @@ public class CorpusSplit {
      * @param source
      *            标注语料
      * @param percent
-     *            百分之percent作为测试语料，剩余用作训练语料
+     *            作为测试语料的百分比，剩余用作训练语料
      *
      */
     public static void split(String source, int percent, String encoding) throws IOException

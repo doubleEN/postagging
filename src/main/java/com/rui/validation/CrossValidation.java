@@ -20,7 +20,7 @@ import java.util.Random;
 public class CrossValidation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 1000, NGram.BiGram,1000);
+        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 10, NGram.BiGram,-1);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }

@@ -18,6 +18,28 @@ import java.util.Random;
 public abstract class AbstractParas implements Serializable {
 
     /**
+     * 初始状态计数矩阵
+     */
+    protected int[] numPi;
+
+    /**
+     * 初始状态概率
+     */
+    protected double[] probPi;
+
+    /**
+     * 状态发射计数矩阵
+     * 每一行为同一个隐藏状态下，发射到的可能的同一时刻观察状态的计数[t_i]-->[w_i]
+     */
+    protected int[][] numMatB;
+
+    /**
+     * 状态发射概率矩阵
+     * 每一行为同一个隐藏转移状态下，发射到可能的同一时刻观察状态的概率,即 P([t_i]-->[w_i])
+     */
+    protected double[][] probMatB;
+
+    /**
      * word与tag的[映射词典]
      */
     protected DictFactory dictionary;
@@ -116,7 +138,15 @@ public abstract class AbstractParas implements Serializable {
      * @param words 有序的单词序列
      * @param tags  有序的标注序列
      */
-    protected abstract void countMatB(String[] words, String[] tags);
+    protected void countMatB(String[] words, String[] tags) {
+        if (words.length != tags.length) {
+            logger.warning("词组，标注长度不匹配。");//Level.info
+            return;
+        }
+        for (int i = 0; i < words.length; i++) {
+            this.numMatB[this.dictionary.getTagId(tags[i])][this.dictionary.getWordId(words[i])]++;
+        }
+    }
 
     /**
      * 平滑[混淆状态频数]
@@ -128,7 +158,12 @@ public abstract class AbstractParas implements Serializable {
      *
      * @param tags 标注集
      */
-    protected abstract void countPi(String[] tags);
+    protected void countPi(String[] tags) {
+        for (String tag : tags) {
+            this.numPi[this.dictionary.getTagId(tag)]++;
+        }
+    }
+
 
     /**
      * 划分[留存数据]
@@ -167,22 +202,70 @@ public abstract class AbstractParas implements Serializable {
     /**
      * 计算[混淆概率矩阵]
      */
-    protected abstract void calcProbB();
+    protected void calcProbB() {
+        int rowSize = this.dictionary.getSizeOfTags();
+        int colSize = this.dictionary.getSizeOfWords();
+
+        this.probMatB = new double[rowSize][colSize];
+
+        for (int row = 0; row < rowSize; ++row) {
+            double sumPerRow = 0;
+
+            for (int col = 0; col < colSize; ++col) {
+                sumPerRow += this.numMatB[row][col];
+            }
+
+            for (int col = 0; col < colSize; ++col) {
+                if (sumPerRow != 0) {
+                    probMatB[row][col] = (this.numMatB[row][col]) / (sumPerRow);
+                } else {
+                    probMatB[row][col] = 0.0;
+                }
+            }
+        }
+
+    }
 
     /**
      * 计算[初始概率向量]
      */
-    protected abstract void calcProbPi();
+    protected void calcProbPi() {
+        int vectorSize = this.dictionary.getSizeOfTags();
+
+        this.probPi = new double[vectorSize];
+
+        double sumOfVector = 0.0;
+        for (int val : this.numPi) {
+            sumOfVector += val;
+        }
+        for (int index = 0; index < vectorSize; ++index) {
+            if (sumOfVector != 0) {
+                this.probPi[index] = this.numPi[index] / sumOfVector;
+            } else {
+                this.probPi[index] = 0.0;
+            }
+
+        }
+    }
 
     /**
      * [平滑]的转移概率矩阵
      */
     protected abstract void smoothMatA();
 
+    /**
+     * 用隐藏状态初始概率作为未登录词每种隐藏状态概率
+     */
     public abstract double unkInitProb(int currTag);
 
+    /**
+     * 拉普拉斯处理未登录比概率
+     */
     public abstract double unkLaplace();
 
+    /**
+     * 张孝飞未登录词处理
+     */
     public abstract double unkZXF(String preWord, int currTag);
 
     /**

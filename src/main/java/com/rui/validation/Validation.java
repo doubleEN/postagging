@@ -26,7 +26,7 @@ import java.util.Set;
 public class Validation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.1, NGram.BiGram,1000);
+        ModelScore modelScore = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.1, NGram.BiGram, 1000);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }
@@ -71,11 +71,11 @@ public class Validation implements ModelScore {
      */
     private int holdOutRatio;
 
-    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram,int holdOutRatio) {
+    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram, int holdOutRatio) {
         this.stream = wordTagStream;
         this.ratio = ratio;
         this.nGram = nGram;
-        this.holdOutRatio=holdOutRatio;
+        this.holdOutRatio = holdOutRatio;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class Validation implements ModelScore {
      * 通过验证集获得隐藏状态标注器
      */
     private void getTagger() throws IOException {
-        DictFactory dictFactory=new DictFactory();
+        DictFactory dictFactory = new DictFactory();
 
         WordTag[] wts = null;
         Random random = new Random(11);
@@ -115,20 +115,31 @@ public class Validation implements ModelScore {
             hmm = new HMM2nd(paras);
         }
         this.stream.openReadStream();
+
         num = 0;
-        //会初始化计数矩阵
-        while ((wts = this.stream.readSentence()) != null) {
-            //在1000中取指定比例样本
-            if (num % fold != 0) {
-                int randNum = random.nextInt(this.holdOutRatio);
-                if (randNum == 1) {
-                    paras.addHoldOut(wts);
-                } else {
+        if (holdOutRatio > 0) {
+            Random generator = new Random(11);
+            while ((wts = stream.readSentence()) != null) {
+                if (num % fold != 0) {
+
+                    int randNum = generator.nextInt(holdOutRatio);
+                    if (randNum == 1) {
+                        paras.addHoldOut(wts);
+                    } else {
+                        paras.addCorpus(wts);
+                    }
+                }
+                ++num;
+            }
+        } else {
+            while ((wts = stream.readSentence()) != null) {
+                if (num % fold != 0) {
                     paras.addCorpus(wts);
                 }
+                ++num;
             }
-            ++num;
         }
+
         paras.calcProbs();
         this.measure = new WordPOSMeasure(dictFactory.getWordSet());
         this.tagger = new Tagger(hmm);
