@@ -125,17 +125,26 @@ public class CrossValidation implements ModelScore {
         }
         num = 0;
         this.stream.openReadStream();
-        while ((wts = this.stream.readSentence()) != null) {
-            if (num % this.fold != taggerNO) {
-                //相比于第一次扫描，因为划分了训练集和留存，训练参数中可能有些状态没有记录到
-                int randNum = random.nextInt(this.holdOutRatio);
-                if (randNum == 1) {
-                    paras.addHoldOut(wts);
-                } else {
+        if (this.holdOutRatio > 1) {
+            while ((wts = this.stream.readSentence()) != null) {
+                if (num % this.fold != taggerNO) {
+                    //相比于第一次扫描，因为划分了训练集和留存，训练参数中可能有些状态没有记录到
+                    int randNum = random.nextInt(this.holdOutRatio);
+                    if (randNum == 1) {
+                        paras.addHoldOut(wts);
+                    } else {
+                        paras.addCorpus(wts);
+                    }
+                }
+                ++num;
+            }
+        } else {
+            while ((wts = stream.readSentence()) != null) {
+                if (num % fold != taggerNO) {
                     paras.addCorpus(wts);
                 }
+                ++num;
             }
-            ++num;
         }
         paras.calcProbs();
         tagger = new Tagger(hmm);

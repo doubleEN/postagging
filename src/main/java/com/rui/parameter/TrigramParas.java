@@ -345,7 +345,7 @@ public class TrigramParas extends AbstractParas {
     }
 
     @Override
-    public double unkLaplace() {
+    public double unkMaxProb() {
         return 1.0;
     }
 }

@@ -261,7 +261,7 @@ public abstract class AbstractParas implements Serializable {
     /**
      * 拉普拉斯处理未登录比概率
      */
-    public abstract double unkLaplace();
+    public abstract double unkMaxProb();
 
     /**
      * 张孝飞未登录词处理

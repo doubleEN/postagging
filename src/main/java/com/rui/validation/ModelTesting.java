@@ -18,7 +18,7 @@ import java.util.HashSet;
 public class ModelTesting implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/training", "utf-8"),new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/testing", "utf-8"), NGram.BiGram,1000);
+        ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/training", "utf-8"),new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/testing", "utf-8"), NGram.BiGram,-1);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }

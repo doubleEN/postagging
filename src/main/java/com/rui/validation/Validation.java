@@ -26,7 +26,7 @@ import java.util.Set;
 public class Validation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.1, NGram.BiGram, 1000);
+        ModelScore modelScore = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.1, NGram.BiGram, -1);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }
@@ -117,7 +117,7 @@ public class Validation implements ModelScore {
         this.stream.openReadStream();
 
         num = 0;
-        if (holdOutRatio > 0) {
+        if (holdOutRatio > 1) {
             Random generator = new Random(11);
             while ((wts = stream.readSentence()) != null) {
                 if (num % fold != 0) {

@@ -222,7 +222,7 @@ public class BigramParas extends AbstractParas {
     }
 
     @Override
-    public double unkLaplace() {
+    public double unkMaxProb() {
         return 1.0;
     }
 
