@@ -137,7 +137,7 @@ public class HMM2nd extends HMM {
                 if (this.hmmParas.getDictionary().getWordId(words[0]) != null) {
                     launchProb = Math.log(this.hmmParas.getProbB(false,tag_k, this.hmmParas.getDictionary().getWordId(words[0])));
                 } else {
-                    launchProb=Math.log(this.hmmParas.unkInitProb(tag_k));
+                    launchProb=Math.log(this.hmmParas.getUnkProb(null,tag_k));
                 }
 
                 double val = Math.log(this.hmmParas.getProbPi(tag_k)) + launchProb;
@@ -158,7 +158,7 @@ public class HMM2nd extends HMM {
                 if (this.hmmParas.getDictionary().getWordId(words[1]) != null) {
                     launchProb = Math.log(this.hmmParas.getProbB(false, tag_k, this.hmmParas.getDictionary().getWordId(words[1])));
                 } else {
-                    launchProb=Math.log(this.hmmParas.unkInitProb(tag_k));
+                    launchProb=Math.log(this.hmmParas.getUnkProb(words[1],tag_k));
                 }
 
                 for (int rank = 0; rank < topK; ++rank) {
@@ -211,7 +211,7 @@ public class HMM2nd extends HMM {
                         if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
                             launchProb = Math.log(this.hmmParas.getProbB(false,tag_k, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
                         } else {
-                            launchProb=Math.log(this.hmmParas.unkInitProb(tag_k));
+                            launchProb=Math.log(this.hmmParas.getUnkProb(words[wordIndex-1],tag_k));
                         }
                         midProb[wordIndex][rankCount][tag_j][tag_k] = maxProb + launchProb;
 

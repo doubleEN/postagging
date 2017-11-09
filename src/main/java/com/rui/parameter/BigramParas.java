@@ -1,6 +1,7 @@
 package com.rui.parameter;
 
 import com.rui.dictionary.DictFactory;
+import com.rui.util.GlobalParas;
 import com.rui.wordtag.WordTag;
 import com.rui.stream.WordTagStream;
 
@@ -38,27 +39,31 @@ public class BigramParas extends AbstractParas {
      */
     private double[][] smoothingMatA;
 
-    public BigramParas() {
+    public BigramParas(int unkHandle) throws IllegalAccessException{
         this.dictionary = new DictFactory();
         this.holdOut = new int[1][1];
         this.numMatA = new int[1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
+        this.unkHandle=unkHandle;
+        logger.info("使用 "+ GlobalParas.getUnkHandle(unkHandle));
     }
 
 
-    public BigramParas(DictFactory dict) {
+    public BigramParas(DictFactory dict,int unkHandle) throws IllegalAccessException{
         this.dictionary = dict;
         this.numMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
         this.numPi = new int[this.dictionary.getSizeOfTags()];
+        this.unkHandle=unkHandle;
+        logger.info("使用 "+ GlobalParas.getUnkHandle(unkHandle));
     }
 
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
-    public BigramParas(WordTagStream stream,int holdOutRatio) throws IOException {
+    public BigramParas(WordTagStream stream,int holdOutRatio,int unkHandle) throws IOException,IllegalAccessException {
         this.dictionary = DictFactory.generateDict(stream);
         stream.openReadStream();
         this.numMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
@@ -66,6 +71,8 @@ public class BigramParas extends AbstractParas {
         this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
         this.numPi = new int[this.dictionary.getSizeOfTags()];
         this.initParas(stream,holdOutRatio);
+        this.unkHandle=unkHandle;
+        logger.info("使用 "+ GlobalParas.getUnkHandle(unkHandle));
     }
 
     @Override
@@ -214,16 +221,6 @@ public class BigramParas extends AbstractParas {
         } else {
             return this.probMatA[tagIndex[0]][tagIndex[1]];
         }
-    }
-
-    @Override
-    public double unkInitProb(int currTag) {
-        return this.probPi[currTag];
-    }
-
-    @Override
-    public double unkMaxProb() {
-        return 1.0;
     }
 
     @Override

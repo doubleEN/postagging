@@ -1,6 +1,5 @@
 package com.rui.app;
 
-import com.rui.POSTagger.POSTaggerFactory;
 import com.rui.tagger.Tagger;
 
 import java.io.IOException;
@@ -23,7 +22,7 @@ public class POSTagging {
             logger.severe("参数数目不合法，数目为" + args.length + ",至少为2。");
             System.exit(1);
         }
-        Tagger tagger= POSTaggerFactory.buildTagger(args[0]);
+        Tagger tagger= new Tagger(args[0]);
         for (int i=1;i<args.length;++i) {
             logger.info("\n\t未标注句子:["+args[i]+"]\n"+ "\t标注后句子："+Arrays.toString(tagger.tag(args[i])));
             System.out.println();

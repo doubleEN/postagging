@@ -1,6 +1,7 @@
 package com.rui.parameter;
 
 import com.rui.dictionary.DictFactory;
+import com.rui.util.GlobalParas;
 import com.rui.wordtag.WordTag;
 import com.rui.stream.WordTagStream;
 
@@ -53,6 +54,11 @@ public abstract class AbstractParas implements Serializable {
      * 是否使用留存平滑
      */
     protected boolean smoothFlag=false;
+
+    /**
+     * 未登录词处理方式
+     */
+    protected int unkHandle;
 
     /**
      * 初始化[语料库]，并计算概率参数的[模板方法]
@@ -254,21 +260,6 @@ public abstract class AbstractParas implements Serializable {
     protected abstract void smoothMatA();
 
     /**
-     * 用隐藏状态初始概率作为未登录词每种隐藏状态概率
-     */
-    public abstract double unkInitProb(int currTag);
-
-    /**
-     * 拉普拉斯处理未登录比概率
-     */
-    public abstract double unkMaxProb();
-
-    /**
-     * 张孝飞未登录词处理
-     */
-    public abstract double unkZXF(String preWord, int currTag);
-
-    /**
      * 获得指定标注的初始概率
      *
      * @param indexOfTag 标注的id
@@ -299,5 +290,38 @@ public abstract class AbstractParas implements Serializable {
     public DictFactory getDictionary() {
         return this.dictionary;
     }
+
+    /**
+     * 未登录词概率
+     */
+    public double getUnkProb(String preWord,int currTag){
+        if (GlobalParas.UNK_INITPROB == unkHandle) {
+            return this.unkInitProb(currTag);
+        } else if (GlobalParas.UNK_MAXPROB == this.unkHandle) {
+            return this.unkMaxProb();
+        } else if (GlobalParas.UNK_ZXF == this.unkHandle) {
+            return unkZXF(preWord, currTag);
+        } else {
+            throw new IllegalArgumentException("未提供有效未登录词处理参数。");
+        }
+    }
+
+    /**
+     * 用隐藏状态初始概率作为未登录词每种隐藏状态概率
+     */
+    private double unkInitProb(int currTag) {
+        return this.probPi[currTag];
+    }
+
+    /**
+     * 拉普拉斯处理未登录比概率
+     */
+    private double unkMaxProb() {
+        return 1.0;
+    }
+    /**
+     * 张孝飞未登录词处理
+     */
+    protected abstract double unkZXF(String preWord, int currTag);
 
 }

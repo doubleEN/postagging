@@ -13,7 +13,7 @@ public interface ModelScore {
     /**
      * 模型评估的执行方法
      */
-    void toScore() throws FileNotFoundException,IOException;
+    void toScore() throws Exception;
 
     /**
      * 返回模型的评分

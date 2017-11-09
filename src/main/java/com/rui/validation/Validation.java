@@ -9,6 +9,7 @@ import com.rui.parameter.TrigramParas;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
+import com.rui.util.GlobalParas;
 import com.rui.wordtag.WordTag;
 import com.sun.org.apache.xpath.internal.operations.Mod;
 
@@ -26,7 +27,7 @@ import java.util.Set;
 public class Validation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.1, NGram.BiGram, -1);
+        ModelScore modelScore = new Validation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 0.1, NGram.BiGram, -1, GlobalParas.UNK_MAXPROB);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }
@@ -71,15 +72,21 @@ public class Validation implements ModelScore {
      */
     private int holdOutRatio;
 
-    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram, int holdOutRatio) {
+    /**
+     * 未登录词处理方式
+     */
+    private int unkHandle;
+
+    public Validation(WordTagStream wordTagStream, double ratio, NGram nGram, int holdOutRatio,int unkHandle) {
         this.stream = wordTagStream;
         this.ratio = ratio;
         this.nGram = nGram;
         this.holdOutRatio = holdOutRatio;
+        this.unkHandle=unkHandle;
     }
 
     @Override
-    public void toScore() throws IOException {
+    public void toScore() throws Exception {
         this.getTagger();
         this.stream.openReadStream();
         this.estimate();
@@ -88,7 +95,7 @@ public class Validation implements ModelScore {
     /**
      * 通过验证集获得隐藏状态标注器
      */
-    private void getTagger() throws IOException {
+    private void getTagger() throws IOException,IllegalAccessException {
         DictFactory dictFactory = new DictFactory();
 
         WordTag[] wts = null;
@@ -108,10 +115,10 @@ public class Validation implements ModelScore {
         AbstractParas paras = null;
         HMM hmm = null;
         if (this.nGram == NGram.BiGram) {
-            paras = new BigramParas(dictFactory);
+            paras = new BigramParas(dictFactory,this.unkHandle);
             hmm = new HMM1st(paras);
         } else if (this.nGram == NGram.TriGram) {
-            paras = new TrigramParas(dictFactory);
+            paras = new TrigramParas(dictFactory,this.unkHandle);
             hmm = new HMM2nd(paras);
         }
         this.stream.openReadStream();

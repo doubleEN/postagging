@@ -75,7 +75,7 @@ public class HMM1st extends HMM {
                 //发射概率
                 launchProb = Math.log(this.hmmParas.getProbB(false, tagIndex, this.hmmParas.getDictionary().getWordId(words[0])));
             } else {
-                launchProb = Math.log(this.hmmParas.unkMaxProb());//边界上的观察态如何给定:null, tagIndex
+                launchProb = Math.log(this.hmmParas.getUnkProb(null,tagIndex));
             }
             double val = Math.log(this.hmmParas.getProbPi(tagIndex)) + launchProb;
             //为k次最优赋予相同的初始发射概率
@@ -132,7 +132,7 @@ public class HMM1st extends HMM {
                     if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
                         launchProb = Math.log(this.hmmParas.getProbB(false, currTag, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
                     } else {
-                        launchProb = Math.log(this.hmmParas.unkMaxProb());//words[wordIndex-1], currTag
+                        launchProb = Math.log(this.hmmParas.getUnkProb(words[wordIndex-1],currTag));
                     }
                     midProb[wordIndex][countK][currTag] = maxProb + launchProb;
 

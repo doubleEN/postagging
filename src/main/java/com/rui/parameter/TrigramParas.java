@@ -55,37 +55,43 @@ public class TrigramParas extends AbstractParas {
      */
     private double[][][] smoothingMatA;
 
-    public TrigramParas() {
+    public TrigramParas(int unkHandle) {
         this.dictionary = new DictFactory();
         this.triNumMatA = new int[1][1][1];
         this.biNumMatA = new int[1][1];
         this.holdOut = new int[1][1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
+        this.unkHandle = unkHandle;
+        logger.info("使用 " + GlobalParas.getUnkHandle(unkHandle));
     }
 
 
-    public TrigramParas(DictFactory dict) {
+    public TrigramParas(DictFactory dict,int unkHandle) {
         this.dictionary = dict;
         this.triNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.biNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
         this.numPi = new int[this.dictionary.getSizeOfTags()];
+        this.unkHandle = unkHandle;
+        logger.info("使用 " + GlobalParas.getUnkHandle(unkHandle));
     }
 
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
-    public TrigramParas(WordTagStream stream,int holdOutRatio) throws IOException{
-        this.dictionary= DictFactory.generateDict(stream);//一次扫描生成语料库对应的[映射词典]
+    public TrigramParas(WordTagStream stream, int holdOutRatio,int unkHandle) throws IOException {
+        this.dictionary = DictFactory.generateDict(stream);//一次扫描生成语料库对应的[映射词典]
         stream.openReadStream();
         this.triNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.biNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
         this.numPi = new int[this.dictionary.getSizeOfTags()];
-        this.initParas(stream,holdOutRatio);
+        this.initParas(stream, holdOutRatio);
+        this.unkHandle = unkHandle;
+        logger.info("使用 " + GlobalParas.getUnkHandle(unkHandle));
     }
 
     @Override
@@ -119,7 +125,7 @@ public class TrigramParas extends AbstractParas {
             logger.info("句子长度不够，不能添加留存频数。");
             return;
         }
-        this.smoothFlag=true;
+        this.smoothFlag = true;
         this.dictionary.addIndex(wts);
         for (int i = 2; i < wts.length; i++) {
             this.holdOut[this.dictionary.getTagId(wts[i - 2].getTag())][this.dictionary.getTagId(wts[i - 1].getTag())][this.dictionary.getTagId(wts[i].getTag())]++;
@@ -271,7 +277,7 @@ public class TrigramParas extends AbstractParas {
                         */
                     if (expression1 > expression2 && expression1 > expression3) {
                         lambd_count1 += t_1_2_3;
-                    } else if (expression2 >expression3) {
+                    } else if (expression2 > expression3) {
                         lambd_count2 += t_1_2_3;
                     } else {
                         lambd_count3 += t_1_2_3;
@@ -296,7 +302,7 @@ public class TrigramParas extends AbstractParas {
     }
 
     /**
-        获得指定概率
+     * 获得指定概率
      */
     @Override
     public double getProbPi(int indexOfTag) {
@@ -304,12 +310,12 @@ public class TrigramParas extends AbstractParas {
     }
 
     @Override
-    public double getProbB(boolean smoothFlag,int indexOfTag, int indexOfWord) {
+    public double getProbB(boolean smoothFlag, int indexOfTag, int indexOfWord) {
         return this.probMatB[indexOfTag][indexOfWord];
     }
 
     @Override
-    public double getProbA(boolean smoothFlag,int... tagIndex) {
+    public double getProbA(boolean smoothFlag, int... tagIndex) {
         /**
          * 一阶、二阶概念糅杂到了一起
          */
@@ -324,28 +330,18 @@ public class TrigramParas extends AbstractParas {
             } else {
                 return this.triProbMatA[tagIndex[0]][tagIndex[1]][tagIndex[2]];
             }
-        }else if (tagIndex.length==2){
+        } else if (tagIndex.length == 2) {
             return this.biProbMatA[tagIndex[0]][tagIndex[1]];
-        }else {
+        } else {
             logger.warning("参数不合法。");
             System.exit(1);
         }
         return -1;
     }
 
-
     @Override
-    public double unkZXF( String preWord, int currTag) {
+    public double unkZXF(String preWord, int currTag) {
         return 1.0;
     }
 
-    @Override
-    public double unkInitProb(int currTag) {
-        return this.probPi[currTag];
-    }
-
-    @Override
-    public double unkMaxProb() {
-        return 1.0;
-    }
 }

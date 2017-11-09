@@ -20,7 +20,7 @@ import java.util.Random;
 public class CrossValidation implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 10, NGram.BiGram,-1);
+        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 10, NGram.BiGram,-1,1);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }
@@ -71,20 +71,26 @@ public class CrossValidation implements ModelScore {
     private int holdOutRatio;
 
     /**
+     * 未登录词处理方式
+     */
+    private int unkHandle;
+
+    /**
      * @param wordTagStream 包含特点语料路径的语料读取流
      * @param fold          交叉验证折数
      * @param nGram         语法参数
      */
-    public CrossValidation(WordTagStream wordTagStream, int fold, NGram nGram,int holdOutRatio) {
+    public CrossValidation(WordTagStream wordTagStream, int fold, NGram nGram,int holdOutRatio,int unkHandle) {
         this.stream = wordTagStream;
         this.fold = fold;
         this.nGram = nGram;
         this.measure = new WordPOSMeasure();
         this.holdOutRatio=holdOutRatio;
+        this.unkHandle=unkHandle;
     }
 
     @Override
-    public void toScore() throws IOException {
+    public void toScore() throws Exception {
         for (int i = 0; i < this.fold; ++i) {
             this.tagger = this.getTagger(i);
             this.stream.openReadStream();
@@ -99,7 +105,7 @@ public class CrossValidation implements ModelScore {
      * @param taggerNO 代表训练集的编号
      * @return 隐藏状态标注器
      */
-    private Tagger getTagger(int taggerNO) throws IOException {
+    private Tagger getTagger(int taggerNO) throws Exception {
         WordTag[] wts = null;
         Tagger tagger = null;
         Random random = new Random(11);
@@ -117,10 +123,10 @@ public class CrossValidation implements ModelScore {
         }
 
         if (this.nGram == NGram.BiGram) {
-            paras = new BigramParas(dictFactory);
+            paras = new BigramParas(dictFactory,this.unkHandle);
             hmm = new HMM1st(paras);
         } else if (this.nGram == NGram.TriGram) {
-            paras = new TrigramParas(dictFactory);
+            paras = new TrigramParas(dictFactory,this.unkHandle);
             hmm = new HMM2nd(paras);
         }
         num = 0;

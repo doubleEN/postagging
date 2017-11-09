@@ -10,6 +10,7 @@ import com.rui.parameter.TrigramParas;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
 import com.rui.tagger.Tagger;
+import com.rui.util.GlobalParas;
 import com.rui.wordtag.WordTag;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.util.HashSet;
 public class ModelTesting implements ModelScore {
 
     public static void main(String[] args) throws Exception {
-        ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/training", "utf-8"),new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/testing", "utf-8"), NGram.BiGram,-1);
+        ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/training", "utf-8"),new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/testing", "utf-8"), NGram.BiGram,-1, GlobalParas.UNK_MAXPROB);
         modelScore.toScore();
         System.out.println(modelScore.getScores().toString());
     }
@@ -69,15 +70,21 @@ public class ModelTesting implements ModelScore {
      */
     private int holdOutRatio;
 
-    public ModelTesting(WordTagStream training, WordTagStream testing, NGram nGram,int holdOutRatio) {
+    /**
+     * 未登录词处理方式
+     */
+    private int unkHandle;
+
+    public ModelTesting(WordTagStream training, WordTagStream testing, NGram nGram,int holdOutRatio,int unkHandle) {
         this.training = training;
         this.testing = testing;
         this.nGram = nGram;
         this.holdOutRatio=holdOutRatio;
+        this.unkHandle=unkHandle;
     }
 
     @Override
-    public void toScore() throws IOException {
+    public void toScore() throws Exception {
         this.getTagger();
         this.estimate();
     }
@@ -85,16 +92,16 @@ public class ModelTesting implements ModelScore {
     /**
      * 通过训练集获得隐藏状态标注器
      */
-    private void getTagger() throws IOException {
+    private void getTagger() throws Exception {
 
         Tagger tagger = null;
         AbstractParas paras = null;
         HMM hmm = null;
         if (this.nGram == NGram.BiGram) {
-            paras = new BigramParas(this.training,this.holdOutRatio);
+            paras = new BigramParas(this.training,this.holdOutRatio,this.unkHandle);
             hmm = new HMM1st(paras);
         } else if (this.nGram == NGram.TriGram) {
-            paras = new TrigramParas(this.training,this.holdOutRatio);
+            paras = new TrigramParas(this.training,this.holdOutRatio,this.unkHandle);
             hmm = new HMM2nd(paras);
         }
         this.tagger = new Tagger(hmm);

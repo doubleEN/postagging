@@ -1,6 +1,7 @@
 package com.rui.parameter;
 
 import com.rui.stream.PeopleDailyWordTagStream;
+import com.rui.util.GlobalParas;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -16,7 +17,7 @@ public class AbstractParasTest {
     @Test
     public void calc2Gram() throws Exception {
 
-        AbstractParas paras=new BigramParas();
+        AbstractParas paras=new BigramParas(GlobalParas.UNK_MAXPROB);
 
         paras.addCorpus("学习/v 自然/n 语言/n 处理/n 。/w",new PeopleDailyWordTagStream());
         paras.addCorpus("学习/v nlp/yn 。/w",new PeopleDailyWordTagStream());
@@ -40,7 +41,7 @@ public class AbstractParasTest {
     @Test
     public void calc3Gram() throws Exception {
 
-        AbstractParas paras=new TrigramParas();
+        AbstractParas paras=new TrigramParas(GlobalParas.UNK_MAXPROB);
 
         paras.addCorpus("学习/v 自然/n 语言/n 处理/n 。/w",new PeopleDailyWordTagStream());
         paras.addCorpus("学习/v 科学/n 知识/tn",new PeopleDailyWordTagStream());

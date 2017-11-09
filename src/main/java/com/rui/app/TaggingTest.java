@@ -18,10 +18,11 @@ public class TaggingTest {
      *              [3]:训练语料字符编码方式
      *              [4]:测试语料字符编码方式
      *              [5]:留存数据比例
+     *              [6]:未登录次处理方式
      */
     public static void main(String[] args) throws Exception{
-        if (args.length != 6) {
-            logger.severe("参数数目不合法，数目为" + args.length + ",应为6。");
+        if (args.length != 7) {
+            logger.severe("参数数目不合法，数目为" + args.length + ",应为7。");
             System.exit(1);
         }
 
@@ -36,7 +37,7 @@ public class TaggingTest {
             System.exit(1);
         }
 
-        ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream(args[0],args[3]),new PeopleDailyWordTagStream(args[1],args[4]), nGram,Integer.parseInt(args[5]));
+        ModelScore modelScore = new ModelTesting(new PeopleDailyWordTagStream(args[0],args[3]),new PeopleDailyWordTagStream(args[1],args[4]), nGram,Integer.parseInt(args[5]),Integer.parseInt(args[6]));
         modelScore.toScore();
         logger.info("交加验证评分为：\n"+ modelScore.getScores().toString());
     }

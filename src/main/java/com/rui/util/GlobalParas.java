@@ -2,6 +2,7 @@ package com.rui.util;
 
 import org.omg.CORBA.PUBLIC_MEMBER;
 
+import java.lang.reflect.Field;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +17,30 @@ public class GlobalParas {
     public static final String DELETE_INTERPOLATION="DELETE_INTERPOLATION";
     public static final String LAPLACE="LAPLACE";
     public static final String GOOD_TURING="GOOD_TURING";
+
+    /**
+     * 未登录词处理
+     */
+    public static final int UNK_MAXPROB=1;
+    public static final int UNK_INITPROB=2;
+    public static final int UNK_ZXF=3;
+
+    public static String getUnkHandle(int unkHandle) {
+
+        if (unkHandle == GlobalParas.UNK_MAXPROB) {
+            return "UNK_MAXPROB 处理未登录词";
+        }
+
+        if (unkHandle == GlobalParas.UNK_INITPROB) {
+            return "UNK_INITPROB 处理未登录词。";
+        }
+
+        if (unkHandle == GlobalParas.UNK_ZXF) {
+            return "UNK_ZXF 处理未登录词。";
+        }
+
+        return "未指明有效的未登录词处理方式";
+    }
 
     /**
      * PeopleDailyNews语料库标注集大小

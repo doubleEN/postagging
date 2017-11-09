@@ -21,10 +21,11 @@ public class HMMValidation {
      *              [2]:验证折数，为大于2数字
      *              [3]:字符编码方式
      *              [4]:留存数据比例
+     *              [5]:未登录次处理方式
      */
-    public static void main(String[] args) throws IOException,ClassNotFoundException{
-        if (args.length != 5) {
-            logger.severe("参数数目不合法，数目为" + args.length + ",应为5。");
+    public static void main(String[] args) throws Exception{
+        if (args.length != 6) {
+            logger.severe("参数数目不合法，数目为" + args.length + ",应为6。");
             System.exit(1);
         }
         int cv = -1;
@@ -44,7 +45,7 @@ public class HMMValidation {
             System.exit(1);
         }
 
-        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream(args[0],args[3]), cv, nGram,Integer.parseInt(args[4]));
+        ModelScore modelScore = new CrossValidation(new PeopleDailyWordTagStream(args[0],args[3]), cv, nGram,Integer.parseInt(args[4]),Integer.parseInt(args[5]));
         modelScore.toScore();
         logger.info("交加验证评分为： "+ modelScore.getScores().toString());
     }
