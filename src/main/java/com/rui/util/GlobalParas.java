@@ -28,15 +28,15 @@ public class GlobalParas {
     public static String getUnkHandle(int unkHandle) {
 
         if (unkHandle == GlobalParas.UNK_MAXPROB) {
-            return "UNK_MAXPROB 处理未登录词";
+            return "UNK_MAXPROB";
         }
 
         if (unkHandle == GlobalParas.UNK_INITPROB) {
-            return "UNK_INITPROB 处理未登录词。";
+            return "UNK_INITPROB";
         }
 
         if (unkHandle == GlobalParas.UNK_ZXF) {
-            return "UNK_ZXF 处理未登录词。";
+            return "UNK_ZXF";
         }
 
         return "未指明有效的未登录词处理方式";
