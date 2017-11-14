@@ -103,7 +103,7 @@ public class HMM2nd extends HMM {
             int maxIndex = -1;
             for (int i = 0; i < sizeOfTags; ++i) {
                 double probs = -1;
-                probs = this.hmmParas.getProbPi(i) * this.hmmParas.getProbB(false,i, wordId);
+                probs = this.hmmParas.getProbPi(i) * this.hmmParas.getProbB(i, wordId);
                 if (maxProb < probs) {
                     maxIndex = i;
                     maxProb = probs;
@@ -135,7 +135,7 @@ public class HMM2nd extends HMM {
             for (int tag_j = 0; tag_j < sizeOfTags; ++tag_j) {
                 double launchProb = 0;
                 if (this.hmmParas.getDictionary().getWordId(words[0]) != null) {
-                    launchProb = Math.log(this.hmmParas.getProbB(false,tag_k, this.hmmParas.getDictionary().getWordId(words[0])));
+                    launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[0])));
                 } else {
                     launchProb=Math.log(this.hmmParas.getUnkProb(null,tag_k));
                 }
@@ -156,7 +156,7 @@ public class HMM2nd extends HMM {
 
                 double launchProb = 0;
                 if (this.hmmParas.getDictionary().getWordId(words[1]) != null) {
-                    launchProb = Math.log(this.hmmParas.getProbB(false, tag_k, this.hmmParas.getDictionary().getWordId(words[1])));
+                    launchProb = Math.log(this.hmmParas.getProbB( tag_k, this.hmmParas.getDictionary().getWordId(words[1])));
                 } else {
                     launchProb=Math.log(this.hmmParas.getUnkProb(words[1],tag_k));
                 }
@@ -209,7 +209,7 @@ public class HMM2nd extends HMM {
                         //状态发射时的未登录词处理
                         double launchProb = 0;
                         if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
-                            launchProb = Math.log(this.hmmParas.getProbB(false,tag_k, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
+                            launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
                         } else {
                             launchProb=Math.log(this.hmmParas.getUnkProb(words[wordIndex-1],tag_k));
                         }

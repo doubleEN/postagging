@@ -18,11 +18,8 @@ import java.io.IOException;
  */
 public class GridSearch {
     public static void main(String[] args) throws Exception {
-        int[] holdoutRatio = new int[1000];
-        for (int i=1;i<1001;++i) {
-            holdoutRatio[i-1]=i*2;
-        }
-        GridSearch gridSearch = new GridSearch(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 10, new NGram[]{NGram.BiGram}, holdoutRatio, new int[]{GlobalParas.UNK_MAXPROB},"/home/jx_m/IdeaProjects/tags/src/main/java/com/rui/validation/validationResult/result_1.csv",false);
+        int[] holdoutRatio = {956,1578,1056,1386,1466};
+        GridSearch gridSearch = new GridSearch(new PeopleDailyWordTagStream("/home/jx_m/桌面/PoS/corpus/199801_format.txt", "utf-8"), 10, new NGram[]{NGram.BiGram}, holdoutRatio, new int[]{1,2,3},"/home/jx_m/IdeaProjects/tags/src/main/java/com/rui/validation/validationResult/unvalid.csv",false);
         gridSearch.score();
     }
 

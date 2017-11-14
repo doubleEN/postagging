@@ -39,40 +39,40 @@ public class BigramParas extends AbstractParas {
      */
     private double[][] smoothingMatA;
 
-    public BigramParas(int unkHandle) throws IllegalAccessException{
+    public BigramParas(int unkHandle) throws IllegalAccessException {
         this.dictionary = new DictFactory();
         this.holdOut = new int[1][1];
         this.numMatA = new int[1][1];
         this.numMatB = new int[1][1];
         this.numPi = new int[1];
-        this.unkHandle=unkHandle;
-        logger.info("使用 "+ GlobalParas.getUnkHandle(unkHandle));
+        this.unkHandle = unkHandle;
+        logger.info("使用 " + GlobalParas.getUnkHandle(unkHandle));
     }
 
 
-    public BigramParas(DictFactory dict,int unkHandle) throws IllegalAccessException{
+    public BigramParas(DictFactory dict, int unkHandle) throws IllegalAccessException {
         this.dictionary = dict;
         this.numMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
         this.numPi = new int[this.dictionary.getSizeOfTags()];
-        this.unkHandle=unkHandle;
-        logger.info("使用 "+ GlobalParas.getUnkHandle(unkHandle));
+        this.unkHandle = unkHandle;
+        logger.info("使用 " + GlobalParas.getUnkHandle(unkHandle));
     }
 
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
-    public BigramParas(WordTagStream stream,int holdOutRatio,int unkHandle) throws IOException,IllegalAccessException {
+    public BigramParas(WordTagStream stream, int holdOutRatio, int unkHandle) throws IOException, IllegalAccessException {
         this.dictionary = DictFactory.generateDict(stream);
         stream.openReadStream();
         this.numMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.holdOut = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.numMatB = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfWords()];
         this.numPi = new int[this.dictionary.getSizeOfTags()];
-        this.initParas(stream,holdOutRatio);
-        this.unkHandle=unkHandle;
-        logger.info("使用 "+ GlobalParas.getUnkHandle(unkHandle));
+        this.initParas(stream, holdOutRatio);
+        this.unkHandle = unkHandle;
+        logger.info("使用 " + GlobalParas.getUnkHandle(unkHandle));
     }
 
     @Override
@@ -83,21 +83,14 @@ public class BigramParas extends AbstractParas {
     }
 
     //+1平滑会引入偏差
-    @Override
-    protected void smoothMatB() {
-        for (int i = 0; i < this.numMatB.length; ++i) {
-            for (int j = 0; j < this.numMatB[0].length; ++j) {
-                ++this.numMatB[i][j];
-            }
-        }
-    }
+
 
     /**
      * 留存数据处理
      */
     @Override
     public void addHoldOut(WordTag[] wts) {
-        this.smoothFlag=true;
+        this.smoothFlag = true;
         this.dictionary.addIndex(wts);
         for (int i = 1; i < wts.length; i++) {
             this.holdOut[this.dictionary.getTagId(wts[i - 1].getTag())][this.dictionary.getTagId(wts[i].getTag())]++;
@@ -188,25 +181,8 @@ public class BigramParas extends AbstractParas {
         }
     }
 
-    /**
-     * 参数访问接口的实现
-     */
     @Override
-    public double getProbPi(int indexOfTag) {
-        return this.probPi[indexOfTag];
-    }
-
-    @Override
-    public double getProbB(boolean isSmooth, int indexOfTag, int indexOfWord) {
-        if (isSmooth) {
-            return this.probMatB[indexOfTag][indexOfWord];
-        } else {
-            return this.probMatB[indexOfTag][indexOfWord];
-        }
-    }
-
-    @Override
-    public double getProbA(boolean isSmooth, int... tagIndex){
+    public double getProbA(boolean isSmooth, int... tagIndex) {
         if (tagIndex.length != 2) {
             logger.severe("获取转移概率参数不合法。");
             System.exit(1);

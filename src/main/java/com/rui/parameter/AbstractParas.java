@@ -157,7 +157,13 @@ public abstract class AbstractParas implements Serializable {
     /**
      * 平滑[混淆状态频数]
      */
-    protected abstract void smoothMatB();
+    protected void smoothMatB() {
+        for (int i = 0; i < this.numMatB.length; ++i) {
+            for (int j = 0; j < this.numMatB[0].length; ++j) {
+                ++this.numMatB[i][j];
+            }
+        }
+    }
 
     /**
      * 统计[初始状态频数]
@@ -265,7 +271,9 @@ public abstract class AbstractParas implements Serializable {
      * @param indexOfTag 标注的id
      * @return 标注的初始概率
      */
-    public abstract double getProbPi(int indexOfTag);
+    public double getProbPi(int indexOfTag) {
+        return this.probPi[indexOfTag];
+    }
 
     /**
      * 获得指定[tag-->word]的混淆概率
@@ -274,7 +282,10 @@ public abstract class AbstractParas implements Serializable {
      * @param indexOfWord 单词的id
      * @return 标注到词的发射概率
      */
-    public abstract double getProbB(boolean smoothFlag, int indexOfTag, int indexOfWord);
+    public double getProbB(int indexOfTag, int indexOfWord) {
+        return this.probMatB[indexOfTag][indexOfWord];
+    }
+
 
     /**
      * 获得指定[tag_i-->tag_i+1]的转移概率

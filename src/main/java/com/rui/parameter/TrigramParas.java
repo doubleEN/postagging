@@ -67,7 +67,7 @@ public class TrigramParas extends AbstractParas {
     }
 
 
-    public TrigramParas(DictFactory dict,int unkHandle) {
+    public TrigramParas(DictFactory dict, int unkHandle) {
         this.dictionary = dict;
         this.triNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
         this.biNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
@@ -81,7 +81,7 @@ public class TrigramParas extends AbstractParas {
     /**
      * @param stream 指明特点语料路径的语料读取流
      */
-    public TrigramParas(WordTagStream stream, int holdOutRatio,int unkHandle) throws IOException {
+    public TrigramParas(WordTagStream stream, int holdOutRatio, int unkHandle) throws IOException {
         this.dictionary = DictFactory.generateDict(stream);//一次扫描生成语料库对应的[映射词典]
         stream.openReadStream();
         this.triNumMatA = new int[this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()][this.dictionary.getSizeOfTags()];
@@ -107,15 +107,6 @@ public class TrigramParas extends AbstractParas {
         //二元标注状态统计
         for (int i = 1; i < tags.length; i++) {
             this.biNumMatA[this.dictionary.getTagId(tags[i - 1])][this.dictionary.getTagId(tags[i])]++;
-        }
-    }
-
-    @Override
-    protected void smoothMatB() {
-        for (int i = 0; i < this.numMatB.length; ++i) {
-            for (int j = 0; j < this.numMatB[0].length; ++j) {
-                ++this.numMatB[i][j];
-            }
         }
     }
 
@@ -301,19 +292,6 @@ public class TrigramParas extends AbstractParas {
         }
     }
 
-    /**
-     * 获得指定概率
-     */
-    @Override
-    public double getProbPi(int indexOfTag) {
-        return this.probPi[indexOfTag];
-    }
-
-    @Override
-    public double getProbB(boolean smoothFlag, int indexOfTag, int indexOfWord) {
-        return this.probMatB[indexOfTag][indexOfWord];
-    }
-
     @Override
     public double getProbA(boolean smoothFlag, int... tagIndex) {
         /**
@@ -339,6 +317,9 @@ public class TrigramParas extends AbstractParas {
         return -1;
     }
 
+    /**
+     * 未实现
+     */
     @Override
     public double unkZXF(String preWord, int currTag) {
         return 1.0;

@@ -35,7 +35,7 @@ public class AbstractParasTest {
 
         int word_xuexi=paras.getDictionary().getWordId("学习");
         //发射概率进行了+1平滑，发射计数矩阵中，v-->学习：（2+1）/（2+6）=0.375
-        assertEquals(0.375,paras.getProbB(true,tag_v,word_xuexi),0.001);
+        assertEquals(0.375,paras.getProbB(tag_v,word_xuexi),0.001);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class AbstractParasTest {
 
         int word_xuexi=paras.getDictionary().getWordId("学习");
         //发射概率进行了+1平滑，发射计数矩阵中，v-->学习：（2+1）/（2+7）=0.333...
-        assertEquals(0.333,paras.getProbB(true,tag_v,word_xuexi),0.001);
+        assertEquals(0.333,paras.getProbB(tag_v,word_xuexi),0.001);
     }
 
 
