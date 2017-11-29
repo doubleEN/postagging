@@ -7,10 +7,8 @@ import com.rui.stream.WordTagStream;
 
 import static com.rui.util.GlobalParas.logger;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -305,13 +303,13 @@ public abstract class AbstractParas implements Serializable {
     /**
      * 未登录词概率
      */
-    public double getUnkProb(String preWord,int currTag){
+    public double getUnkProb(int currTag,String... preWord){
         if (GlobalParas.UNK_INITPROB == unkHandle) {
             return this.unkInitProb(currTag);
         } else if (GlobalParas.UNK_MAXPROB == this.unkHandle) {
             return this.unkMaxProb();
         } else if (GlobalParas.UNK_ZXF == this.unkHandle) {
-            return unkZXF(preWord, currTag);
+            return unkZXF(currTag,preWord);
         } else {
             throw new IllegalArgumentException("未提供有效未登录词处理参数。");
         }
@@ -333,6 +331,6 @@ public abstract class AbstractParas implements Serializable {
     /**
      * 张孝飞未登录词处理
      */
-    protected abstract double unkZXF(String preWord, int currTag);
+    protected abstract double unkZXF( int currTag,String... preWord);
 
 }

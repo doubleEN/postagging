@@ -13,7 +13,6 @@ import javax.swing.text.html.HTML;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.Arrays;
 
 import static com.rui.util.GlobalParas.logger;
 
@@ -70,7 +69,6 @@ public class Tagger {
      * @return          k个局部最优标注
      */
     public WordTag[][] tagTopK(String sentences, int k) {
-
         //处理k大于标注集大小的边界问题
         int sizeOfTags = this.hmm.getHmmParas().getDictionary().getSizeOfTags();
         if (k > sizeOfTags) {

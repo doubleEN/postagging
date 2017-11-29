@@ -4,8 +4,8 @@ import com.rui.dictionary.DictFactory;
 import com.rui.util.GlobalMethods;
 import com.rui.util.GlobalParas;
 import com.rui.wordtag.WordTag;
-import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.stream.WordTagStream;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 
 import java.io.IOException;
 
@@ -318,11 +318,120 @@ public class TrigramParas extends AbstractParas {
     }
 
     /**
-     * 未实现
+     * 张孝飞未登录词处理
+     *
+     * 三元改写 P(x_k|c_k)=1/C(c_k)* ∑m,n[C(w_k-2 c_n)/C(w_k-2)*C(w_k-1 c_m)/C(w_k-1)*C(c_n c_m c_k)/C(c_n c_m)]
+     *
+     * @param preWord 前一个观察状态
+     * @param currTag 当前观察状态的隐藏状态
+     * @return 隐藏状态为currTag的发射概率
      */
     @Override
-    public double unkZXF(String preWord, int currTag) {
-        return 1.0;
+    public double unkZXF(int currTag, String... preWord) {
+
+        if (preWord == null) {
+            return 1.0;
+        }
+        if (preWord.length <1) {
+            throw new IllegalArgumentException("unkZXF处理时，观察状态数不合法。");
+        }
+        //前一个词的频数
+        double word_i = 0.0;
+        if (this.dictionary.getWordId(preWord[0]) == null) {
+            word_i = this.dictionary.getSizeOfTags();
+        } else {
+            for (int tag = 0; tag < this.dictionary.getSizeOfTags(); ++tag) {
+                word_i += this.numMatB[tag][this.dictionary.getWordId(preWord[0])];
+            }
+        }
+        double sum = 0.0;
+        for (int tag = 0; tag < this.dictionary.getSizeOfTags(); ++tag) {
+            double part = 0;
+            if (this.dictionary.getWordId(preWord[0]) == null) {
+                part = (1 / (double) word_i) * this.biProbMatA[tag][currTag];
+            } else {
+                part = (this.numMatB[tag][this.dictionary.getWordId(preWord[0])] / (double) word_i) * this.biProbMatA[tag][currTag];
+            }
+            sum += part;
+        }
+        return sum / this.numPi[currTag];
+//
+//        if (preWord == null) {
+//            return 1.0;
+//        }
+//        if (preWord.length < 1) {
+//            throw new IllegalArgumentException("unkZXF处理时，观察状态数不合法。");
+//        }
+//
+//        //前两个词的频数
+//        double word_i = 0.0;
+//        double word_j = 0.0;
+//        if (this.dictionary.getWordId(preWord[0]) == null) {
+//            word_i = this.dictionary.getSizeOfTags();
+//        } else {
+//            for (int tag = 0; tag < this.dictionary.getSizeOfTags(); ++tag) {
+//                word_i += this.numMatB[tag][this.dictionary.getWordId(preWord[0])];
+//            }
+//        }
+//
+//        double tagCount=0;
+//        for (int num : this.numPi) {
+//            tagCount += num;
+//        }
+//
+//        double sum = 0.0;
+//        if (preWord.length == 1) {
+//            for (int n = 0; n < this.dictionary.getSizeOfTags(); ++n) {
+//                double word_j_p = 0;
+//                double part = 0;
+//                if (this.dictionary.getWordId(preWord[0]) == null) {
+//                    word_j_p = (1 / (double) word_j);
+//                } else {
+//                    word_j_p = this.numMatB[n][this.dictionary.getWordId(preWord[0])] / (double) word_j;
+//                }
+//                if (this.biProbMatA[n][currTag] == 0) {
+//                    part = word_j_p * (1 / tagCount);
+//                } else {
+//                    part = word_j_p * this.biProbMatA[n][currTag];
+//                }
+//                sum += part;
+//            }
+//            return sum / this.numPi[currTag];
+//        }
+//
+//        if (this.dictionary.getWordId(preWord[1]) == null) {
+//            word_j = this.dictionary.getSizeOfTags();
+//        } else {
+//            for (int tag = 0; tag < this.dictionary.getSizeOfTags(); ++tag) {
+//                word_j += this.numMatB[tag][this.dictionary.getWordId(preWord[1])];
+//            }
+//        }
+//
+//        for (int n = 0; n < this.dictionary.getSizeOfTags(); ++n) {
+//            for (int m = 0; m < this.dictionary.getSizeOfTags(); ++m) {
+//                double word_i_p = 0;
+//                double word_j_p = 0;
+//                double part = 0;
+//                if (this.dictionary.getWordId(preWord[0]) == null) {
+//                    word_i_p = (1 / (double) word_i);
+//                } else {
+//                    word_i_p = this.numMatB[n][this.dictionary.getWordId(preWord[0])] / (double) word_i;
+//                }
+//                if (this.dictionary.getWordId(preWord[1]) == null) {
+//                    word_j_p = (1 / (double) word_j);
+//                } else {
+//                    word_j_p = this.numMatB[m][this.dictionary.getWordId(preWord[1])] / (double) word_j;
+//                }
+//
+//                if (this.triProbMatA[n][m][currTag] == 0) {
+//                    part = word_i_p * word_j_p * (1 / tagCount / tagCount);
+//                } else {
+//                    part = word_i_p * word_j_p * this.triProbMatA[n][m][currTag];
+//                }
+//                sum += part;
+//            }
+//        }
+//        return sum / this.numPi[currTag];
     }
 
 }

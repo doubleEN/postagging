@@ -2,7 +2,6 @@ package com.rui.model;
 
 import com.rui.parameter.AbstractParas;
 import com.rui.parameter.BigramParas;
-import com.rui.parameter.TrigramParas;
 import com.rui.stream.PeopleDailyWordTagStream;
 import com.rui.tagger.Tagger;
 import com.rui.wordtag.WordTag;
@@ -137,7 +136,7 @@ public class HMM2nd extends HMM {
                 if (this.hmmParas.getDictionary().getWordId(words[0]) != null) {
                     launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[0])));
                 } else {
-                    launchProb=Math.log(this.hmmParas.getUnkProb(null,tag_k));
+                    launchProb = Math.log(this.hmmParas.getUnkProb(tag_k, null));
                 }
 
                 double val = Math.log(this.hmmParas.getProbPi(tag_k)) + launchProb;
@@ -156,13 +155,13 @@ public class HMM2nd extends HMM {
 
                 double launchProb = 0;
                 if (this.hmmParas.getDictionary().getWordId(words[1]) != null) {
-                    launchProb = Math.log(this.hmmParas.getProbB( tag_k, this.hmmParas.getDictionary().getWordId(words[1])));
+                    launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[1])));
                 } else {
-                    launchProb=Math.log(this.hmmParas.getUnkProb(words[1],tag_k));
+                    launchProb = Math.log(this.hmmParas.getUnkProb(tag_k, words[1]));
                 }
 
                 for (int rank = 0; rank < topK; ++rank) {
-                    midProb[1][rank][tag_j][tag_k] = midProb[0][rank][0][tag_j] + Math.log(this.hmmParas.getProbA(true,tag_j, tag_k)) + launchProb;
+                    midProb[1][rank][tag_j][tag_k] = midProb[0][rank][0][tag_j] + Math.log(this.hmmParas.getProbA(true, tag_j, tag_k)) + launchProb;
                 }
             }
         }
@@ -183,7 +182,7 @@ public class HMM2nd extends HMM {
                             //当tag_j,tag_k固定的情况下，计算并记录转移到tag_k的前topK个概率
                             //概率转移：[i,j]--> k
 
-                            tempArr[rank][tag_i] = midProb[wordIndex - 1][rank][tag_i][tag_j] + Math.log(this.hmmParas.getProbA(true,tag_i, tag_j, tag_k));
+                            tempArr[rank][tag_i] = midProb[wordIndex - 1][rank][tag_i][tag_j] + Math.log(this.hmmParas.getProbA(true, tag_i, tag_j, tag_k));
                         }
                     }
 
@@ -211,16 +210,16 @@ public class HMM2nd extends HMM {
                         if (this.hmmParas.getDictionary().getWordId(words[wordIndex]) != null) {
                             launchProb = Math.log(this.hmmParas.getProbB(tag_k, this.hmmParas.getDictionary().getWordId(words[wordIndex])));
                         } else {
-                            launchProb=Math.log(this.hmmParas.getUnkProb(words[wordIndex-1],tag_k));
+                            launchProb = Math.log(this.hmmParas.getUnkProb(tag_k, words[wordIndex - 2], words[wordIndex - 1]));
                         }
                         midProb[wordIndex][rankCount][tag_j][tag_k] = maxProb + launchProb;
 
                         //重构版本为什么总是在最后一个节点向下溢出
-                        for (int i=0;i<topK;++i) {
-                            for (int j=0;j<sizeOfTags;++j) {
+                        for (int i = 0; i < topK; ++i) {
+                            for (int j = 0; j < sizeOfTags; ++j) {
                                 if (tempArr[max_rank][max_i] == tempArr[i][j]) {
                                     //排除已找到的最大概率
-                                    tempArr[i][j]=Math.log(0);
+                                    tempArr[i][j] = Math.log(0);
                                 }
                             }
                         }

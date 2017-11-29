@@ -199,27 +199,37 @@ public class BigramParas extends AbstractParas {
         }
     }
 
+    /**
+     * 张孝飞登录词处理：P(x_j|c_j)=1/C(c_j)* ∑m[C(w_j-1 c_m)/C(w_j-1)*C(c_m c_j)/C(c_m)]
+     * @param preWord 前一个观察状态
+     * @param currTag 当前观察状态的隐藏状态
+     * @return 隐藏状态为currTag的发射概率
+     */
     @Override
-    public double unkZXF(String preWord, int currTag) {
+    public double unkZXF(int currTag,String... preWord) {
+
         if (preWord == null) {
             return 1.0;
         }
+        if (preWord.length !=1) {
+            throw new IllegalArgumentException("unkZXF处理时，观察状态数不合法。");
+        }
         //前一个词的频数
         double word_i = 0.0;
-        if (this.dictionary.getWordId(preWord) == null) {
+        if (this.dictionary.getWordId(preWord[0]) == null) {
             word_i = this.dictionary.getSizeOfTags();
         } else {
             for (int tag = 0; tag < this.dictionary.getSizeOfTags(); ++tag) {
-                word_i += this.numMatB[tag][this.dictionary.getWordId(preWord)];
+                word_i += this.numMatB[tag][this.dictionary.getWordId(preWord[0])];
             }
         }
         double sum = 0.0;
         for (int tag = 0; tag < this.dictionary.getSizeOfTags(); ++tag) {
             double part = 0;
-            if (this.dictionary.getWordId(preWord) == null) {
-                part = (1 / (double) word_i) * (this.numMatA[tag][currTag] / (double) this.numPi[tag]);
+            if (this.dictionary.getWordId(preWord[0]) == null) {
+                part = (1 / (double) word_i) * this.probMatA[tag][currTag];
             } else {
-                part = (this.numMatB[tag][this.dictionary.getWordId(preWord)] / (double) word_i) * this.probMatA[tag][currTag];
+                part = (this.numMatB[tag][this.dictionary.getWordId(preWord[0])] / (double) word_i) * this.probMatA[tag][currTag];
             }
             sum += part;
         }

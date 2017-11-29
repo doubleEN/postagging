@@ -1,6 +1,5 @@
 package com.rui.model;
 
-import com.rui.dictionary.DictFactory;
 import com.rui.parameter.AbstractParas;
 
 import java.io.*;
