@@ -36,7 +36,8 @@ public class HMM1st extends HMM {
         this.lastLayerProbs = new double[topK][sizeOfTags];
 
         this.forward(words, topK);
-
+        
+        //基于动态规划，只需要存储每个时间点上的概率，不需要全部保留，待重构
         int[][] bestKSequence = new int[topK][lenOfSentence];
 
         for (int rank = 0; rank < topK; ++rank) {
